@@ -1,1 +1,728 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAY JAM 2026 — 사주 배틀 랭킹</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;800;900&family=Space+Grotesk:wght@500;700&display=swap');
+:root {
+  --bg:#0d0f14; --surface:#161921; --surface2:#1e2230; --surface3:#272b3a;
+  --border:#2a2f42; --border2:#363c52;
+  --text:#e4e2dc; --text2:#8a8fa6; --text3:#5a5f76;
+  --gold:#f0c040; --gold-dim:#a08020;
+  --stat-money:#ffd740; --stat-play:#ff6090; --stat-lead:#8070ff;
+  --stat-study:#40d8c0; --stat-solo:#ff7040;
+  --wood:#50b060; --fire:#e05050; --earth:#d0a040; --metal:#a0a0b0; --water:#5080d0;
+  --radius:10px; --gap:14px; --panel-w:340px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
+/* ── Header ── */
+.header{background:var(--surface);border-bottom:2px solid var(--gold-dim);padding:12px 24px;display:flex;align-items:center;gap:12px}
+.header h1{font-family:'Space Grotesk',sans-serif;font-size:20px;color:var(--gold);letter-spacing:-.5px}
+.header .sub{font-size:11px;color:var(--text2)}
+.header .ver{font-size:10px;color:var(--text3);margin-left:auto}
+
+/* ── Layout ── */
+.main{display:grid;grid-template-columns:var(--panel-w) minmax(320px,1fr) minmax(320px,1fr);height:calc(100vh - 50px)}
+@media(max-width:1060px){.main{grid-template-columns:1fr;height:auto}}
+.panel{border-right:1px solid var(--border);padding:var(--gap);overflow-y:auto;background:var(--surface)}
+.panel:last-child{border-right:none}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-track{background:transparent}
+.panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.section-title{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:var(--gap);padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ── Forms ── */
+label{display:block;font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:600}
+input,select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit;outline:none;transition:border .2s}
+input:focus,select:focus{border-color:var(--gold)}
+.row{display:flex;gap:8px;margin-bottom:10px}
+.row>*{flex:1}
+.field{margin-bottom:10px}
+.divider{border:none;border-top:1px solid var(--border);margin:var(--gap) 0}
+.opt-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.opt-row label{display:inline-flex;align-items:center;gap:4px;margin-bottom:0;cursor:pointer;white-space:nowrap}
+.opt-row input[type="radio"]{width:auto;margin:0;accent-color:var(--gold)}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;width:100%}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#d4a020);color:#111;box-shadow:0 2px 12px #f0c04030}
+.btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-gold:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-sub{background:var(--surface3);color:var(--text);border:1px solid var(--border2)}
+.btn-sub:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:6px 10px;font-size:11px}
+.btn-fight{background:linear-gradient(135deg,#e05050,#ff4040);color:#fff;font-size:16px;letter-spacing:2px;box-shadow:0 2px 16px #ff404040}
+.btn-fight:hover{filter:brightness(1.15);transform:translateY(-1px)}
+
+/* ── Saju Card ── */
+.saju-card{background:var(--surface2);border-radius:var(--radius);padding:var(--gap);margin-bottom:var(--gap);border:1px solid var(--border)}
+.pillar-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pillar{text-align:center;background:var(--surface3);border-radius:8px;padding:8px 4px;border:1px solid var(--border);min-height:72px}
+.pillar .lbl{font-size:9px;color:var(--text3);margin-bottom:3px}
+.pillar .gan{font-size:18px;font-weight:900;line-height:22px}
+.pillar .ji{font-size:18px;font-weight:800;line-height:22px}
+.pillar .info{font-size:9px;color:var(--text2);margin-top:2px}
+.oh-wood{color:var(--wood)!important}.oh-fire{color:var(--fire)!important}
+.oh-earth{color:var(--earth)!important}.oh-metal{color:var(--metal)!important}
+.oh-water{color:var(--water)!important}
+
+/* ── Stat Bars ── */
+.stat-group{margin-bottom:var(--gap)}
+.stat-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.stat-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.stat-label{width:52px;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0}
+.stat-bar-bg{flex:1;height:22px;background:var(--surface3);border-radius:11px;overflow:hidden;position:relative}
+.stat-bar-fill{height:100%;border-radius:11px;transition:width .6s cubic-bezier(.22,1,.36,1);position:relative}
+.stat-bar-fill::after{content:attr(data-val);position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:800;color:#111}
+.stat-total{margin-top:4px;padding:10px;background:var(--surface3);border-radius:var(--radius);text-align:center;border:1px solid var(--border)}
+.stat-total .num{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;color:var(--gold)}
+.stat-total .txt{font-size:11px;color:var(--text2)}
+
+/* ── Job Grid ── */
+.job-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:var(--gap)}
+.job-btn{padding:8px 4px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit}
+.job-btn:hover{border-color:var(--gold-dim);color:var(--text)}
+.job-btn.active{border-color:var(--gold);background:var(--gold);color:#111}
+.job-btn .cat{font-size:9px;color:var(--text3);display:block;margin-top:1px}
+.job-btn.active .cat{color:#333}
+.job-match-card{padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);text-align:center;margin-bottom:var(--gap)}
+.job-match-pct{font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:700}
+.job-match-msg{font-size:12px;color:var(--text2);margin-top:4px}
+.job-match-rec{font-size:11px;color:var(--gold);margin-top:6px}
+
+/* ── Tabs ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:var(--gap)}
+.tab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;background:var(--surface2);color:var(--text3);border:1px solid transparent;transition:all .15s}
+.tab:hover{color:var(--text)}
+.tab.active{background:var(--surface3);color:var(--gold);border-color:var(--gold-dim)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ── Ranking ── */
+.rank-filter{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.rank-filter button{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:10px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s}
+.rank-filter button:hover{color:var(--text)}
+.rank-filter button.active{border-color:var(--gold);color:var(--gold);background:var(--surface3)}
+.rank-table{width:100%;border-collapse:collapse}
+.rank-table th{font-size:10px;color:var(--text3);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)}
+.rank-table td{font-size:12px;padding:8px;border-bottom:1px solid var(--border)}
+.rank-table tr:hover td{background:var(--surface2)}
+.rank-num{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--gold);width:28px}
+.rank-name{font-weight:700}
+.rank-score{font-family:'Space Grotesk',sans-serif;font-weight:700;text-align:right}
+.rank-empty{text-align:center;padding:40px;color:var(--text3);font-size:12px}
+
+/* ── Battle ── */
+.battle-input{margin-bottom:var(--gap)}
+.battle-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start;margin-bottom:var(--gap)}
+.battle-card{background:var(--surface2);border-radius:var(--radius);padding:14px;border:1px solid var(--border);text-align:center}
+.battle-card .name{font-size:14px;font-weight:800;margin-bottom:4px}
+.battle-card .ilju{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:8px}
+.battle-oh{display:flex;justify-content:center;gap:4px;margin-top:6px}
+.battle-oh span{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700}
+.battle-vs-text{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--fire);align-self:center;text-shadow:0 0 20px #e0505060}
+.battle-result{text-align:center;padding:20px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
+.battle-winner{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:4px}
+.battle-comment{font-size:12px;color:var(--text2)}
+.battle-scores{display:flex;justify-content:center;gap:40px;margin-top:10px}
+.battle-scores .sc{text-align:center}
+.battle-scores .sc .num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700}
+.battle-scores .sc .lbl{font-size:10px;color:var(--text3)}
+
+/* ── Five Elements Bar ── */
+.oh-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:6px 0}
+.oh-bar span{transition:width .4s}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:#111;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+
+/* ── Misc ── */
+.hidden{display:none!important}
+.placeholder{color:var(--text3);font-size:12px;text-align:center;padding:24px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏆 PLAY JAM 2026</h1>
+  <span class="sub">사주 배틀 랭킹</span>
+  <span class="ver">v1.0</span>
+</div>
+
+<div class="main">
+
+<!-- ═══ LEFT: 입력 ═══ -->
+<div class="panel">
+  <div class="section-title">🎮 참가 정보</div>
+  <div class="field"><label>닉네임</label><input type="text" id="inName" placeholder="이름 또는 닉네임" maxlength="12"></div>
+  <div class="row">
+    <div class="field"><label>생년</label><input type="number" id="inYear" value="1995" min="1920" max="2010"></div>
+    <div class="field"><label>월</label>
+      <select id="inMonth"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option></select>
+    </div>
+    <div class="field"><label>일</label><select id="inDay"></select></div>
+  </div>
+  <div class="opt-row">
+    <label><input type="radio" name="cal" value="solar" checked> 양력</label>
+    <label><input type="radio" name="cal" value="lunar"> 음력</label>
+  </div>
+  <div class="row">
+    <div class="field"><label>시</label>
+      <select id="inHour"><option value="-1">모름</option></select>
+    </div>
+    <div class="field"><label>분</label>
+      <select id="inMin"><option value="0">00</option></select>
+    </div>
+    <div class="field"><label>성별</label>
+      <select id="inGender"><option value="남">남</option><option value="여">여</option></select>
+    </div>
+  </div>
+  <button class="btn btn-gold" id="btnCalc" onclick="doCalc()">🔮 사주 분석</button>
+
+  <hr class="divider">
+  <div class="section-title">💼 현재 직군</div>
+  <div class="job-grid" id="jobGrid"></div>
+
+  <button class="btn btn-gold" id="btnRegister" onclick="doRegister()" disabled>📋 랭킹 등록</button>
+</div>
+
+<!-- ═══ CENTER: 결과 ═══ -->
+<div class="panel" id="panelResult">
+  <div class="section-title">📊 분석 결과</div>
+  <div id="resultArea">
+    <div class="placeholder">사주를 분석하면 여기에 결과가 표시됩니다</div>
+  </div>
+</div>
+
+<!-- ═══ RIGHT: 랭킹 / 배틀 ═══ -->
+<div class="panel">
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('ranking',this)">🏅 랭킹</div>
+    <div class="tab" onclick="switchTab('battle',this)">⚔️ 배틀</div>
+  </div>
+
+  <div class="tab-content active" id="tabRanking">
+    <div class="rank-filter" id="rankCatFilter"></div>
+    <div class="rank-filter" id="rankJobFilter"></div>
+    <div id="rankTable"><div class="rank-empty">아직 등록된 참가자가 없습니다</div></div>
+  </div>
+
+  <div class="tab-content" id="tabBattle">
+    <div class="section-title">⚔️ 오행 배틀</div>
+    <p style="font-size:11px;color:var(--text2);margin-bottom:var(--gap)">상대방 생년월일을 입력하고 대전하세요!</p>
+    <div class="battle-input">
+      <div class="row">
+        <div class="field"><label>상대 생년</label><input type="number" id="bYear" value="1990" min="1920" max="2010"></div>
+        <div class="field"><label>월</label><select id="bMonth"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option></select></div>
+        <div class="field"><label>일</label><select id="bDay"></select></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>시</label><select id="bHour"><option value="-1">모름</option></select></div>
+        <div class="field"><label>성별</label><select id="bGender"><option value="남">남</option><option value="여">여</option></select></div>
+      </div>
+      <button class="btn btn-fight" onclick="doBattle()">⚔️ FIGHT!</button>
+    </div>
+    <div id="battleResult"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import { calculateSaju } from 'https://cdn.jsdelivr.net/npm/ssaju@0.2.0/dist/index.mjs';
+window._ssaju = calculateSaju;
+</script>
+
+<script>
+// ═══════════════════════════════════════
+//  전역 상태
+// ═══════════════════════════════════════
+const S = { saju: null, stats: null, job: null, name: '' };
+const LS_KEY = 'playjam_players';
+
+const ELEM_COLOR = {목:'var(--wood)',화:'var(--fire)',토:'var(--earth)',금:'var(--metal)',수:'var(--water)'};
+const OC = {木:'oh-wood',火:'oh-fire',土:'oh-earth',金:'oh-metal',水:'oh-water',목:'oh-wood',화:'oh-fire',토:'oh-earth',금:'oh-metal',수:'oh-water'};
+const ELEM_MAP = {'甲':'목','乙':'목','丙':'화','丁':'화','戊':'토','己':'토','庚':'금','辛':'금','壬':'수','癸':'수','子':'수','丑':'토','寅':'목','卯':'목','辰':'토','巳':'화','午':'화','未':'토','申':'금','酉':'금','戌':'토','亥':'수'};
+
+// ═══ 직군 데이터 ═══
+const JOBS = [
+  {id:'ui',name:'UI 디자인',cat:'디자인'},{id:'char',name:'캐릭터 원화',cat:'디자인'},
+  {id:'bg',name:'배경 원화',cat:'디자인'},{id:'motion',name:'모션/이펙트',cat:'디자인'},
+  {id:'marketing',name:'마케팅',cat:'사업'},{id:'biz',name:'사업/BM',cat:'사업'},
+  {id:'plan',name:'기획',cat:'기획'},{id:'level',name:'레벨 디자인',cat:'기획'},
+  {id:'client',name:'클라이언트',cat:'개발'},{id:'server',name:'서버',cat:'개발'},
+  {id:'qa',name:'QA',cat:'개발'},{id:'sound',name:'사운드',cat:'디자인'}
+];
+
+const JOB_MAP = {
+  ui:{primary:'독립력',secondary:'놀기력'}, char:{primary:'놀기력',secondary:'학습력'},
+  bg:{primary:'놀기력',secondary:'재물력'}, motion:{primary:'놀기력',secondary:'독립력'},
+  marketing:{primary:'재물력',secondary:'놀기력'}, biz:{primary:'재물력',secondary:'리더력'},
+  plan:{primary:'리더력',secondary:'학습력'}, level:{primary:'독립력',secondary:'리더력'},
+  client:{primary:'독립력',secondary:'놀기력'}, server:{primary:'학습력',secondary:'리더력'},
+  qa:{primary:'리더력',secondary:'학습력'}, sound:{primary:'놀기력',secondary:'학습력'}
+};
+
+const STAT_META = [
+  {key:'재물력',icon:'💰',color:'var(--stat-money)'},
+  {key:'놀기력',icon:'🎉',color:'var(--stat-play)'},
+  {key:'리더력',icon:'👑',color:'var(--stat-lead)'},
+  {key:'학습력',icon:'🧠',color:'var(--stat-study)'},
+  {key:'독립력',icon:'⚔️',color:'var(--stat-solo)'}
+];
+
+const RANK_CATS = [{key:'종합전투력',label:'🔥 종합'},...STAT_META.map(s=>({key:s.key,label:s.icon+' '+s.key}))];
+
+// ═══════════════════════════════════════
+//  초기화
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  buildDayOpts('inMonth','inDay');
+  buildDayOpts('bMonth','bDay');
+  buildHourOpts('inHour');
+  buildHourOpts('bHour');
+  buildMinOpts('inMin');
+  renderJobGrid();
+  renderRankFilters();
+  renderRanking();
+
+  document.getElementById('inMonth').onchange = () => buildDayOpts('inMonth','inDay');
+  document.getElementById('inYear').onchange = () => buildDayOpts('inMonth','inDay');
+  document.getElementById('bMonth').onchange = () => buildDayOpts('bMonth','bDay');
+  document.getElementById('bYear').onchange = () => buildDayOpts('bMonth','bDay');
+});
+
+function buildDayOpts(mId, dId) {
+  const m = +document.getElementById(mId).value;
+  const sel = document.getElementById(dId);
+  const prev = sel.value;
+  const days = [31,29,31,30,31,30,31,31,30,31,30,31][m-1];
+  sel.innerHTML = '';
+  for(let i=1;i<=days;i++){const o=document.createElement('option');o.value=i;o.text=i;sel.add(o);}
+  if(prev && prev<=days) sel.value=prev;
+}
+function buildHourOpts(id) {
+  const sel = document.getElementById(id);
+  for(let i=0;i<24;i++){const o=document.createElement('option');o.value=i;o.text=String(i).padStart(2,'0');sel.add(o);}
+}
+function buildMinOpts(id) {
+  const sel = document.getElementById(id);
+  for(let i=0;i<60;i+=10){const o=document.createElement('option');o.value=i;o.text=String(i).padStart(2,'0');sel.add(o);}
+}
+
+// ═══════════════════════════════════════
+//  직군 그리드
+// ═══════════════════════════════════════
+function renderJobGrid() {
+  document.getElementById('jobGrid').innerHTML = JOBS.map(j =>
+    `<button class="job-btn" data-id="${j.id}" onclick="selectJob(this,'${j.id}')">${j.name}<span class="cat">${j.cat}</span></button>`
+  ).join('');
+}
+window.selectJob = function(el, id) {
+  document.querySelectorAll('.job-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  S.job = id;
+  updateRegisterBtn();
+  if(S.stats) renderJobMatch();
+};
+
+// ═══════════════════════════════════════
+//  만세력 계산
+// ═══════════════════════════════════════
+window.doCalc = function() {
+  if (!window._ssaju) { toast('⏳ 라이브러리 로딩 중...'); return; }
+
+  const hourVal = +document.getElementById('inHour').value;
+  const r = window._ssaju({
+    year: +document.getElementById('inYear').value,
+    month: +document.getElementById('inMonth').value,
+    day: +document.getElementById('inDay').value,
+    hour: hourVal === -1 ? 12 : hourVal,
+    minute: hourVal === -1 ? 0 : +document.getElementById('inMin').value,
+    gender: document.getElementById('inGender').value,
+    calendar: document.querySelector('input[name="cal"]:checked').value === 'solar' ? 'solar' : 'lunar'
+  });
+
+  S.saju = r;
+  S.name = document.getElementById('inName').value.trim() || '익명';
+  S.stats = calcStats(r);
+  renderResult();
+  updateRegisterBtn();
+  toast('✅ 사주 분석 완료');
+};
+
+function calcSajuRaw(year,month,day,hour,gender) {
+  return window._ssaju({year,month,day,hour:hour===-1?12:hour,minute:0,gender,calendar:'solar'});
+}
+
+// ═══════════════════════════════════════
+//  십성 → 스탯
+// ═══════════════════════════════════════
+function countTenGods(r) {
+  const count = {};
+  ['year','month','day','hour'].forEach(p => {
+    if(r.tenGods && r.tenGods[p]) {
+      [r.tenGods[p].stem, r.tenGods[p].branch].forEach(tg => {
+        if(tg && tg !== '(일간)' && tg !== '일간') count[tg] = (count[tg]||0)+1;
+      });
+    }
+  });
+  return count;
+}
+
+function calcStats(r) {
+  const tg = countTenGods(r);
+  const base = {
+    재물력: (tg['편재']||0)+(tg['정재']||0),
+    놀기력: (tg['식신']||0)+(tg['상관']||0),
+    리더력: (tg['편관']||0)+(tg['정관']||0),
+    학습력: (tg['편인']||0)+(tg['정인']||0),
+    독립력: (tg['비견']||0)+(tg['겁재']||0)
+  };
+
+  // 격국 보너스
+  const gk = r.advanced?.geukguk || '';
+  if(gk.includes('재')) base.재물력 += 2;
+  else if(gk.includes('식상')) base.놀기력 += 2;
+  else if(gk.includes('관')) base.리더력 += 2;
+  else if(gk.includes('인수')||gk.includes('인성')) base.학습력 += 2;
+  else if(gk.includes('비겁')) base.독립력 += 2;
+
+  // 강약 보정
+  const str = r.advanced?.dayStrength?.strength;
+  if(str === 'strong') base.독립력 += 1;
+  else if(str === 'weak') base.학습력 += 1;
+
+  // 스케일링 0~100
+  const max = 10;
+  const scaled = {};
+  for(const [k,v] of Object.entries(base)) {
+    scaled[k] = Math.round(Math.min(v/max, 1)*100);
+  }
+  scaled.종합전투력 = Math.round(
+    scaled.재물력*0.2 + scaled.놀기력*0.2 + scaled.리더력*0.25 + scaled.학습력*0.15 + scaled.독립력*0.2
+  );
+  return scaled;
+}
+
+function getOhFromResult(r) {
+  // fiveElements가 있으면 사용, 없으면 pillarDetails에서 추출
+  if(r.fiveElements) return r.fiveElements;
+  const oh = {목:0,화:0,토:0,금:0,수:0};
+  ['year','month','day','hour'].forEach(k => {
+    const pd = r.pillarDetails?.[k];
+    if(!pd) return;
+    const se = ELEM_MAP[pd.stem]; if(se) oh[se]++;
+    const be = ELEM_MAP[pd.branch]; if(be) oh[be]++;
+  });
+  return oh;
+}
+
+// ═══════════════════════════════════════
+//  결과 렌더링
+// ═══════════════════════════════════════
+function renderResult() {
+  const r = S.saju;
+  const st = S.stats;
+  if(!r||!st) return;
+
+  const pd = r.pillarDetails;
+  const keys = ['hour','day','month','year'];
+  const labels = ['시주','일주','월주','년주'];
+  const ilju = (pd?.day?.stem||'?')+(pd?.day?.branch||'?');
+
+  let html = '';
+
+  // 사주 카드
+  html += '<div class="saju-card"><div class="pillar-row">';
+  keys.forEach((k,i) => {
+    const p = pd?.[k];
+    const gCls = p ? (OC[ELEM_MAP[p.stem]]||'') : '';
+    const jCls = p ? (OC[ELEM_MAP[p.branch]]||'') : '';
+    html += `<div class="pillar"><div class="lbl">${labels[i]}</div>
+      <div class="gan ${gCls}">${p?.stem||'·'}</div>
+      <div class="ji ${jCls}">${p?.branch||'·'}</div>
+      <div class="info">${r.tenGods?.[k]?.stem||''}</div></div>`;
+  });
+  html += '</div>';
+
+  // 오행 바
+  const oh = getOhFromResult(r);
+  const ohTotal = Object.values(oh).reduce((a,b)=>a+b,1);
+  html += '<div class="oh-bar">';
+  for(const [e,c] of Object.entries(oh)) {
+    const pct = (c/ohTotal*100).toFixed(1);
+    html += `<span style="width:${pct}%;background:${ELEM_COLOR[e]}" title="${e} ${c}"></span>`;
+  }
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:center;gap:10px;margin-top:4px">';
+  for(const [e,c] of Object.entries(oh)) {
+    html += `<span style="font-size:10px;color:${ELEM_COLOR[e]}">${e}${c}</span>`;
+  }
+  html += '</div></div>';
+
+  // 일주 표시
+  html += `<div style="text-align:center;margin-bottom:var(--gap)">
+    <span style="font-size:11px;color:var(--text2)">일주</span>
+    <span style="font-size:24px;font-weight:900;color:var(--gold);margin-left:6px">${ilju}</span>
+    <span style="font-size:11px;color:var(--text2);margin-left:8px">격국: ${r.advanced?.geukguk||'—'}</span>
+  </div>`;
+
+  // 스탯 바
+  html += '<div class="stat-group">';
+  STAT_META.forEach(s => {
+    const val = st[s.key];
+    html += `<div class="stat-row">
+      <div class="stat-icon">${s.icon}</div>
+      <div class="stat-label">${s.key}</div>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${val}%;background:${s.color}" data-val="${val}"></div></div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // 종합 전투력
+  html += `<div class="stat-total">
+    <div class="txt">종합 전투력</div>
+    <div class="num">${st.종합전투력}</div>
+  </div>`;
+
+  // 직군 적성
+  html += '<div id="jobMatchArea"></div>';
+
+  document.getElementById('resultArea').innerHTML = html;
+
+  // 직군 선택돼 있으면 적성도 렌더
+  if(S.job) renderJobMatch();
+}
+
+function renderJobMatch() {
+  const area = document.getElementById('jobMatchArea');
+  if(!area || !S.stats || !S.job) return;
+
+  const map = JOB_MAP[S.job];
+  const score = Math.round(S.stats[map.primary]*0.7 + S.stats[map.secondary]*0.3);
+  const jobName = JOBS.find(j=>j.id===S.job)?.name || S.job;
+
+  // 추천 직군 (가장 높은 일치율)
+  let bestJob = '', bestScore = 0;
+  JOBS.forEach(j => {
+    const m = JOB_MAP[j.id];
+    const sc = Math.round(S.stats[m.primary]*0.7 + S.stats[m.secondary]*0.3);
+    if(sc > bestScore) { bestScore = sc; bestJob = j.name; }
+  });
+
+  let msg = '', color = '';
+  if(score >= 80) { msg = '천직이에요! 🔥'; color = 'var(--gold)'; }
+  else if(score >= 60) { msg = '꽤 잘 맞아요 👍'; color = 'var(--stat-study)'; }
+  else if(score >= 40) { msg = '나쁘지 않아요 🤔'; color = 'var(--text)'; }
+  else if(score >= 20) { msg = '음... 전직 고려? 😅'; color = 'var(--stat-play)'; }
+  else { msg = '도망쳐!!! 🏃💨'; color = 'var(--fire)'; }
+
+  area.innerHTML = `<hr class="divider">
+    <div class="section-title">🎯 직군 적성</div>
+    <div class="job-match-card">
+      <div style="font-size:12px;color:var(--text2)">${jobName} 적성</div>
+      <div class="job-match-pct" style="color:${color}">${score}%</div>
+      <div class="job-match-msg">${msg}</div>
+      ${bestJob !== jobName ? `<div class="job-match-rec">추천 직군: ${bestJob} (${bestScore}%)</div>` : '<div class="job-match-rec">당신의 천직입니다!</div>'}
+    </div>`;
+}
+
+// ═══════════════════════════════════════
+//  등록
+// ═══════════════════════════════════════
+function updateRegisterBtn() {
+  document.getElementById('btnRegister').disabled = !(S.stats && S.job);
+}
+
+window.doRegister = function() {
+  if(!S.stats || !S.job) return;
+
+  const pd = S.saju.pillarDetails;
+  const ilju = (pd?.day?.stem||'')+(pd?.day?.branch||'');
+  const jobName = JOBS.find(j=>j.id===S.job)?.name || S.job;
+  const oh = getOhFromResult(S.saju);
+
+  const players = JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+  // 중복 방지: 같은 이름이면 덮어쓰기
+  const idx = players.findIndex(p => p.name === S.name);
+  const entry = {
+    name: S.name, dept: S.job, deptName: jobName,
+    ilju, stats: {...S.stats}, oh: {...oh},
+    fiveElements: oh,
+    advanced: { dayStrength: S.saju.advanced?.dayStrength || {score:50} },
+    timestamp: Date.now()
+  };
+  if(idx>=0) players[idx] = entry; else players.push(entry);
+  localStorage.setItem(LS_KEY, JSON.stringify(players));
+
+  renderRanking();
+  toast(`✅ ${S.name} 등록 완료!`);
+};
+
+// ═══════════════════════════════════════
+//  랭킹
+// ═══════════════════════════════════════
+let rankCat = '종합전투력';
+let rankJobFilter = null;
+
+function renderRankFilters() {
+  document.getElementById('rankCatFilter').innerHTML = RANK_CATS.map(c =>
+    `<button class="${c.key===rankCat?'active':''}" onclick="setRankCat('${c.key}',this)">${c.label}</button>`
+  ).join('');
+  document.getElementById('rankJobFilter').innerHTML =
+    `<button class="${!rankJobFilter?'active':''}" onclick="setRankJob(null,this)">전체</button>` +
+    [...new Set(JOBS.map(j=>j.cat))].map(cat =>
+      `<button class="${rankJobFilter===cat?'active':''}" onclick="setRankJob('${cat}',this)">${cat}</button>`
+    ).join('');
+}
+
+window.setRankCat = function(cat, el) {
+  rankCat = cat;
+  document.querySelectorAll('#rankCatFilter button').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderRanking();
+};
+window.setRankJob = function(cat, el) {
+  rankJobFilter = cat;
+  document.querySelectorAll('#rankJobFilter button').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderRanking();
+};
+
+function renderRanking() {
+  let players = JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+  if(rankJobFilter) {
+    const jobIds = JOBS.filter(j=>j.cat===rankJobFilter).map(j=>j.id);
+    players = players.filter(p => jobIds.includes(p.dept));
+  }
+  players.sort((a,b) => (b.stats[rankCat]||0) - (a.stats[rankCat]||0));
+
+  if(!players.length) {
+    document.getElementById('rankTable').innerHTML = '<div class="rank-empty">아직 등록된 참가자가 없습니다</div>';
+    return;
+  }
+
+  let html = '<table class="rank-table"><thead><tr><th>#</th><th>이름</th><th>일주</th><th>직군</th><th style="text-align:right">점수</th></tr></thead><tbody>';
+  players.forEach((p,i) => {
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    html += `<tr>
+      <td class="rank-num">${medal||i+1}</td>
+      <td class="rank-name">${p.name}</td>
+      <td style="color:var(--gold)">${p.ilju}</td>
+      <td style="color:var(--text2);font-size:11px">${p.deptName||''}</td>
+      <td class="rank-score">${p.stats[rankCat]||0}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('rankTable').innerHTML = html;
+}
+
+// ═══════════════════════════════════════
+//  배틀
+// ═══════════════════════════════════════
+window.doBattle = function() {
+  if(!S.saju) { toast('먼저 내 사주를 분석하세요'); return; }
+
+  const bR = calcSajuRaw(
+    +document.getElementById('bYear').value,
+    +document.getElementById('bMonth').value,
+    +document.getElementById('bDay').value,
+    +document.getElementById('bHour').value,
+    document.getElementById('bGender').value
+  );
+
+  const ohA = getOhFromResult(S.saju);
+  const ohB = getOhFromResult(bR);
+  const 克 = {목:'토',토:'수',수:'화',화:'금',금:'목'};
+
+  let scoreA = 0, scoreB = 0;
+  for(const [elem, target] of Object.entries(克)) {
+    scoreA += (ohA[elem]||0) * (ohB[target]||0);
+    scoreB += (ohB[elem]||0) * (ohA[target]||0);
+  }
+  scoreA += (S.saju.advanced?.dayStrength?.score||50) * 0.1;
+  scoreB += (bR.advanced?.dayStrength?.score||50) * 0.1;
+  scoreA = Math.round(scoreA * 10);
+  scoreB = Math.round(scoreB * 10);
+
+  const pdA = S.saju.pillarDetails;
+  const pdB = bR.pillarDetails;
+  const iljuA = (pdA?.day?.stem||'')+(pdA?.day?.branch||'');
+  const iljuB = (pdB?.day?.stem||'')+(pdB?.day?.branch||'');
+
+  const winner = scoreA >= scoreB ? 'A' : 'B';
+  const diff = Math.abs(scoreA - scoreB);
+
+  let comment = '';
+  if(diff < 5) comment = '팽팽한 접전! 거의 호각이네요 🤝';
+  else if(diff < 15) comment = '근소한 차이... 다음엔 모를 일! 😤';
+  else if(diff < 30) comment = '확실한 우위! 오행 궁합의 힘 💪';
+  else comment = '압도적 승리! 상극이 폭발했다 🔥';
+
+  const winnerName = winner === 'A' ? S.name : '상대';
+
+  let html = `<div class="battle-vs">
+    <div class="battle-card">
+      <div class="name">${S.name}</div>
+      <div class="ilju">${iljuA}</div>
+      ${renderOhBadges(ohA)}
+    </div>
+    <div class="battle-vs-text">VS</div>
+    <div class="battle-card">
+      <div class="name">상대</div>
+      <div class="ilju">${iljuB}</div>
+      ${renderOhBadges(ohB)}
+    </div>
+  </div>
+  <div class="battle-result">
+    <div class="battle-winner">🏆 ${winnerName} 승리!</div>
+    <div class="battle-comment">${comment}</div>
+    <div class="battle-scores">
+      <div class="sc"><div class="num" style="color:${winner==='A'?'var(--gold)':'var(--text2)'}">${scoreA}</div><div class="lbl">${S.name}</div></div>
+      <div class="sc"><div class="num" style="color:${winner==='B'?'var(--gold)':'var(--text2)'}">${scoreB}</div><div class="lbl">상대</div></div>
+    </div>
+  </div>`;
+
+  document.getElementById('battleResult').innerHTML = html;
+};
+
+function renderOhBadges(oh) {
+  let html = '<div class="battle-oh">';
+  for(const [e,c] of Object.entries(oh)) {
+    if(c>0) html += `<span style="background:${ELEM_COLOR[e]}20;color:${ELEM_COLOR[e]}">${e}${c}</span>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════════
+//  탭 전환
+// ═══════════════════════════════════════
+window.switchTab = function(tab, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tab==='ranking'?'tabRanking':'tabBattle').classList.add('active');
+};
+
+// ═══════════════════════════════════════
+//  토스트
+// ═══════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+</script>
+</body>
+</html>
