@@ -6,140 +6,46 @@
 <title>사주 MBTI</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;800;900&family=Space+Grotesk:wght@500;700&display=swap');
-:root{
-  --bg:#0d0f14;--surface:#161921;--surface2:#1e2230;--surface3:#272b3a;
-  --border:#2a2f42;--border2:#363c52;
-  --text:#e4e2dc;--text2:#8a8fa6;--text3:#5a5f76;
-  --gold:#f0c040;--gold-dim:#a08020;
-  --stat-money:#ffd740;--stat-play:#ff6090;--stat-lead:#8070ff;--stat-study:#40d8c0;--stat-solo:#ff7040;
-  --wood:#50b060;--fire:#e05050;--earth:#d0a040;--metal:#a0a0b0;--water:#5080d0;
-  --radius:10px;--gap:14px;--panel-w:340px;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.header{background:var(--surface);border-bottom:2px solid var(--gold-dim);padding:12px 24px;display:flex;align-items:center;gap:12px}
-.header h1{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--gold);letter-spacing:-.5px}
-.header .sub{font-size:11px;color:var(--text2)}
-.main{display:grid;grid-template-columns:var(--panel-w) 1fr minmax(280px,340px);height:calc(100vh - 50px)}
-@media(max-width:1060px){.main{grid-template-columns:1fr;height:auto}}
-.panel{border-right:1px solid var(--border);padding:var(--gap);overflow-y:auto;background:var(--surface)}
-.panel:last-child{border-right:none}
-.panel::-webkit-scrollbar{width:4px}
-.panel::-webkit-scrollbar-track{background:transparent}
-.panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-.section-title{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:var(--gap);padding-bottom:6px;border-bottom:1px solid var(--border)}
+:root{--bg:#0d0f14;--surface:#161921;--surface2:#1e2230;--surface3:#272b3a;--border:#2a2f42;--border2:#363c52;--text:#e4e2dc;--text2:#8a8fa6;--text3:#5a5f76;--gold:#f0c040;--gold-dim:#a08020;--stat-money:#ffd740;--stat-play:#ff6090;--stat-lead:#8070ff;--stat-study:#40d8c0;--stat-solo:#ff7040;--wood:#50b060;--fire:#e05050;--earth:#d0a040;--metal:#a0a0b0;--water:#5080d0;--radius:10px;--gap:14px;--panel-w:320px}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.header{background:var(--surface);border-bottom:2px solid var(--gold-dim);padding:12px 24px;display:flex;align-items:center;gap:12px}.header h1{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--gold)}.header .sub{font-size:11px;color:var(--text2)}
+.main{display:grid;grid-template-columns:var(--panel-w) 1fr var(--panel-w);height:calc(100vh - 50px)}@media(max-width:1060px){.main{grid-template-columns:1fr;height:auto}}
+.panel{border-right:1px solid var(--border);padding:var(--gap);overflow-y:auto;background:var(--surface)}.panel:last-child{border-right:none}.panel::-webkit-scrollbar{width:4px}.panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.section-title{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:1.5px;margin-bottom:var(--gap);padding-bottom:6px;border-bottom:1px solid var(--border)}
 label{display:block;font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:600}
-input,select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit;outline:none;transition:border .2s}
-input:focus,select:focus{border-color:var(--gold)}
-.row{display:flex;gap:8px;margin-bottom:10px}.row>*{flex:1}
-.field{margin-bottom:10px}
+input,select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:13px;font-family:inherit;outline:none;transition:border .2s}input:focus,select:focus{border-color:var(--gold)}
+.row{display:flex;gap:8px;margin-bottom:10px}.row>*{flex:1}.field{margin-bottom:10px}
 .divider{border:none;border-top:1px solid var(--border);margin:var(--gap) 0}
-.opt-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.opt-row label{display:inline-flex;align-items:center;gap:4px;margin-bottom:0;cursor:pointer;white-space:nowrap}
-.opt-row input[type="radio"],.opt-row input[type="checkbox"]{width:auto;margin:0;accent-color:var(--gold)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;width:100%}
-.btn-gold{background:linear-gradient(135deg,var(--gold),#d4a020);color:#111;box-shadow:0 2px 12px #f0c04030}
-.btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.btn-gold:disabled{opacity:.35;cursor:not-allowed;transform:none}
-.btn-sub{background:var(--surface3);color:var(--text);border:1px solid var(--border2)}
-.btn-sub:hover{border-color:var(--gold);color:var(--gold)}
-
-/* Saju Card */
-.saju-card{background:var(--surface2);border-radius:var(--radius);padding:var(--gap);margin-bottom:var(--gap);border:1px solid var(--border)}
-.pillar-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.pillar{text-align:center;background:var(--surface3);border-radius:8px;padding:8px 4px;border:1px solid var(--border);min-height:72px}
-.pillar .lbl{font-size:9px;color:var(--text3);margin-bottom:3px}
-.pillar .gan{font-size:18px;font-weight:900;line-height:22px}
-.pillar .ji{font-size:18px;font-weight:800;line-height:22px}
-.pillar .info{font-size:9px;color:var(--text2);margin-top:2px}
-.oh-wood{color:var(--wood)!important}.oh-fire{color:var(--fire)!important}
-.oh-earth{color:var(--earth)!important}.oh-metal{color:var(--metal)!important}
-.oh-water{color:var(--water)!important}
+.opt-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}.opt-row label{display:inline-flex;align-items:center;gap:4px;margin-bottom:0;cursor:pointer;white-space:nowrap}.opt-row input[type="radio"],.opt-row input[type="checkbox"]{width:auto;margin:0;accent-color:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;width:100%}.btn-gold{background:linear-gradient(135deg,var(--gold),#d4a020);color:#111;box-shadow:0 2px 12px #f0c04030}.btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px)}.btn-gold:disabled{opacity:.35;cursor:not-allowed;transform:none}.btn-sub{background:var(--surface3);color:var(--text);border:1px solid var(--border2)}.btn-sub:hover{border-color:var(--gold);color:var(--gold)}
+.time-tabs{display:flex;gap:0;margin-bottom:6px}.time-tab{flex:1;padding:6px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--text3);border:1px solid var(--border);transition:all .15s}.time-tab:first-child{border-radius:6px 0 0 6px}.time-tab:last-child{border-radius:0 6px 6px 0}.time-tab.active{background:var(--gold);color:#111;border-color:var(--gold)}
+.saju-card{background:var(--surface2);border-radius:var(--radius);padding:var(--gap);margin-bottom:var(--gap);border:1px solid var(--border)}.pillar-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pillar{text-align:center;background:var(--surface3);border-radius:8px;padding:8px 4px;border:1px solid var(--border);min-height:72px}.pillar .lbl{font-size:9px;color:var(--text3);margin-bottom:3px}.pillar .gan{font-size:18px;font-weight:900;line-height:22px}.pillar .ji{font-size:18px;font-weight:800;line-height:22px}.pillar .info{font-size:9px;color:var(--text2);margin-top:2px}
+.oh-wood{color:var(--wood)!important}.oh-fire{color:var(--fire)!important}.oh-earth{color:var(--earth)!important}.oh-metal{color:var(--metal)!important}.oh-water{color:var(--water)!important}
 .oh-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:6px 0}
-
-/* Stat */
-.stat-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.stat-icon{font-size:16px;width:24px;text-align:center;flex-shrink:0}
-.stat-label{width:44px;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0}
-.stat-bar-bg{flex:1;height:22px;background:var(--surface3);border-radius:11px;overflow:hidden;position:relative}
-.stat-bar-fill{height:100%;border-radius:11px;transition:width .6s cubic-bezier(.22,1,.36,1)}
-.stat-bar-fill::after{content:attr(data-val);position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:800;color:#111}
-.stat-rank{width:80px;text-align:right;flex-shrink:0;font-size:10px;color:var(--text2);line-height:1.3}
-.stat-rank strong{color:var(--gold);font-size:12px;font-family:'Space Grotesk',sans-serif}
-.stat-total{margin-top:4px;padding:12px;background:var(--surface3);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border)}
-.stat-total .num{font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:700;color:var(--gold)}
-.stat-total .txt{font-size:11px;color:var(--text2)}
-.stat-total .rank-info{text-align:right;font-size:11px;color:var(--text2);line-height:1.4}
-.stat-total .rank-info strong{color:var(--gold);font-size:14px}
-
-/* Type Card */
-.type-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border-radius:var(--radius);padding:18px;margin:var(--gap) 0;border:1px solid var(--gold-dim);text-align:center}
-.type-card .type-name{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:4px}
-.type-card .type-sub{font-size:12px;color:var(--text2)}
-
-/* Analysis Block */
-.analysis-block{background:var(--surface2);border-radius:var(--radius);padding:14px;margin-bottom:var(--gap);border:1px solid var(--border)}
-.analysis-block .a-title{font-size:12px;font-weight:800;color:var(--gold);margin-bottom:6px}
-.analysis-block .a-body{font-size:13px;color:var(--text);line-height:1.7}
+.analysis-block{background:var(--surface2);border-radius:var(--radius);padding:12px;margin-bottom:10px;border:1px solid var(--border)}.analysis-block .a-title{font-size:11px;font-weight:800;color:var(--gold);margin-bottom:4px}.analysis-block .a-body{font-size:12px;color:var(--text);line-height:1.6}
+.type-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border-radius:var(--radius);padding:16px;margin-bottom:var(--gap);border:1px solid var(--gold-dim);text-align:center}.type-card .type-name{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:4px}.type-card .type-sub{font-size:12px;color:var(--text2)}
+.mbti-card{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:var(--gap)}.mbti-code{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--stat-lead)}.mbti-desc{font-size:11px;color:var(--text2);text-align:left;max-width:180px}
+.radar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:var(--gap)}
+.radar-box{background:var(--surface2);border-radius:var(--radius);padding:10px;border:1px solid var(--border);text-align:center}.radar-box .r-title{font-size:11px;font-weight:800;margin-bottom:6px}
+.job-select-btn{width:100%;padding:10px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s;margin-bottom:8px}.job-select-btn:hover{border-color:var(--gold);color:var(--text)}.job-select-btn.selected{border-style:solid;border-color:var(--gold);color:var(--gold)}
+.job-rec{background:var(--surface2);border-radius:var(--radius);padding:10px;border:1px solid var(--border);margin-bottom:var(--gap);font-size:11px;color:var(--text2);line-height:1.6}.job-rec strong{color:var(--gold)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;justify-content:center;align-items:center}.modal-overlay.show{display:flex}.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:90%;max-width:680px;max-height:85vh;display:flex;flex-direction:column}.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}.modal-header h2{font-size:16px;color:var(--gold)}.modal-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px}.modal-close:hover{color:var(--text)}.modal-body{overflow-y:auto;padding:14px 20px;flex:1}.modal-body::-webkit-scrollbar{width:4px}.modal-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.jcat-title{font-size:12px;font-weight:800;color:var(--stat-play);margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)}.jcat-title:first-child{margin-top:0}.jcat-title .rec-badge{font-size:9px;padding:2px 6px;border-radius:10px;background:var(--gold);color:#111;margin-left:6px;font-weight:800}
+.jcat-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}.jcat-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;font-family:inherit;transition:all .12s}.jcat-btn:hover{border-color:var(--gold-dim);color:var(--text)}.jcat-btn.active{border-color:var(--gold);background:var(--gold);color:#111;font-weight:700}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px}.modal-footer .btn{flex:1}
+.modal-rec-banner{background:var(--surface3);border:1px solid var(--gold-dim);border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:var(--text);line-height:1.6}.modal-rec-banner strong{color:var(--gold)}
 .strength-tag{display:inline-block;padding:3px 10px;border-radius:16px;font-size:11px;font-weight:700;margin:2px}
-
-/* Job Select Button */
-.job-select-btn{width:100%;padding:10px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s;margin-bottom:var(--gap)}
-.job-select-btn:hover{border-color:var(--gold);color:var(--text)}
-.job-select-btn.selected{border-style:solid;border-color:var(--gold);color:var(--gold)}
-.job-match-card{padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);text-align:center;margin-bottom:var(--gap)}
-.job-match-pct{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:700}
-.job-match-msg{font-size:12px;color:var(--text2);margin-top:4px}
-.job-match-rec{font-size:11px;color:var(--gold);margin-top:6px}
-
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;justify-content:center;align-items:center}
-.modal-overlay.show{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:90%;max-width:680px;max-height:85vh;display:flex;flex-direction:column}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
-.modal-header h2{font-size:16px;color:var(--gold)}
-.modal-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px}
-.modal-close:hover{color:var(--text)}
-.modal-body{overflow-y:auto;padding:16px 20px;flex:1}
-.modal-body::-webkit-scrollbar{width:4px}
-.modal-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-.jcat-title{font-size:12px;font-weight:800;color:var(--stat-play);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
-.jcat-title:first-child{margin-top:0}
-.jcat-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
-.jcat-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .12s}
-.jcat-btn:hover{border-color:var(--gold-dim);color:var(--text)}
-.jcat-btn.active{border-color:var(--gold);background:var(--gold);color:#111;font-weight:700}
-.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px}
-.modal-footer .btn{flex:1}
-
-/* Ranking */
-.rank-filter{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
-.rank-filter button{padding:4px 8px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:10px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s}
-.rank-filter button:hover{color:var(--text)}
-.rank-filter button.active{border-color:var(--gold);color:var(--gold);background:var(--surface3)}
-.rank-table{width:100%;border-collapse:collapse}
-.rank-table th{font-size:10px;color:var(--text3);text-align:left;padding:6px 6px;border-bottom:1px solid var(--border)}
-.rank-table td{font-size:11px;padding:6px;border-bottom:1px solid var(--border)}
-.rank-table tr:hover td{background:var(--surface2)}
-.rank-num{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--gold);width:24px}
-.rank-name{font-weight:700}
-.rank-score{font-family:'Space Grotesk',sans-serif;font-weight:700;text-align:right}
-.rank-empty{text-align:center;padding:30px;color:var(--text3);font-size:12px}
-
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:#111;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
-.toast.show{opacity:1}
+.right-card{background:var(--surface2);border-radius:var(--radius);padding:12px;margin-bottom:10px;border:1px solid var(--border)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:#111;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}.toast.show{opacity:1}
 .placeholder{color:var(--text3);font-size:12px;text-align:center;padding:24px}
-.age-display{font-size:13px;color:var(--text);padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px}
+.age-display{font-size:13px;color:var(--text);padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>✦ 사주 MBTI</h1>
-  <span class="sub">사주로 보는 내 기질·성향·적성</span>
-</div>
+<div class="header"><h1>✦ 사주 MBTI</h1><span class="sub">사주로 보는 내 기질·성향·적성</span></div>
 <div class="main">
 
-<!-- ═══ LEFT: 사주 입력 ═══ -->
+<!-- LEFT -->
 <div class="panel">
   <div class="section-title">📋 사주 입력</div>
   <div class="row">
@@ -152,111 +58,70 @@ input:focus,select:focus{border-color:var(--gold)}
     <label><input type="radio" name="cal" value="lunar"> 음력</label>
     <label><input type="radio" name="cal" value="leap"> 윤달</label>
   </div>
-  <div class="field"><label>시간</label><select id="inGanji" style="margin-bottom:6px"></select></div>
-  <div class="opt-row">
+  <label>시간</label>
+  <div class="time-tabs"><div class="time-tab active" onclick="setTimeMode('ganji',this)">간지</div><div class="time-tab" onclick="setTimeMode('direct',this)">시:분</div></div>
+  <div id="timeGanji"><select id="inGanji"></select></div>
+  <div id="timeDirect" style="display:none"><div class="row"><div class="field"><label>시</label><select id="inHour"></select></div><div class="field"><label>분</label><select id="inMin"></select></div></div></div>
+  <div class="opt-row" style="margin-top:6px">
     <label><input type="checkbox" id="chkNoTime"> 시간 모름</label>
     <label><input type="checkbox" id="chkYaja"> 야자시 적용안함</label>
   </div>
   <div class="row">
-    <div class="field"><label>성별</label><select id="inGender"><option value="남">남</option><option value="여">여</option></select></div>
+    <div class="field"><label>성별</label><select id="inGender"><option value="여">여</option><option value="남">남</option></select></div>
     <div class="field"><label>나이</label><div class="age-display" id="ageDisplay">—</div></div>
   </div>
-  <div class="opt-row">
-    <label><input type="radio" name="agetype" value="kr" checked> 한국나이</label>
-    <label><input type="radio" name="agetype" value="man"> 만나이</label>
-  </div>
+  <div class="opt-row"><label><input type="radio" name="agetype" value="kr" checked> 한국나이</label><label><input type="radio" name="agetype" value="man"> 만나이</label></div>
   <button class="btn btn-gold" onclick="doCalc()">🔮 만세력 조회</button>
-
   <hr class="divider">
   <div class="section-title">🀄 사주 원국</div>
-  <div id="sajuCardArea">
-    <div class="saju-card"><div class="pillar-row">
-      <div class="pillar"><div class="lbl">시주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-      <div class="pillar"><div class="lbl">일주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-      <div class="pillar"><div class="lbl">월주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-      <div class="pillar"><div class="lbl">년주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-    </div></div>
-    <div class="placeholder">생년월일을 입력하세요</div>
-  </div>
-
+  <div id="sajuCardArea"><div class="saju-card"><div class="pillar-row"><div class="pillar"><div class="lbl">시주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div><div class="pillar"><div class="lbl">일주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div><div class="pillar"><div class="lbl">월주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div><div class="pillar"><div class="lbl">년주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div></div></div><div class="placeholder">생년월일을 입력하세요</div></div>
   <hr class="divider">
   <div class="section-title">📖 일주·월주 해석</div>
   <div id="interpArea"><div class="placeholder">만세력 조회 후 자동 표시됩니다.</div></div>
 </div>
 
-<!-- ═══ CENTER: 결과 ═══ -->
+<!-- CENTER -->
 <div class="panel">
   <div class="section-title">💼 직업 선택</div>
   <button class="job-select-btn" id="jobSelectBtn" onclick="openJobModal()">🏷️ 직업 선택 (클릭)</button>
+  <div id="jobRecArea"></div>
   <div id="centerResult"><div class="placeholder">만세력 조회 후 결과가 표시됩니다</div></div>
 </div>
 
-<!-- ═══ RIGHT: 랭킹 ═══ -->
+<!-- RIGHT -->
 <div class="panel">
-  <div class="section-title">🏅 랭킹 보드</div>
-  <div class="field"><label>닉네임</label><input type="text" id="inName" placeholder="이름 또는 닉네임" maxlength="12"></div>
-  <button class="btn btn-gold" id="btnRegister" onclick="doRegister()" disabled style="margin-bottom:var(--gap)">📋 랭킹 등록</button>
-  <div class="rank-filter" id="rankCatFilter"></div>
-  <div id="rankTable"><div class="rank-empty">아직 등록된 참가자가 없습니다</div></div>
+  <div class="section-title">📊 성향 프로필</div>
+  <div id="rightResult"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+</div>
 </div>
 
-</div>
-
-<!-- ═══ 직업 모달 ═══ -->
+<!-- JOB MODAL -->
 <div class="modal-overlay" id="jobModal">
   <div class="modal">
     <div class="modal-header"><h2>🏷️ 직업 선택</h2><button class="modal-close" onclick="closeJobModal()">✕</button></div>
     <div class="modal-body" id="jobModalBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-sub" onclick="closeJobModal()">취소</button>
-      <button class="btn btn-gold" onclick="confirmJob()">✓ 선택 확인</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-sub" onclick="closeJobModal()">취소</button><button class="btn btn-gold" onclick="confirmJob()">✓ 선택 확인</button></div>
   </div>
 </div>
-
 <div id="toast" class="toast"></div>
 
 <script type="module">
-import{calculateSaju}from'https://cdn.jsdelivr.net/npm/ssaju@0.2.0/dist/index.mjs';
-window._ssaju=calculateSaju;
+import{calculateSaju}from'https://cdn.jsdelivr.net/npm/ssaju@0.2.0/dist/index.mjs';window._ssaju=calculateSaju;
 </script>
 <script>
-// ════════════════════════════════════════════
-//  DATA
-// ════════════════════════════════════════════
-const STEMS='甲乙丙丁戊己庚辛壬癸'.split('');
-const BRANCHES='子丑寅卯辰巳午未申酉戌亥'.split('');
+const STEMS='甲乙丙丁戊己庚辛壬癸'.split(''),BRANCHES='子丑寅卯辰巳午未申酉戌亥'.split('');
 const ELEM_MAP={'甲':'목','乙':'목','丙':'화','丁':'화','戊':'토','己':'토','庚':'금','辛':'금','壬':'수','癸':'수','子':'수','丑':'토','寅':'목','卯':'목','辰':'토','巳':'화','午':'화','未':'토','申':'금','酉':'금','戌':'토','亥':'수'};
 const ELEM_COLOR={목:'var(--wood)',화:'var(--fire)',토:'var(--earth)',금:'var(--metal)',수:'var(--water)'};
 const OC={목:'oh-wood',화:'oh-fire',토:'oh-earth',금:'oh-metal',수:'oh-water'};
 
-const GANJI_HOURS=[
-  {label:'자시 子 (23:00~01:00)',h:0},{label:'축시 丑 (01:00~03:00)',h:2},
-  {label:'인시 寅 (03:00~05:00)',h:4},{label:'묘시 卯 (05:00~07:00)',h:6},
-  {label:'진시 辰 (07:00~09:00)',h:8},{label:'사시 巳 (09:00~11:00)',h:10},
-  {label:'오시 午 (11:00~13:00)',h:12},{label:'미시 未 (13:00~15:00)',h:14},
-  {label:'신시 申 (15:00~17:00)',h:16},{label:'유시 酉 (17:00~19:00)',h:18},
-  {label:'술시 戌 (19:00~21:00)',h:20},{label:'해시 亥 (21:00~23:00)',h:22}
-];
+const GANJI_HOURS=[{label:'자시 子 (23:00~01:00)',h:0},{label:'축시 丑 (01:00~03:00)',h:2},{label:'인시 寅 (03:00~05:00)',h:4},{label:'묘시 卯 (05:00~07:00)',h:6},{label:'진시 辰 (07:00~09:00)',h:8},{label:'사시 巳 (09:00~11:00)',h:10},{label:'오시 午 (11:00~13:00)',h:12},{label:'미시 未 (13:00~15:00)',h:14},{label:'신시 申 (15:00~17:00)',h:16},{label:'유시 酉 (17:00~19:00)',h:18},{label:'술시 戌 (19:00~21:00)',h:20},{label:'해시 亥 (21:00~23:00)',h:22}];
 
-// 일간/일지 스탯 [재,놀,리,학,독]
-const STEM_BASE={'甲':[35,30,65,45,75],'乙':[50,65,25,60,35],'丙':[40,75,65,35,50],'丁':[45,60,30,70,30],'戊':[55,25,70,40,65],'己':[65,35,45,60,30],'庚':[50,30,60,35,75],'辛':[70,50,30,60,35],'壬':[35,55,45,75,55],'癸':[55,50,25,70,40]};
-const BRANCH_MOD={'子':[5,-5,0,15,5],'丑':[15,-5,5,5,0],'寅':[-5,5,10,0,15],'卯':[0,15,-5,10,0],'辰':[5,-5,15,5,10],'巳':[5,5,0,15,-5],'午':[0,15,10,-5,5],'未':[15,0,0,5,-5],'申':[10,0,5,5,15],'酉':[15,5,-5,10,-5],'戌':[0,-10,15,5,10],'亥':[0,10,-5,15,5]};
-const MONTH_MOD={'寅':[0,2,3,0,5],'卯':[0,5,0,3,0],'辰':[2,0,5,2,3],'巳':[2,2,0,5,0],'午':[0,5,3,0,2],'未':[5,0,0,2,0],'申':[3,0,2,2,5],'酉':[5,2,0,3,0],'戌':[0,0,5,2,3],'亥':[0,3,0,5,2],'子':[2,0,0,5,2],'丑':[5,0,2,2,0]};
-const STAT_KEYS=['재물력','놀기력','리더력','학습력','독립력'];
-const STAT_META=[{key:'재물력',icon:'💰',color:'var(--stat-money)'},{key:'놀기력',icon:'🎉',color:'var(--stat-play)'},{key:'리더력',icon:'👑',color:'var(--stat-lead)'},{key:'학습력',icon:'🧠',color:'var(--stat-study)'},{key:'독립력',icon:'⚔️',color:'var(--stat-solo)'}];
-
-// 기질 텍스트
-const STEM_TEXT={'甲':'거침없는 선구자. 큰 나무처럼 곧고 당당하며, 한번 정한 방향은 꺾이지 않는다. 조직에서 앞장서서 길을 내는 개척형.','乙':'유연한 적응가. 덩굴처럼 어디든 뿌리내리며, 부드러움 속에 강인함이 있다. 어떤 팀에도 자연스럽게 녹아든다.','丙':'타오르는 열정가. 태양 같은 에너지로 주변을 밝히며, 무대 위에서 빛나는 타입. 분위기를 주도하고 사람을 끌어당긴다.','丁':'정밀한 통찰가. 촛불 같은 집중력으로 깊이 파고들며, 섬세한 감각의 소유자. 디테일에서 승부를 거는 장인.','戊':'흔들림 없는 기반. 산처럼 묵직하고 신뢰감 있으며, 조직의 중심이 되는 사람. 위기에 강하고 쉽게 흔들리지 않는다.','己':'포용하는 관리자. 대지처럼 모든 것을 수용하며, 실리와 조화를 동시에 추구한다. 자원을 효율적으로 운용하는 능력이 탁월.','庚':'날카로운 실행가. 강철 같은 결단력으로 밀어붙이며, 원칙에 타협하지 않는다. 문제를 정면 돌파하는 전사형.','辛':'빛나는 완벽주의자. 보석 같은 정교함을 추구하며, 디테일에서 차이를 만든다. 결과물의 퀄리티에 강한 집착.','壬':'깊은 전략가. 대해 같은 지혜로 큰 그림을 보며, 유연하게 흐름을 읽는다. 장기적 시야로 판을 짜는 사람.','癸':'직관의 관찰자. 비처럼 조용히 스며들며, 남들이 못 보는 것을 감지한다. 데이터 너머의 인사이트를 뽑아내는 능력.'};
-const BRANCH_TEXT={'子':'내면에 학구적 호기심이 끓는다. 혼자만의 시간에 최고 성과를 낸다.','丒':'차곡차곡 쌓는 실질적 내면. 느리지만 확실한 성장을 추구한다.','寅':'모험심과 도전 의지가 강하다. 미지의 영역에 두려움이 없다.','卯':'감성과 표현력이 풍부한 내면. 사람들과의 교류에서 에너지를 얻는다.','辰':'야심과 변화를 품은 내면. 현재에 안주하지 않는 변혁가.','巳':'사색적이고 통찰력 있는 내면. 복잡한 문제를 단순화하는 능력이 뛰어나다.','午':'에너지가 넘치고 열정적인 내면. 행동이 빠르며 순발력이 좋다.','未':'따뜻하고 수용적인 내면. 갈등 상황에서 중재자 역할을 자처한다.','申':'재빠르고 영리한 내면. 새로운 도구나 기술을 빠르게 습득한다.','酉':'정교하고 미적 감각이 뛰어난 내면. 마감 직전 퀄리티 점프를 만든다.','戌':'의리와 원칙을 지키는 내면. 팀에서 가장 믿을 수 있는 사람.','亥':'깊고 넓은 사고의 내면. 융합적 사고로 새로운 가치를 만든다.'};
-// 丑 보정 (위에서 丒로 잘못 입력 방지)
-BRANCH_TEXT['丑']=BRANCH_TEXT['丒']||'차곡차곡 쌓는 실질적 내면. 느리지만 확실한 성장을 추구한다.';
-const MONTH_TEXT={'寅':'선도적이고 개척하는 이미지. 새 프로젝트의 첫 주자.','卯':'부드럽고 창의적인 이미지. 아이디어 회의에서 빛나는 존재.','辰':'변화와 성장을 주도하는 이미지. 조직 혁신의 촉매.','巳':'지적이고 분석적인 이미지. 전문성으로 신뢰를 쌓는다.','午':'열정적이고 리더십 있는 이미지. 프레젠테이션에 강하다.','未':'안정적이고 신뢰감 있는 이미지. 동료들의 심리적 안전감을 만든다.','申':'실행력과 효율을 중시하는 이미지. 빠르게 결과를 만들어낸다.','酉':'완성도와 퀄리티를 추구하는 이미지. 마무리 장인.','戌':'원칙적이고 책임감 있는 이미지. 위기 상황의 버팀목.','亥':'포용적이고 학습하는 이미지. 지식을 팀에 공유하는 역할.','子':'전략적이고 깊이 있는 이미지. 조용히 핵심을 짚어내는 참모형.','丑':'결과지향적이고 실질적인 이미지. 성과를 숫자로 증명한다.'};
-
+const STEM_TEXT={'甲':'거침없는 선구자. 큰 나무처럼 곧고 당당하며 한번 정한 방향은 꺾이지 않는다.','乙':'유연한 적응가. 덩굴처럼 어디든 뿌리내리며 부드러움 속에 강인함이 있다.','丙':'타오르는 열정가. 태양 같은 에너지로 주변을 밝히며 무대 위에서 빛난다.','丁':'정밀한 통찰가. 촛불 같은 집중력으로 깊이 파고들며 디테일에서 승부를 건다.','戊':'흔들림 없는 기반. 산처럼 묵직하고 신뢰감 있으며 위기에 강하다.','己':'포용하는 관리자. 대지처럼 모든 것을 수용하며 실리와 조화를 추구한다.','庚':'날카로운 실행가. 강철 같은 결단력으로 밀어붙이며 원칙에 타협하지 않는다.','辛':'빛나는 완벽주의자. 보석 같은 정교함을 추구하며 디테일에서 차이를 만든다.','壬':'깊은 전략가. 대해 같은 지혜로 큰 그림을 보며 유연하게 흐름을 읽는다.','癸':'직관의 관찰자. 비처럼 조용히 스며들며 남들이 못 보는 것을 감지한다.'};
+const BRANCH_TEXT={'子':'내면에 학구적 호기심이 끓는다. 혼자만의 시간에 최고 성과.','丑':'차곡차곡 쌓는 실질적 내면. 느리지만 확실한 성장 추구.','寅':'모험심과 도전 의지가 강하다. 미지의 영역에 두려움 없음.','卯':'감성과 표현력이 풍부. 사람과의 교류에서 에너지를 얻는다.','辰':'야심과 변화를 품은 내면. 현재에 안주하지 않는 변혁가.','巳':'사색적이고 통찰력 있는 내면. 복잡한 문제를 단순화하는 능력.','午':'에너지 넘치고 열정적. 행동이 빠르며 순발력이 좋다.','未':'따뜻하고 수용적인 내면. 갈등 상황에서 중재자 역할.','申':'재빠르고 영리한 내면. 새 도구·기술을 빠르게 습득.','酉':'정교하고 미적 감각이 뛰어남. 퀄리티에 높은 기준 적용.','戌':'의리와 원칙을 지키는 내면. 팀에서 가장 믿을 수 있는 사람.','亥':'깊고 넓은 사고. 융합적 사고로 새로운 가치를 만든다.'};
+const MONTH_TEXT={'寅':'선도적이고 개척하는 이미지.','卯':'부드럽고 창의적인 이미지.','辰':'변화와 성장을 주도하는 이미지.','巳':'지적이고 분석적인 이미지.','午':'열정적이고 리더십 있는 이미지.','未':'안정적이고 신뢰감 있는 이미지.','申':'실행력과 효율을 중시하는 이미지.','酉':'완성도와 퀄리티를 추구하는 이미지.','戌':'원칙적이고 책임감 있는 이미지.','亥':'포용적이고 학습하는 이미지.','子':'전략적이고 깊이 있는 이미지.','丑':'결과지향적이고 실질적인 이미지.'};
 const STEM_ADJ={'甲':'선구적','乙':'유연한','丙':'열정적','丁':'섬세한','戊':'묵직한','己':'실리적','庚':'단호한','辛':'정교한','壬':'심원한','癸':'직관적'};
 const TYPE_NAMES={'재물력_놀기력':'황금유희형 🎭','놀기력_재물력':'황금유희형 🎭','재물력_리더력':'CEO형 👔','리더력_재물력':'CEO형 👔','재물력_학습력':'전략투자형 📊','학습력_재물력':'전략투자형 📊','재물력_독립력':'자수성가형 💎','독립력_재물력':'자수성가형 💎','놀기력_리더력':'카리스마형 🌟','리더력_놀기력':'카리스마형 🌟','놀기력_학습력':'천재예술형 🎨','학습력_놀기력':'천재예술형 🎨','놀기력_독립력':'자유영혼형 🔥','독립력_놀기력':'자유영혼형 🔥','리더력_학습력':'전략사령형 🧩','학습력_리더력':'전략사령형 🧩','리더력_독립력':'독고다이형 ⚔️','독립력_리더력':'독고다이형 ⚔️','학습력_독립력':'고독연구형 🔬','독립력_학습력':'고독연구형 🔬'};
 
-// ── 직업 카테고리 ──
 const JOB_CATS=[
   {cat:'경영·사무',jobs:['CEO','경영기획','인사담당','총무','비서','사무행정','회계사','세무사','감사'],primary:'재물력',secondary:'리더력'},
   {cat:'금융·보험',jobs:['은행원','증권분석가','펀드매니저','보험설계사','투자상담사','애널리스트'],primary:'재물력',secondary:'학습력'},
@@ -275,182 +140,213 @@ const JOB_CATS=[
   {cat:'요식·서비스',jobs:['셰프','바리스타','소믈리에','호텔리어','플로리스트','여행가이드'],primary:'재물력',secondary:'놀기력'},
 ];
 
-const RANK_CATS=[{key:'종합전투력',label:'🔥 종합'},{key:'재물력',label:'💰'},{key:'놀기력',label:'🎉'},{key:'리더력',label:'👑'},{key:'학습력',label:'🧠'},{key:'독립력',label:'⚔️'}];
+const MBTI_DESC={INTJ:'전략가 — 독창적이고 전략적인 사고가',INTP:'논리학자 — 지식에 대한 갈증이 끝없는',ENTJ:'통솔자 — 대담하고 계획적인 리더',ENTP:'변론가 — 도전을 즐기는 영리한 사고가',INFJ:'옹호자 — 조용하지만 영감을 주는',INFP:'중재자 — 항상 선한 의지를 가진 이상주의자',ENFJ:'주인공 — 사람들을 이끄는 카리스마',ENFP:'활동가 — 자유로운 영혼의 창의적 에너지',ISTJ:'현실주의자 — 책임감 있는 사실주의자',ISFJ:'수호자 — 헌신적이고 따뜻한 보호자',ESTJ:'경영자 — 체계적으로 관리하는 실행가',ESFJ:'집정관 — 배려심 많고 사교적인 조력자',ISTP:'장인 — 대담하고 실용적인 실험가',ISFP:'모험가 — 유연하고 매력적인 예술가',ESTP:'사업가 — 에너지 넘치는 위험 감수자',ESFP:'연예인 — 즉흥적이고 에너지 넘치는 엔터테이너'};
 
-// 60갑자 전체 스탯
-const ALL_60=[];
-(function(){for(let i=0;i<60;i++){const s=STEMS[i%10],b=BRANCHES[i%12],sb=STEM_BASE[s],bm=BRANCH_MOD[b];const st={};STAT_KEYS.forEach((k,j)=>{st[k]=Math.max(0,Math.min(100,sb[j]+bm[j]));});st['종합전투력']=Math.round(st.재물력*.2+st.놀기력*.2+st.리더력*.25+st.학습력*.15+st.독립력*.2);ALL_60.push({gz:s+b,stem:s,branch:b,stats:st});}})();
+// STATE
+const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null};let tempJob=null,tempJobCat=null,timeMode='ganji';
 
-function getRank60(key,score){const sc=ALL_60.map(x=>x.stats[key]).sort((a,b)=>b-a);let r=1;for(const s of sc){if(s>score)r++;else break;}return{rank:r,pct:Math.round((1-(r-1)/60)*100)};}
-
-// ════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════
-const LS_KEY='saju_mbti_players';
-const S={saju:null,stats:null,iljuStats:null,job:null,jobCat:null,jobName:null};
-let tempJob=null,tempJobCat=null;
-
-// ════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════
+// INIT
 document.addEventListener('DOMContentLoaded',()=>{
-  buildMonthOpts();buildDayOpts();buildGanjiOpts();
-  renderRankFilters();renderRanking();updateAge();
+  for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.text=i+'월';document.getElementById('inMonth').add(o);}
+  buildDayOpts();buildGanjiOpts();buildHourOpts();buildMinOpts();updateAge();
   document.getElementById('inMonth').onchange=()=>{buildDayOpts();updateAge();};
   document.getElementById('inYear').onchange=()=>{buildDayOpts();updateAge();};
   document.getElementById('inDay').onchange=updateAge;
   document.querySelectorAll('input[name="agetype"]').forEach(r=>r.onchange=updateAge);
-  document.getElementById('chkNoTime').onchange=function(){document.getElementById('inGanji').disabled=this.checked;};
+  document.getElementById('chkNoTime').onchange=function(){document.getElementById('inGanji').disabled=this.checked;document.getElementById('inHour').disabled=this.checked;};
 });
-
-function buildMonthOpts(){const s=document.getElementById('inMonth');for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.text=i+'월';s.add(o);}}
-function buildDayOpts(){const m=+document.getElementById('inMonth').value,s=document.getElementById('inDay'),p=s.value;const d=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];s.innerHTML='';for(let i=1;i<=d;i++){const o=document.createElement('option');o.value=i;o.text=i+'일';s.add(o);}if(p&&p<=d)s.value=p;}
+function buildDayOpts(){const m=+document.getElementById('inMonth').value||1,s=document.getElementById('inDay'),p=s.value;const d=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];s.innerHTML='';for(let i=1;i<=d;i++){const o=document.createElement('option');o.value=i;o.text=i+'일';s.add(o);}if(p&&p<=d)s.value=p;}
 function buildGanjiOpts(){const s=document.getElementById('inGanji');GANJI_HOURS.forEach(g=>{const o=document.createElement('option');o.value=g.h;o.text=g.label;s.add(o);});}
-function updateAge(){const y=+document.getElementById('inYear').value;const now=2026;const isKr=document.querySelector('input[name="agetype"]:checked')?.value==='kr';const age=isKr?(now-y+1):(now-y);const label=isKr?'한국':'만';document.getElementById('ageDisplay').textContent=age+'세 ('+label+')';}
+function buildHourOpts(){const s=document.getElementById('inHour');for(let i=0;i<24;i++){const o=document.createElement('option');o.value=i;o.text=String(i).padStart(2,'0')+'시';s.add(o);}}
+function buildMinOpts(){const s=document.getElementById('inMin');for(let i=0;i<60;i+=10){const o=document.createElement('option');o.value=i;o.text=String(i).padStart(2,'0')+'분';s.add(o);}}
+function updateAge(){const y=+document.getElementById('inYear').value;const isKr=document.querySelector('input[name="agetype"]:checked')?.value==='kr';const age=isKr?(2026-y+1):(2026-y);document.getElementById('ageDisplay').textContent=age+'세 ('+(isKr?'한국':'만')+')';}
+window.setTimeMode=function(mode,el){timeMode=mode;document.querySelectorAll('.time-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('timeGanji').style.display=mode==='ganji'?'':'none';document.getElementById('timeDirect').style.display=mode==='direct'?'':'none';};
 
-// ════════════════════════════════════════════
-//  직업 모달
-// ════════════════════════════════════════════
-window.openJobModal=function(){
-  const body=document.getElementById('jobModalBody');
-  body.innerHTML=JOB_CATS.map(c=>`<div class="jcat-title">${c.cat}</div><div class="jcat-grid">${c.jobs.map(j=>`<button class="jcat-btn${S.jobName===j?' active':''}" data-job="${j}" data-cat="${c.cat}" onclick="pickJob(this)">${j}</button>`).join('')}</div>`).join('');
-  document.getElementById('jobModal').classList.add('show');
-  tempJob=S.jobName;tempJobCat=S.jobCat;
-};
-window.closeJobModal=function(){document.getElementById('jobModal').classList.remove('show');};
-window.pickJob=function(el){
-  document.querySelectorAll('.jcat-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  tempJob=el.dataset.job;tempJobCat=el.dataset.cat;
-};
-window.confirmJob=function(){
-  if(!tempJob){toast('직업을 선택하세요');return;}
-  S.jobName=tempJob;S.jobCat=tempJobCat;
-  const catData=JOB_CATS.find(c=>c.cat===tempJobCat);
-  S.job=catData;
-  document.getElementById('jobSelectBtn').textContent='🏷️ '+tempJob+' ('+tempJobCat+')';
-  document.getElementById('jobSelectBtn').classList.add('selected');
-  closeJobModal();
-  if(S.stats)renderCenter();
-  updateRegBtn();
-};
-
-// ════════════════════════════════════════════
-//  사주 분석
-// ════════════════════════════════════════════
+// CALC
 window.doCalc=function(){
   if(!window._ssaju){toast('⏳ 라이브러리 로딩 중...');return;}
   const noTime=document.getElementById('chkNoTime').checked;
-  const hv=noTime?12:+document.getElementById('inGanji').value;
+  let hour=12;
+  if(!noTime){hour=timeMode==='ganji'?+document.getElementById('inGanji').value:+document.getElementById('inHour').value;}
+  const minute=(!noTime&&timeMode==='direct')?+document.getElementById('inMin').value:0;
   const cal=document.querySelector('input[name="cal"]:checked').value;
-  const r=window._ssaju({year:+document.getElementById('inYear').value,month:+document.getElementById('inMonth').value,day:+document.getElementById('inDay').value,hour:hv,minute:0,gender:document.getElementById('inGender').value,calendar:cal==='lunar'||cal==='leap'?'lunar':'solar'});
-  S.saju=r;
-
-  const pd=r.pillarDetails;
-  const ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子',mb=pd?.month?.branch||'子';
-  const base=STEM_BASE[ds]||STEM_BASE['甲'],bmod=BRANCH_MOD[db]||BRANCH_MOD['子'],mmod=MONTH_MOD[mb]||[0,0,0,0,0];
-  const tgB=[0,0,0,0,0];
-  if(r.tenGods){['year','month','day','hour'].forEach(p=>{if(!r.tenGods[p])return;[r.tenGods[p].stem,r.tenGods[p].branch].forEach(tg=>{if(!tg||tg==='(일간)'||tg==='일간')return;if(tg==='편재'||tg==='정재')tgB[0]+=2;if(tg==='식신'||tg==='상관')tgB[1]+=2;if(tg==='편관'||tg==='정관')tgB[2]+=2;if(tg==='편인'||tg==='정인')tgB[3]+=2;if(tg==='비견'||tg==='겁재')tgB[4]+=2;});});}
-  const stats={};STAT_KEYS.forEach((k,j)=>{stats[k]=Math.max(0,Math.min(100,base[j]+bmod[j]+mmod[j]+tgB[j]));});
-  stats['종합전투력']=Math.round(stats.재물력*.2+stats.놀기력*.2+stats.리더력*.25+stats.학습력*.15+stats.독립력*.2);
-  const is={};STAT_KEYS.forEach((k,j)=>{is[k]=Math.max(0,Math.min(100,base[j]+bmod[j]));});
-  is['종합전투력']=Math.round(is.재물력*.2+is.놀기력*.2+is.리더력*.25+is.학습력*.15+is.독립력*.2);
-  S.stats=stats;S.iljuStats=is;
-
-  renderSajuCard();renderInterp();renderCenter();updateRegBtn();
-  toast('✅ 분석 완료');
+  const r=window._ssaju({year:+document.getElementById('inYear').value,month:+document.getElementById('inMonth').value,day:+document.getElementById('inDay').value,hour,minute,gender:document.getElementById('inGender').value,calendar:cal==='lunar'||cal==='leap'?'lunar':'solar'});
+  S.saju=r; S.tg=countTG(r); S.stats=calcStats(r,S.tg); S.radar=calcRadar(S.tg,r);
+  renderSajuCard();renderInterp();renderCenter();renderRight();updateJobRec();toast('✅ 분석 완료');
 };
 
-// ════════════════════════════════════════════
-//  LEFT: 사주카드 + 해석
-// ════════════════════════════════════════════
+function countTG(r){const c={};['year','month','day','hour'].forEach(p=>{if(!r.tenGods?.[p])return;[r.tenGods[p].stem,r.tenGods[p].branch].forEach(t=>{if(t&&t!=='(일간)'&&t!=='일간')c[t]=(c[t]||0)+1;});});return c;}
+function tgVal(tg,names){let s=0;names.forEach(n=>s+=(tg[n]||0));return s;}
+
+const STAT_KEYS=['재물력','놀기력','리더력','학습력','독립력'];
+function calcStats(r,tg){
+  const st={재물력:tgVal(tg,['편재','정재'])*14,놀기력:tgVal(tg,['식신','상관'])*14,리더력:tgVal(tg,['편관','정관'])*14,학습력:tgVal(tg,['편인','정인'])*14,독립력:tgVal(tg,['비견','겁재'])*14};
+  const gk=r.advanced?.geukguk||'';
+  if(gk.includes('재'))st.재물력+=15;else if(gk.includes('식상'))st.놀기력+=15;else if(gk.includes('관'))st.리더력+=15;else if(gk.includes('인수')||gk.includes('인성'))st.학습력+=15;else if(gk.includes('비겁'))st.독립력+=15;
+  if(r.advanced?.dayStrength?.strength==='strong')st.독립력+=10;else st.학습력+=10;
+  for(const k of STAT_KEYS)st[k]=Math.max(5,Math.min(100,st[k]));
+  st['종합']=Math.round(st.재물력*.2+st.놀기력*.2+st.리더력*.25+st.학습력*.15+st.독립력*.2);
+  return st;
+}
+
+// RADAR DATA (4 categories × 5 axes each)
+function calcRadar(tg,r){
+  const str=r.advanced?.dayStrength?.score||50;
+  const clamp=(v)=>Math.max(5,Math.min(100,v));
+  return {
+    '체력·멘탈':{color:'#ff6090',axes:[
+      {label:'체력',value:clamp(tgVal(tg,['비견','겁재'])*16+str*.3)},
+      {label:'멘탈력',value:clamp(tgVal(tg,['편인','정인'])*16+str*.2)},
+      {label:'회복력',value:clamp(tgVal(tg,['식신','상관'])*14+tgVal(tg,['정인'])*8)},
+      {label:'인내력',value:clamp(tgVal(tg,['편관','정관'])*12+tgVal(tg,['정재'])*10)},
+      {label:'스트레스\n내성',value:clamp(str*.5+tgVal(tg,['비견'])*12)}
+    ]},
+    '사회성':{color:'#8070ff',axes:[
+      {label:'리더십',value:clamp(tgVal(tg,['편관','정관'])*16)},
+      {label:'소통력',value:clamp(tgVal(tg,['식신','상관'])*16)},
+      {label:'협업력',value:clamp(tgVal(tg,['비견'])*18+tgVal(tg,['정관'])*8)},
+      {label:'매력',value:clamp(tgVal(tg,['편재','정재'])*12+tgVal(tg,['상관'])*8)},
+      {label:'공감력',value:clamp(tgVal(tg,['정인'])*14+tgVal(tg,['식신'])*10)}
+    ]},
+    '재능·두뇌':{color:'#40d8c0',axes:[
+      {label:'창의력',value:clamp(tgVal(tg,['상관'])*18+tgVal(tg,['식신'])*10)},
+      {label:'분석력',value:clamp(tgVal(tg,['정인'])*16+tgVal(tg,['편인'])*10)},
+      {label:'실행력',value:clamp(tgVal(tg,['비견','겁재'])*12+tgVal(tg,['편관'])*10)},
+      {label:'전략력',value:clamp(tgVal(tg,['정관'])*12+tgVal(tg,['정인'])*12)},
+      {label:'직관력',value:clamp(tgVal(tg,['편인'])*16+tgVal(tg,['상관'])*10)}
+    ]},
+    '재물·야망':{color:'#ffd740',axes:[
+      {label:'수익감각',value:clamp(tgVal(tg,['정재'])*18+tgVal(tg,['편재'])*8)},
+      {label:'투자감각',value:clamp(tgVal(tg,['편재'])*18+tgVal(tg,['정재'])*6)},
+      {label:'야망',value:clamp(tgVal(tg,['편관'])*16+tgVal(tg,['겁재'])*8)},
+      {label:'안정추구',value:clamp(tgVal(tg,['정관'])*14+tgVal(tg,['정재'])*12)},
+      {label:'모험도',value:clamp(tgVal(tg,['겁재'])*14+tgVal(tg,['편재'])*12)}
+    ]}
+  };
+}
+
+// MBTI
+function calcMBTI(tg){
+  const ext=tgVal(tg,['식신','상관','편재','정재']),intr=tgVal(tg,['편인','정인','비견','겁재']);
+  const sns=tgVal(tg,['편재','정재','편관','정관']),ntu=tgVal(tg,['식신','상관','편인','정인']);
+  const thk=tgVal(tg,['편관','정관','비견','겁재']),fee=tgVal(tg,['식신','상관','편재','정재']);
+  const jdg=tgVal(tg,['정관','정재','정인']),prc=tgVal(tg,['편관','편재','편인','상관']);
+  return (ext>intr?'E':'I')+(sns>ntu?'S':'N')+(thk>fee?'T':'F')+(jdg>=prc?'J':'P');
+}
+
+// SVG RADAR
+function radarSVG(axes,color,size=130){
+  const cx=size/2,cy=size/2,r=size/2-22,n=axes.length;
+  const ang=(i)=>-Math.PI/2+2*Math.PI*i/n;
+  const pt=(i,v)=>[(cx+r*(v/100)*Math.cos(ang(i))).toFixed(1),(cy+r*(v/100)*Math.sin(ang(i))).toFixed(1)];
+  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  // grid
+  [25,50,75,100].forEach(lv=>{let pts='';for(let i=0;i<n;i++){const[x,y]=pt(i,lv);pts+=`${x},${y} `;}svg+=`<polygon points="${pts}" fill="none" stroke="#2a2f42" stroke-width=".5"/>`;});
+  for(let i=0;i<n;i++){const[x,y]=pt(i,100);svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#2a2f42" stroke-width=".5"/>`;}
+  // data
+  let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
+  svg+=`<polygon points="${dpts}" fill="${color}30" stroke="${color}" stroke-width="2"/>`;
+  axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);svg+=`<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;});
+  // labels
+  axes.forEach((a,i)=>{const[x,y]=pt(i,120);const lines=a.label.split('\n');lines.forEach((l,li)=>{svg+=`<text x="${x}" y="${(+y)+li*11}" text-anchor="middle" fill="#8a8fa6" font-size="9" font-family="Noto Sans KR">${l}</text>`;});});
+  svg+='</svg>';return svg;
+}
+
+// LEFT RENDER
 function renderSajuCard(){
-  const r=S.saju,pd=r.pillarDetails;
-  const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
+  const r=S.saju,pd=r.pillarDetails;const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
   let h='<div class="saju-card"><div class="pillar-row">';
-  keys.forEach((k,i)=>{const p=pd?.[k];const gc=p?OC[ELEM_MAP[p.stem]]||'':'',jc=p?OC[ELEM_MAP[p.branch]]||'':'';
-    h+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="info">${r.tenGods?.[k]?.stem||''}</div></div>`;});
-  h+='</div>';
-  const oh=getOh(r),ohT=Object.values(oh).reduce((a,b)=>a+b,1);
+  keys.forEach((k,i)=>{const p=pd?.[k];const gc=p?OC[ELEM_MAP[p.stem]]||'':'',jc=p?OC[ELEM_MAP[p.branch]]||'':'';h+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="info">${r.tenGods?.[k]?.stem||''}</div></div>`;});
+  h+='</div>';const oh=getOh(r),ohT=Object.values(oh).reduce((a,b)=>a+b,1);
   h+='<div class="oh-bar">';for(const[e,c]of Object.entries(oh))h+=`<span style="width:${(c/ohT*100).toFixed(1)}%;background:${ELEM_COLOR[e]}"></span>`;
-  h+='</div><div style="display:flex;justify-content:center;gap:10px;margin-top:4px">';
-  for(const[e,c]of Object.entries(oh))h+=`<span style="font-size:10px;color:${ELEM_COLOR[e]}">${e}${c}</span>`;
-  h+='</div></div>';
+  h+='</div><div style="display:flex;justify-content:center;gap:8px;margin-top:4px">';for(const[e,c]of Object.entries(oh))h+=`<span style="font-size:10px;color:${ELEM_COLOR[e]}">${e}${c}</span>`;h+='</div></div>';
   document.getElementById('sajuCardArea').innerHTML=h;
 }
 function renderInterp(){
-  const pd=S.saju.pillarDetails;
-  const ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子',mb=pd?.month?.branch||'子';
-  const ilju=ds+db;
-  let h=`<div class="analysis-block"><div class="a-title">🔥 ${ilju}일주 — ${ds}일간 기질</div><div class="a-body">${STEM_TEXT[ds]||''}</div></div>`;
-  h+=`<div class="analysis-block"><div class="a-title">🌙 내면 에너지 — ${db}지</div><div class="a-body">${BRANCH_TEXT[db]||''}</div></div>`;
-  h+=`<div class="analysis-block"><div class="a-title">🎭 사회적 페르소나 — ${mb}월</div><div class="a-body">${MONTH_TEXT[mb]||''}</div></div>`;
+  const pd=S.saju.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子',mb=pd?.month?.branch||'子';
+  let h=`<div class="analysis-block"><div class="a-title">🔥 ${ds+db}일주 — ${ds}일간</div><div class="a-body">${STEM_TEXT[ds]||''}</div></div>`;
+  h+=`<div class="analysis-block"><div class="a-title">🌙 내면 — ${db}지</div><div class="a-body">${BRANCH_TEXT[db]||''}</div></div>`;
+  h+=`<div class="analysis-block"><div class="a-title">🎭 페르소나 — ${mb}월</div><div class="a-body">${MONTH_TEXT[mb]||''}</div></div>`;
   document.getElementById('interpArea').innerHTML=h;
-}
-
-// ════════════════════════════════════════════
-//  CENTER: 스탯 + 유형 + 적성
-// ════════════════════════════════════════════
-function renderCenter(){
-  const st=S.stats,is=S.iljuStats,r=S.saju;if(!st)return;
-  const pd=r.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子';
-  const ilju=ds+db;
-  const sorted=STAT_KEYS.map(k=>({k,v:st[k]})).sort((a,b)=>b.v-a.v);
-  const top2key=sorted[0].k+'_'+sorted[1].k;
-  const typeName=TYPE_NAMES[top2key]||'균형형 ⚖️';
-  const adj=STEM_ADJ[ds]||'';
-
-  let h=`<div class="type-card"><div class="type-name">${adj} ${typeName}</div><div class="type-sub">${ilju} · ${r.advanced?.geukguk||'—'}</div></div>`;
-  h+=`<div style="text-align:center;margin-bottom:var(--gap)"><span class="strength-tag" style="background:${STAT_META.find(s=>s.key===sorted[0].k)?.color||'var(--gold)'}20;color:${STAT_META.find(s=>s.key===sorted[0].k)?.color}">강점: ${sorted[0].k} ${sorted[0].v}</span><span class="strength-tag" style="background:var(--surface3);color:var(--text3)">약점: ${sorted[4].k} ${sorted[4].v}</span></div>`;
-
-  STAT_META.forEach(s=>{const val=st[s.key],rk=getRank60(s.key,is[s.key]);
-    h+=`<div class="stat-row"><div class="stat-icon">${s.icon}</div><div class="stat-label">${s.key}</div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${val}%;background:${s.color}" data-val="${val}"></div></div><div class="stat-rank"><strong>${rk.rank}등</strong>/60<br>상위${rk.pct}%</div></div>`;});
-  const tRk=getRank60('종합전투력',is['종합전투력']);
-  h+=`<div class="stat-total"><div><div class="txt">종합 전투력</div><div class="num">${st.종합전투력}</div></div><div class="rank-info"><strong>${tRk.rank}등</strong>/60일주<br>상위 ${tRk.pct}%</div></div>`;
-
-  if(S.job){
-    const score=Math.round(st[S.job.primary]*.7+st[S.job.secondary]*.3);
-    let best='',bestCat=null,bestSc=0;
-    JOB_CATS.forEach(c=>{const sc=Math.round(st[c.primary]*.7+st[c.secondary]*.3);if(sc>bestSc){bestSc=sc;best=c.cat;bestCat=c;}});
-    let msg='',color='';
-    if(score>=80){msg='천직이에요! 🔥';color='var(--gold)';}
-    else if(score>=60){msg='꽤 잘 맞아요 👍';color='var(--stat-study)';}
-    else if(score>=40){msg='나쁘지 않아요 🤔';color='var(--text)';}
-    else if(score>=20){msg='음... 전직 고려? 😅';color='var(--stat-play)';}
-    else{msg='도망쳐!!! 🏃💨';color='var(--fire)';}
-    h+=`<hr class="divider"><div class="section-title">🎯 직군 적성</div><div class="job-match-card"><div style="font-size:12px;color:var(--text2)">${S.jobName} (${S.jobCat})</div><div class="job-match-pct" style="color:${color}">${score}%</div><div class="job-match-msg">${msg}</div>${best!==S.jobCat?`<div class="job-match-rec">추천 분야: ${best} (${bestSc}%)</div>`:'<div class="job-match-rec">당신의 천직 분야입니다!</div>'}</div>`;
-  }
-  document.getElementById('centerResult').innerHTML=h;
 }
 function getOh(r){if(r.fiveElements)return r.fiveElements;const oh={목:0,화:0,토:0,금:0,수:0};['year','month','day','hour'].forEach(k=>{const p=r.pillarDetails?.[k];if(!p)return;const se=ELEM_MAP[p.stem];if(se)oh[se]++;const be=ELEM_MAP[p.branch];if(be)oh[be]++;});return oh;}
 
-// ════════════════════════════════════════════
-//  RIGHT: 랭킹
-// ════════════════════════════════════════════
-function updateRegBtn(){document.getElementById('btnRegister').disabled=!(S.stats&&S.job);}
-window.doRegister=function(){
-  if(!S.stats||!S.job)return;
-  const name=document.getElementById('inName').value.trim()||'익명';
-  const pd=S.saju.pillarDetails,ilju=(pd?.day?.stem||'')+(pd?.day?.branch||'');
-  const players=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
-  const idx=players.findIndex(p=>p.name===name);
-  const entry={name,jobName:S.jobName,jobCat:S.jobCat,ilju,stats:{...S.stats},timestamp:Date.now()};
-  if(idx>=0)players[idx]=entry;else players.push(entry);
-  localStorage.setItem(LS_KEY,JSON.stringify(players));
-  renderRanking();toast(`✅ ${name} 등록!`);
-};
-let rankCat='종합전투력';
-function renderRankFilters(){document.getElementById('rankCatFilter').innerHTML=RANK_CATS.map(c=>`<button class="${c.key===rankCat?'active':''}" onclick="setRankCat('${c.key}',this)">${c.label}</button>`).join('');}
-window.setRankCat=function(c,el){rankCat=c;document.querySelectorAll('#rankCatFilter button').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderRanking();};
-function renderRanking(){
-  let ps=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
-  ps.sort((a,b)=>(b.stats[rankCat]||0)-(a.stats[rankCat]||0));
-  if(!ps.length){document.getElementById('rankTable').innerHTML='<div class="rank-empty">아직 등록된 참가자가 없습니다</div>';return;}
-  let h='<table class="rank-table"><thead><tr><th>#</th><th>이름</th><th>일주</th><th>직업</th><th style="text-align:right">점수</th></tr></thead><tbody>';
-  ps.forEach((p,i)=>{const m=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    h+=`<tr><td class="rank-num">${m||i+1}</td><td class="rank-name">${p.name}</td><td style="color:var(--gold)">${p.ilju}</td><td style="color:var(--text2);font-size:10px">${p.jobName||''}</td><td class="rank-score">${p.stats[rankCat]||0}</td></tr>`;});
-  h+='</tbody></table>';document.getElementById('rankTable').innerHTML=h;
+// CENTER RENDER
+function renderCenter(){
+  const st=S.stats,r=S.saju;if(!st)return;
+  const pd=r.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子',ilju=ds+db;
+  const sorted=STAT_KEYS.map(k=>({k,v:st[k]})).sort((a,b)=>b.v-a.v);
+  const typeName=TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형 ⚖️';
+  const mbti=calcMBTI(S.tg);
+
+  let h=`<div class="type-card"><div class="type-name">${STEM_ADJ[ds]||''} ${typeName}</div><div class="type-sub">${ilju} · ${r.advanced?.geukguk||'—'}</div></div>`;
+  h+=`<div class="mbti-card"><div class="mbti-code">${mbti}</div><div class="mbti-desc">${MBTI_DESC[mbti]||''}</div></div>`;
+  h+=`<div style="text-align:center;margin-bottom:var(--gap)"><span class="strength-tag" style="background:#ffd74030;color:#ffd740">강점: ${sorted[0].k}</span><span class="strength-tag" style="background:var(--surface3);color:var(--text3)">약점: ${sorted[4].k}</span></div>`;
+  // stat bars
+  const SM=[{key:'재물력',icon:'💰',color:'var(--stat-money)'},{key:'놀기력',icon:'🎉',color:'var(--stat-play)'},{key:'리더력',icon:'👑',color:'var(--stat-lead)'},{key:'학습력',icon:'🧠',color:'var(--stat-study)'},{key:'독립력',icon:'⚔️',color:'var(--stat-solo)'}];
+  SM.forEach(s=>{const v=st[s.key];h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:14px;width:20px;text-align:center">${s.icon}</span><span style="width:42px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span><div style="flex:1;height:20px;background:var(--surface3);border-radius:10px;overflow:hidden"><div style="height:100%;width:${v}%;background:${s.color};border-radius:10px;position:relative"><span style="position:absolute;right:6px;top:2px;font-size:10px;font-weight:800;color:#111">${v}</span></div></div></div>`;});
+  h+=`<div style="text-align:center;padding:8px;background:var(--surface3);border-radius:var(--radius);border:1px solid var(--border);margin-top:4px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:30px;font-weight:700;color:var(--gold)">${st.종합}</span></div>`;
+  document.getElementById('centerResult').innerHTML=h;
 }
+
+function updateJobRec(){
+  if(!S.stats){document.getElementById('jobRecArea').innerHTML='';return;}
+  const st=S.stats;
+  // 추천 카테고리 상위 3개
+  const ranked=JOB_CATS.map(c=>({...c,score:Math.round(st[c.primary]*.7+st[c.secondary]*.3)})).sort((a,b)=>b.score-a.score);
+  const top3=ranked.slice(0,3);
+  const totalJobs=JOB_CATS.reduce((s,c)=>s+c.jobs.length,0);
+  const matchJobs=top3.reduce((s,c)=>s+c.jobs.length,0);
+  let h=`<div class="job-rec"><strong>📌 사주 기반 추천 직군</strong><br>`;
+  top3.forEach((c,i)=>h+=`${i+1}. ${c.cat} (${c.score}%) — ${c.jobs.length}개 직업<br>`);
+  h+=`<br>전체 ${totalJobs}개 직업 중 <strong>${matchJobs}개</strong>가 높은 적성 (상위 3개 카테고리)</div>`;
+  document.getElementById('jobRecArea').innerHTML=h;
+}
+
+// RIGHT: RADAR + PROFILE
+function renderRight(){
+  if(!S.radar)return;
+  let h='';
+  h+='<div class="radar-grid">';
+  for(const[title,data]of Object.entries(S.radar)){
+    h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title}</div>${radarSVG(data.axes,data.color)}</div>`;
+  }
+  h+='</div>';
+  // 종합 프로필 카드
+  const pd=S.saju.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子',mb=pd?.month?.branch||'子';
+  const mbti=calcMBTI(S.tg);
+  const sorted=STAT_KEYS.map(k=>({k,v:S.stats[k]})).sort((a,b)=>b.v-a.v);
+  const typeName=TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형';
+  h+=`<div class="right-card"><div style="font-size:11px;font-weight:800;color:var(--gold);margin-bottom:6px">📋 종합 프로필</div>
+    <div style="font-size:12px;line-height:1.7;color:var(--text)">
+    <b>${ds+db}일주</b>의 당신은 <b>${STEM_ADJ[ds]}</b> 기질의 <b>${typeName.replace(/[^\w가-힣]/g,'')}</b>.<br>
+    MBTI 추정: <b style="color:var(--stat-lead)">${mbti}</b><br>
+    강점 영역: <b>${sorted[0].k}</b> · <b>${sorted[1].k}</b><br>
+    보완 영역: <b>${sorted[4].k}</b> · <b>${sorted[3].k}</b><br>
+    격국: ${S.saju.advanced?.geukguk||'—'} · 강약: ${S.saju.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}
+    </div></div>`;
+  document.getElementById('rightResult').innerHTML=h;
+}
+
+// JOB MODAL
+window.openJobModal=function(){
+  const st=S.stats;
+  let banner='';
+  if(st){
+    const ranked=JOB_CATS.map(c=>({...c,score:Math.round(st[c.primary]*.7+st[c.secondary]*.3)})).sort((a,b)=>b.score-a.score);
+    const top=ranked.slice(0,3).map(c=>c.cat);
+    banner=`<div class="modal-rec-banner"><strong>📌 추천 직군:</strong> ${top.join(', ')}<br><span style="font-size:11px;color:var(--text2)">★ 표시 = 사주 적성 높은 카테고리</span></div>`;
+  }
+  const body=document.getElementById('jobModalBody');
+  body.innerHTML=banner+JOB_CATS.map(c=>{
+    const isRec=st&&(Math.round(st[c.primary]*.7+st[c.secondary]*.3)>=60);
+    return `<div class="jcat-title">${c.cat}${isRec?'<span class="rec-badge">★ 추천</span>':''}</div><div class="jcat-grid">${c.jobs.map(j=>`<button class="jcat-btn${S.jobName===j?' active':''}" data-job="${j}" data-cat="${c.cat}" onclick="pickJob(this)">${j}</button>`).join('')}</div>`;
+  }).join('');
+  document.getElementById('jobModal').classList.add('show');tempJob=S.jobName;tempJobCat=S.jobCat;
+};
+window.closeJobModal=function(){document.getElementById('jobModal').classList.remove('show');};
+window.pickJob=function(el){document.querySelectorAll('.jcat-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tempJob=el.dataset.job;tempJobCat=el.dataset.cat;};
+window.confirmJob=function(){if(!tempJob){toast('직업을 선택하세요');return;}S.jobName=tempJob;S.jobCat=tempJobCat;S.job=JOB_CATS.find(c=>c.cat===tempJobCat);document.getElementById('jobSelectBtn').textContent='🏷️ '+tempJob+' ('+tempJobCat+')';document.getElementById('jobSelectBtn').classList.add('selected');closeJobModal();if(S.stats)renderCenter();};
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 </body>
