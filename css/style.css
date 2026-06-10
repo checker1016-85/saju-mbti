@@ -79,3 +79,28 @@ input:focus,select:focus{border-color:var(--gold)}
 .right-card{background:var(--surface2);border-radius:var(--radius);padding:12px;margin-bottom:10px;border:1px solid var(--border)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}.toast.show{opacity:1}
 .placeholder{color:var(--text3);font-size:12px;text-align:center;padding:24px}
+
+/* MBTI Selection */
+.mbti-axes{margin-bottom:10px}
+.mbti-axis{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.mbti-axis .axis-label{font-size:10px;color:var(--text3);width:16px;text-align:center;font-weight:800}
+.mbti-axis .axis-bar{flex:1;display:flex;height:28px;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.mbti-axis .axis-btn{flex:1;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;background:var(--surface);color:var(--text3)}
+.mbti-axis .axis-btn:first-child{border-right:1px solid var(--border)}
+.mbti-axis .axis-btn.active{background:var(--stat-lead);color:#fff}
+.mbti-axis .axis-btn.rec{box-shadow:inset 0 -2px 0 var(--gold)}
+.mbti-rec-list{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.mbti-rec-tag{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:inherit;transition:all .12s}
+.mbti-rec-tag:hover{border-color:var(--gold)}
+.mbti-rec-tag.active{background:var(--stat-lead);color:#fff;border-color:var(--stat-lead)}
+.mbti-rec-tag.recommended{border-color:var(--gold);background:rgba(184,134,11,.1)}
+
+/* Enneagram */
+.ennea-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin-bottom:8px}
+.ennea-btn{padding:6px 2px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;transition:all .12s}
+.ennea-btn:hover{border-color:var(--gold);color:var(--text)}
+.ennea-btn.active{background:var(--stat-solo);color:#fff;border-color:var(--stat-solo)}
+.ennea-btn.recommended{border-color:var(--gold);background:rgba(184,134,11,.15)}
+.ennea-btn.wing{background:var(--surface3);border-color:var(--stat-solo);color:var(--stat-solo)}
+.ennea-result{background:var(--surface2);border-radius:var(--radius);padding:10px;border:1px solid var(--border);font-size:12px;line-height:1.6;margin-bottom:8px}
+.ennea-result strong{color:var(--gold-dim)}

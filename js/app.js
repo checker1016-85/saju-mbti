@@ -1,5 +1,5 @@
 // ═══ STATE ═══
-const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null};
+const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null,mbti:null,ennea:null,selectedMBTI:null,selectedEnnea:null};
 let tempJob=null,tempJobCat=null,timeMode='ganji';
 
 // ═══ INIT ═══
@@ -53,7 +53,9 @@ window.doCalc=function(){
   const cal=document.querySelector('input[name="cal"]:checked').value;
   const r=window._ssaju({year:+document.getElementById('inYear').value,month:+document.getElementById('inMonth').value,day:+document.getElementById('inDay').value,hour,minute,gender:document.getElementById('inGender').value,calendar:cal==='lunar'||cal==='leap'?'lunar':'solar'});
   S.saju=r;S.tg=countTG(r);S.stats=calcStats(r,S.tg);S.radar=calcRadar(S.tg,r);
-  renderSajuCard();renderInterp();renderCenter();renderRight();updateJobRec();toast('✅ 분석 완료');
+  S.mbti=calcMBTIFull(S.tg);S.selectedMBTI=S.mbti.primary;
+  S.ennea=calcEnneagram(S.tg);S.selectedEnnea=S.ennea.primary;
+  renderSajuCard();renderInterp();renderMBTI();renderEnnea();renderCenter();renderRight();updateJobRec();toast('✅ 분석 완료');
 };
 
 function countTG(r){const c={};['year','month','day','hour'].forEach(p=>{if(!r.tenGods?.[p])return;[r.tenGods[p].stem,r.tenGods[p].branch].forEach(t=>{if(t&&t!=='(일간)'&&t!=='일간')c[t]=(c[t]||0)+1;});});return c;}
@@ -105,12 +107,39 @@ function calcRadar(tg,r){
   };
 }
 
-function calcMBTI(tg){
+// ═══ MBTI (축별 점수 + 추천 범위) ═══
+function calcMBTIFull(tg){
   const ext=tgVal(tg,['식신','상관','편재','정재']),intr=tgVal(tg,['편인','정인','비견','겁재']);
   const sns=tgVal(tg,['편재','정재','편관','정관']),ntu=tgVal(tg,['식신','상관','편인','정인']);
   const thk=tgVal(tg,['편관','정관','비견','겁재']),fee=tgVal(tg,['식신','상관','편재','정재']);
   const jdg=tgVal(tg,['정관','정재','정인']),prc=tgVal(tg,['편관','편재','편인','상관']);
-  return (ext>intr?'E':'I')+(sns>ntu?'S':'N')+(thk>fee?'T':'F')+(jdg>=prc?'J':'P');
+  const pct=(a,b)=>Math.round(a/(a+b+0.01)*100);
+  const axes={E:pct(ext,intr),I:pct(intr,ext),S:pct(sns,ntu),N:pct(ntu,sns),T:pct(thk,fee),F:pct(fee,thk),J:pct(jdg,prc),P:pct(prc,jdg)};
+  const primary=(axes.E>=axes.I?'E':'I')+(axes.S>=axes.N?'S':'N')+(axes.T>=axes.F?'T':'F')+(axes.J>=axes.P?'J':'P');
+  // 추천 범위: 차이 15% 이내면 양쪽 가능
+  const threshold=15;
+  const ei=Math.abs(axes.E-axes.I)<threshold?['E','I']:[axes.E>axes.I?'E':'I'];
+  const sn=Math.abs(axes.S-axes.N)<threshold?['S','N']:[axes.S>axes.N?'S':'N'];
+  const tf=Math.abs(axes.T-axes.F)<threshold?['T','F']:[axes.T>axes.F?'T':'F'];
+  const jp=Math.abs(axes.J-axes.P)<threshold?['J','P']:[axes.J>axes.P?'J':'P'];
+  const recommended=[];
+  ei.forEach(e=>sn.forEach(s=>tf.forEach(t=>jp.forEach(p=>recommended.push(e+s+t+p)))));
+  return {axes,primary,recommended};
+}
+function calcMBTI(tg){return calcMBTIFull(tg).primary;}
+
+// ═══ 에니어그램 (9유형 점수) ═══
+function calcEnneagram(tg){
+  const tgArr=[tg['편재']||0,tg['정재']||0,tg['식신']||0,tg['상관']||0,tg['편관']||0,tg['정관']||0,tg['편인']||0,tg['정인']||0,tg['비견']||0,tg['겁재']||0];
+  const scores={};
+  for(let i=1;i<=9;i++){
+    let s=0;ENNEA_WEIGHTS[i].forEach((w,j)=>s+=w*tgArr[j]);
+    scores[i]=s;
+  }
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const primary=+sorted[0][0];
+  const recommended=sorted.filter(([k,v])=>v>=sorted[0][1]*0.5).map(([k])=>+k).slice(0,3);
+  return {scores,primary,recommended};
 }
 
 // ═══ LEFT RENDER ═══
@@ -174,13 +203,66 @@ function getDBPersonality(stem,gender){
 
 function getOh(r){if(r.fiveElements)return r.fiveElements;const oh={목:0,화:0,토:0,금:0,수:0};['year','month','day','hour'].forEach(k=>{const p=r.pillarDetails?.[k];if(!p)return;const se=ELEM_MAP[p.stem];if(se)oh[se]++;const be=ELEM_MAP[p.branch];if(be)oh[be]++;});return oh;}
 
+// ═══ MBTI 선택 UI ═══
+function renderMBTI(){
+  if(!S.mbti)return;
+  const m=S.mbti,ax=m.axes;
+  const pairs=[['E','I'],['S','N'],['T','F'],['J','P']];
+  let h='<div class="mbti-axes">';
+  pairs.forEach(([a,b])=>{
+    const aRec=m.recommended.some(r=>r.includes(a)),bRec=m.recommended.some(r=>r.includes(b));
+    const aActive=S.selectedMBTI.includes(a),bActive=S.selectedMBTI.includes(b);
+    h+=`<div class="mbti-axis"><span class="axis-label">${a}</span><div class="axis-bar">
+      <button class="axis-btn${aActive?' active':''}${aRec?' rec':''}" onclick="toggleMBTIAxis('${a}','${b}')">${a} ${ax[a]}%</button>
+      <button class="axis-btn${bActive?' active':''}${bRec?' rec':''}" onclick="toggleMBTIAxis('${b}','${a}')">${b} ${ax[b]}%</button>
+    </div><span class="axis-label">${b}</span></div>`;
+  });
+  h+='</div>';
+  // 추천 + 전체 16개
+  h+='<div style="font-size:10px;color:var(--text3);margin-bottom:4px">추천 범위 (금색 밑줄) / 전체 16개 선택 가능</div><div class="mbti-rec-list">';
+  MBTI_ALL.forEach(t=>{
+    const isRec=m.recommended.includes(t);
+    const isActive=S.selectedMBTI===t;
+    h+=`<button class="mbti-rec-tag${isActive?' active':''}${isRec?' recommended':''}" onclick="selectMBTI('${t}')">${t}</button>`;
+  });
+  h+='</div>';
+  // 선택된 MBTI 설명
+  h+=`<div class="ennea-result"><strong>${S.selectedMBTI}</strong> — ${MBTI_DESC[S.selectedMBTI]||''}</div>`;
+  document.getElementById('mbtiArea').innerHTML=h;
+}
+window.toggleMBTIAxis=function(pick,other){
+  let code=S.selectedMBTI.split('');
+  const idx=code.indexOf(other);if(idx>=0)code[idx]=pick;
+  S.selectedMBTI=code.join('');renderMBTI();renderCenter();renderRight();
+};
+window.selectMBTI=function(type){S.selectedMBTI=type;renderMBTI();renderCenter();renderRight();};
+
+// ═══ 에니어그램 선택 UI ═══
+function renderEnnea(){
+  if(!S.ennea)return;
+  const en=S.ennea,main=S.selectedEnnea;
+  const w1=main===1?9:main-1, w2=main===9?1:main+1;
+  let h='<div class="ennea-grid">';
+  for(let i=1;i<=9;i++){
+    const isRec=en.recommended.includes(i);
+    const isMain=i===main;
+    const isWing=i===w1||i===w2;
+    h+=`<button class="ennea-btn${isMain?' active':''}${isRec&&!isMain?' recommended':''}${isWing&&!isMain?' wing':''}" onclick="selectEnnea(${i})">${i}</button>`;
+  }
+  h+='</div>';
+  h+=`<div style="font-size:10px;color:var(--text3);margin-bottom:6px">추천: ${en.recommended.map(n=>n+'번').join(', ')} / 날개: ${w1}w${main} 또는 ${main}w${w2}</div>`;
+  h+=`<div class="ennea-result"><strong>${main}번 ${ENNEA_NAMES[main]}</strong><br>${ENNEA_DESC[main]||''}<br><br>날개 <strong>${w1}번 ${ENNEA_NAMES[w1]}</strong> ↔ <strong>${w2}번 ${ENNEA_NAMES[w2]}</strong></div>`;
+  document.getElementById('enneaArea').innerHTML=h;
+}
+window.selectEnnea=function(n){S.selectedEnnea=n;renderEnnea();renderRight();};
+
 // ═══ CENTER ═══
 function renderCenter(){
   const st=S.stats,r=S.saju;if(!st)return;
   const pd=r.pillarDetails,ds=pd?.day?.stem||'甲',ilju=ds+(pd?.day?.branch||'?');
   const sorted=STAT_KEYS.map(k=>({k,v:st[k]})).sort((a,b)=>b.v-a.v);
   const typeName=TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형 ⚖️';
-  const mbti=calcMBTI(S.tg);
+  const mbti=S.selectedMBTI||calcMBTI(S.tg);
   let h=`<div class="type-card"><div class="type-name">${STEM_ADJ[ds]||''} ${typeName}</div><div class="type-sub">${ilju} · ${r.advanced?.geukguk||'—'}</div></div>`;
   h+=`<div class="mbti-card"><div class="mbti-code">${mbti}</div><div class="mbti-desc">${MBTI_DESC[mbti]||''}</div></div>`;
   h+=`<div style="text-align:center;margin-bottom:var(--gap)"><span class="strength-tag" style="background:rgba(184,134,11,.15);color:var(--gold-dim)">강점: ${sorted[0].k}</span><span class="strength-tag" style="background:var(--surface3);color:var(--text3)">약점: ${sorted[4].k}</span></div>`;
@@ -212,13 +294,16 @@ function renderRight(){
   }
   h+='</div>';
   const pd=S.saju.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子';
-  const mbti=calcMBTI(S.tg);
+  const mbti=S.selectedMBTI||calcMBTI(S.tg);
   const sorted=STAT_KEYS.map(k=>({k,v:S.stats[k]})).sort((a,b)=>b.v-a.v);
   const typeName=TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형';
+  const enMain=S.selectedEnnea||S.ennea?.primary||1;
+  const enW1=enMain===1?9:enMain-1, enW2=enMain===9?1:enMain+1;
   h+=`<div class="right-card"><div style="font-size:11px;font-weight:800;color:var(--gold-dim);margin-bottom:6px">📋 종합 프로필</div>
     <div style="font-size:12px;line-height:1.7;color:var(--text)">
     <b>${ds+db}일주</b> — <b>${STEM_ADJ[ds]}</b> ${typeName.replace(/[^\w가-힣]/g,'')}<br>
-    MBTI 추정: <b style="color:var(--stat-lead)">${mbti}</b><br>
+    MBTI: <b style="color:var(--stat-lead)">${mbti}</b> · ${MBTI_DESC[mbti]?.split('—')[0]||''}<br>
+    에니어그램: <b style="color:var(--stat-solo)">${enMain}번 ${ENNEA_NAMES[enMain]||''}</b> (${enW1}w${enMain}/${enMain}w${enW2})<br>
     강점: <b>${sorted[0].k}</b> · <b>${sorted[1].k}</b><br>
     보완: <b>${sorted[4].k}</b> · <b>${sorted[3].k}</b><br>
     격국: ${S.saju.advanced?.geukguk||'—'} · ${S.saju.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}
