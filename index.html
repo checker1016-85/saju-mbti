@@ -68,26 +68,33 @@
   <div id="interpArea"><div class="placeholder">만세력 조회 후 자동 표시됩니다.</div></div>
 </div>
 
-<!-- CENTER -->
+<!-- CENTER: 3대 프레임 + 종합 -->
 <div class="panel">
-  <div class="section-title">💼 직업 선택</div>
-  <button class="job-select-btn" id="jobSelectBtn" onclick="openJobModal()">🏷️ 직업 선택 (클릭)</button>
-  <div id="jobRecArea"></div>
+  <div class="section-title">☯️ 1. 명리 (사주)</div>
+  <div id="myungriArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
 
-  <div class="section-title">🧠 MBTI</div>
-  <div id="mbtiArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
-
-  <div class="section-title">🔷 에니어그램</div>
+  <hr class="divider">
+  <div class="section-title">🔷 2. 에니어그램</div>
   <div id="enneaArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
 
   <hr class="divider">
-  <div id="centerResult"><div class="placeholder">만세력 조회 후 결과가 표시됩니다</div></div>
+  <div class="section-title">🧠 3. MBTI</div>
+  <div id="mbtiArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+
+  <hr class="divider">
+  <div class="section-title">📋 종합 프로필</div>
+  <div id="summaryArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
 </div>
 
-<!-- RIGHT -->
+<!-- RIGHT: 성향 프로필 + 직업 -->
 <div class="panel">
   <div class="section-title">📊 성향 프로필</div>
   <div id="rightResult"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+
+  <hr class="divider">
+  <div class="section-title">💼 직업 선택 (추가)</div>
+  <button class="job-select-btn" id="jobSelectBtn" onclick="openJobModal()">🏷️ 직업 선택 (클릭)</button>
+  <div id="jobRecArea"></div>
 </div>
 </div>
 
@@ -97,6 +104,24 @@
     <div class="modal-header"><h2>🏷️ 직업 선택</h2><button class="modal-close" onclick="closeJobModal()">✕</button></div>
     <div class="modal-body" id="jobModalBody"></div>
     <div class="modal-footer"><button class="btn btn-sub" onclick="closeJobModal()">취소</button><button class="btn btn-gold" onclick="confirmJob()">✓ 선택 확인</button></div>
+  </div>
+</div>
+
+<!-- ENNEAGRAM MODAL -->
+<div class="modal-overlay" id="enneaModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🔷 에니어그램 선택</h2><button class="modal-close" onclick="closeEnneaModal()">✕</button></div>
+    <div class="modal-body" id="enneaModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-sub" onclick="closeEnneaModal()">취소</button><button class="btn btn-gold" onclick="confirmEnnea()">✓ 선택 확인</button></div>
+  </div>
+</div>
+
+<!-- MBTI MODAL -->
+<div class="modal-overlay" id="mbtiModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🧠 MBTI 선택</h2><button class="modal-close" onclick="closeMBTIModal()">✕</button></div>
+    <div class="modal-body" id="mbtiModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-sub" onclick="closeMBTIModal()">취소</button><button class="btn btn-gold" onclick="confirmMBTI()">✓ 선택 확인</button></div>
   </div>
 </div>
 <div id="toast" class="toast"></div>

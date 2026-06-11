@@ -104,3 +104,55 @@ input:focus,select:focus{border-color:var(--gold)}
 .ennea-btn.wing{background:var(--surface3);border-color:var(--stat-solo);color:var(--stat-solo)}
 .ennea-result{background:var(--surface2);border-radius:var(--radius);padding:10px;border:1px solid var(--border);font-size:12px;line-height:1.6;margin-bottom:8px}
 .ennea-result strong{color:var(--gold-dim)}
+
+/* ═══ 3대 프레임 카드 ═══ */
+.frame-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border-radius:var(--radius);padding:14px;margin-bottom:10px;border:1px solid var(--gold);text-align:center}
+.frame-main{font-size:18px;font-weight:900;color:var(--gold-dim);margin-bottom:3px}
+.frame-sub{font-size:11px;color:var(--text2)}
+.frame-detail{font-size:12px;color:var(--text);line-height:1.6;background:var(--surface2);border-radius:8px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border)}
+.frame-detail b{color:var(--gold-dim)}
+.frame-wing{font-size:11px;color:var(--text2);background:var(--surface3);border-radius:8px;padding:8px 10px;margin-bottom:8px;text-align:center}
+.frame-wing b{color:var(--stat-solo)}
+.frame-select-btn{width:100%;padding:9px;background:var(--surface);border:1px solid var(--gold);border-radius:8px;color:var(--gold-dim);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;margin-bottom:6px}
+.frame-select-btn:hover{background:var(--gold);color:#fff}
+
+/* MBTI 미니 축 */
+.mbti-mini-axes{margin-bottom:8px}
+.mbti-mini-axis{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:10px;color:var(--text3)}
+.mbti-mini-axis span{width:52px;text-align:center}
+.mbti-mini-axis span.on{color:var(--stat-lead);font-weight:800}
+.mbti-mini-axis .mini-bar{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;position:relative}
+.mbti-mini-axis .mini-fill{height:100%;border-radius:3px}
+
+/* 종합 프로필 카드 */
+.summary-card{background:var(--surface2);border-radius:var(--radius);padding:12px;border:1px solid var(--gold)}
+.summary-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.summary-row:last-child{border-bottom:none}
+.summary-row .s-icon{font-size:16px;width:22px;text-align:center}
+.summary-row .s-label{font-size:11px;color:var(--text3);font-weight:700;width:48px}
+.summary-row .s-val{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.summary-row .s-val small{font-size:10px;color:var(--text3);font-weight:400}
+
+/* 에니어그램 모달 그리드 */
+.ennea-modal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ennea-modal-btn{position:relative;padding:14px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:inherit;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ennea-modal-btn:hover{border-color:var(--gold)}
+.ennea-modal-btn.active{background:var(--stat-solo);border-color:var(--stat-solo)}
+.ennea-modal-btn.active .en-num,.ennea-modal-btn.active .en-name{color:#fff}
+.ennea-modal-btn.recommended{border-color:var(--gold);background:rgba(184,134,11,.08)}
+.ennea-modal-btn .en-num{font-size:20px;font-weight:900;color:var(--stat-solo)}
+.ennea-modal-btn .en-name{font-size:11px;color:var(--text2);font-weight:700}
+.ennea-modal-btn .en-badge{position:absolute;top:4px;right:6px;font-size:10px;color:var(--gold)}
+.ennea-result{background:var(--surface2);border-radius:8px;padding:12px;border:1px solid var(--border);font-size:12px;line-height:1.6}
+.ennea-result strong{color:var(--gold-dim)}
+
+/* MBTI 모달 그리드 */
+.mbti-modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.mbti-modal-btn{position:relative;padding:12px 6px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:inherit;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.mbti-modal-btn:hover{border-color:var(--gold)}
+.mbti-modal-btn.active{background:var(--stat-lead);border-color:var(--stat-lead)}
+.mbti-modal-btn.active .mb-code,.mbti-modal-btn.active .mb-name{color:#fff}
+.mbti-modal-btn.recommended{border-color:var(--gold);background:rgba(184,134,11,.08)}
+.mbti-modal-btn .mb-code{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--stat-lead)}
+.mbti-modal-btn .mb-name{font-size:9px;color:var(--text3);text-align:center;line-height:1.2}
+.mbti-modal-btn .en-badge{position:absolute;top:3px;right:5px;font-size:9px;color:var(--gold)}
