@@ -112,35 +112,32 @@ function renderSajuCard(){
     h+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="tg-top">${ganTg}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div><div class="tg-bot">${jiTg}</div></div>`;});
   h+='</div>';
   const oh=getOh(r),ohT=Object.values(oh).reduce((a,b)=>a+b,1);
-  h+='<div class="oh-bar">';for(const[e,c]of Object.entries(oh))h+=`<span style="width:${(c/ohT*100).toFixed(1)}%;background:${ELEM_COLOR[e]}"></span>`;
-  h+='</div><div style="display:flex;justify-content:center;gap:8px;margin-top:4px">';for(const[e,c]of Object.entries(oh))h+=`<span style="font-size:10px;color:${ELEM_COLOR[e]}">${e}${c}</span>`;h+='</div></div>';
+  h+='<div class="oh-bar">';for(const[e,c]of Object.entries(oh)){if(c>0)h+=`<span style="flex:${c};background:${ELEM_COLOR[e]}"></span>`;}
+  h+='</div><div style="display:flex;justify-content:center;gap:8px;margin-top:4px;flex-wrap:wrap">';for(const[e,c]of Object.entries(oh))h+=`<span style="font-size:10px;color:${ELEM_COLOR[e]}">${e}${c}</span>`;h+='</div></div>';
   document.getElementById('sajuCardArea').innerHTML=h;
 }
 function renderSajuMeta(){
   const r=S.saju;
   const keys=['hour','day','month','year'],klabel={hour:'시',day:'일',month:'월',year:'년'};
   let h='<div class="meta-box">';
-  // 십성
-  let tgLine=keys.map(k=>{const t=r.tenGods?.[k];if(!t)return '';return `${klabel[k]}간 ${t.stem||'-'}`;}).filter(Boolean).join(' · ');
-  let tgLine2=keys.map(k=>{const t=r.tenGods?.[k];if(!t)return '';return `${klabel[k]}지 ${t.branch||'-'}`;}).filter(Boolean).join(' · ');
-  h+=metaRow('십성', (tgLine?tgLine+'<br>':'')+tgLine2);
   // 12운성
   if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${klabel[k]} ${r.stages12.bong[k]}`:'').filter(Boolean).join(' · ');if(s)h+=metaRow('12운성',s);}
   // 천간 관계
-  if(r.stemRelations&&r.stemRelations.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=metaRow('천간',s);}
-  // 지지 관계 (합충형파해 등)
-  if(r.branchRelations){const parts=[];for(const[type,val]of Object.entries(r.branchRelations)){if(val&&(Array.isArray(val)?val.length:Object.keys(val).length)){const vstr=Array.isArray(val)?val.join(','):Object.values(val).filter(Boolean).join(',');if(vstr)parts.push(type+' '+vstr);}}if(parts.length)h+=metaRow('지지',parts.join(' · '));}
+  if(r.stemRelations&&r.stemRelations.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=metaRow('천간 관계',s);}
+  // 지지 관계
+  if(r.branchRelations){const parts=[];for(const[type,val]of Object.entries(r.branchRelations)){if(val&&(Array.isArray(val)?val.length:Object.keys(val).length)){const vstr=Array.isArray(val)?val.join(','):Object.values(val).filter(Boolean).join(',');if(vstr)parts.push(type+' '+vstr);}}if(parts.length)h+=metaRow('지지 관계',parts.join(' · '));}
   // 신살
   if(r.sals){const parts=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;const arr=[];if(s.twelveSal)arr.push(s.twelveSal);if(s.specialSals&&s.specialSals.length)arr.push(...s.specialSals);if(arr.length)parts.push(arr.join(','));});if(parts.length)h+=metaRow('신살',[...new Set(parts.join(',').split(','))].join(' · '));}
-  // 격국 / 용신
-  const gk=r.advanced?.geukguk||'';const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');
-  if(gk||ys)h+=metaRow('격국/용신',(gk?'격국: '+gk:'')+(gk&&ys?' / ':'')+(ys?'용신: '+ys:''));
+  // 격국
+  const gk=r.advanced?.geukguk||'';if(gk)h+=metaRow('격국',gk);
+  // 용신
+  const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');if(ys)h+=metaRow('용신',ys);
   // 공망
   if(r.gongmang){const g=Array.isArray(r.gongmang)?r.gongmang.join(', '):r.gongmang;if(g)h+=metaRow('공망',g);}
   h+='</div>';
   document.getElementById('sajuMetaArea').innerHTML=h;
 }
-function metaRow(label,val){return `<div class="meta-row"><span class="meta-label">${label}</span><span class="meta-val">${val}</span></div>`;}
+function metaRow(label,val){return `<div class="meta-row"><div class="meta-label">${label}</div><div class="meta-val">${val}</div></div>`;}
 function getDBPersonality(stem,gender){
   if(!S.db)return null;
   try{const file=S.db['30_성별나이'];if(!file)return null;

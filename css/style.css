@@ -12,7 +12,7 @@
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .header{background:var(--surface);border-bottom:2px solid var(--gold);padding:12px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .header h1{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--gold-dim)}.header .sub{font-size:11px;color:var(--text2)}
-.main{display:grid;grid-template-columns:1fr 2.5fr 2.5fr;height:calc(100vh - 50px)}
+.main{display:grid;grid-template-columns:1.5fr 2.5fr 2.5fr;height:calc(100vh - 50px)}
 /* 중간 해상도: 좌측은 위로, 중앙+우측은 1:1 2칼럼 유지 */
 @media(max-width:1100px){.main{grid-template-columns:1fr 1fr;height:auto}.main>.panel:first-child{grid-column:1/-1;border-right:none;border-bottom:1px solid var(--border)}}
 /* 모바일: 전부 1칼럼 */
@@ -51,7 +51,8 @@ input:focus,select:focus{border-color:var(--gold)}
 .oh-wood{color:var(--wood)!important}.oh-fire{color:var(--fire)!important}
 .oh-earth{color:var(--earth)!important}.oh-metal{color:var(--metal)!important}
 .oh-water{color:var(--water)!important}
-.oh-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:6px 0}
+.oh-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:8px 0;width:100%}
+.oh-bar span{display:block;height:100%}
 .analysis-block{background:var(--surface2);border-radius:var(--radius);padding:12px;margin-bottom:10px;border:1px solid var(--border)}
 .analysis-block .a-title{font-size:11px;font-weight:800;color:var(--gold-dim);margin-bottom:4px}
 .analysis-block .a-body{font-size:12px;color:var(--text);line-height:1.6}
@@ -182,7 +183,7 @@ input:focus,select:focus{border-color:var(--gold)}
 
 /* 사주 메타 정보 (십성/12운성/신살 등) */
 .meta-box{margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.meta-row{display:flex;gap:8px;padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
+.meta-row{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
 .meta-row:last-child{border-bottom:none}
-.meta-label{font-size:10px;font-weight:800;color:var(--gold-dim);width:54px;flex-shrink:0}
-.meta-val{font-size:11px;color:var(--text);line-height:1.5;flex:1}
+.meta-label{font-size:10px;font-weight:800;color:var(--gold-dim);margin-bottom:3px}
+.meta-val{font-size:11px;color:var(--text);line-height:1.5}
