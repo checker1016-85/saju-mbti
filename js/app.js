@@ -104,7 +104,9 @@ function renderSajuCard(){
   const r=S.saju,pd=r.pillarDetails;const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
   let h='<div class="saju-card"><div class="pillar-row">';
   keys.forEach((k,i)=>{const p=pd?.[k];const gc=p?OC[ELEM_MAP[p.stem]]||'':'',jc=p?OC[ELEM_MAP[p.branch]]||'':'';const gKr=p?HANJA_KR[p.stem]||'':'',jKr=p?HANJA_KR[p.branch]||'':'';
-    h+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div><div class="info">${r.tenGods?.[k]?.stem||''}</div></div>`;});
+    const ganTg=r.tenGods?.[k]?.stem||'';
+    const jiTg=r.tenGods?.[k]?.branch||'';
+    h+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="tg-top">${ganTg}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div><div class="tg-bot">${jiTg}</div></div>`;});
   h+='</div>';
   const oh=getOh(r),ohT=Object.values(oh).reduce((a,b)=>a+b,1);
   h+='<div class="oh-bar">';for(const[e,c]of Object.entries(oh))h+=`<span style="width:${(c/ohT*100).toFixed(1)}%;background:${ELEM_COLOR[e]}"></span>`;

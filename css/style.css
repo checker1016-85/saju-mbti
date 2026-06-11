@@ -37,12 +37,14 @@ input:focus,select:focus{border-color:var(--gold)}
 .time-box{height:42px;margin-bottom:6px}
 .saju-card{background:var(--surface2);border-radius:var(--radius);padding:var(--gap);margin-bottom:var(--gap);border:1px solid var(--border)}
 .pillar-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.pillar{text-align:center;background:var(--surface);border-radius:8px;padding:8px 4px;border:1px solid var(--border);min-height:80px}
+.pillar{text-align:center;background:var(--surface);border-radius:8px;padding:8px 4px;border:1px solid var(--border);min-height:104px}
 .pillar .lbl{font-size:9px;color:var(--text3);margin-bottom:3px}
 .pillar .gan{font-size:20px;font-weight:900;line-height:24px}
 .pillar .ji{font-size:20px;font-weight:800;line-height:24px}
 .pillar .gan-kr,.pillar .ji-kr{font-size:9px;color:var(--text3);line-height:1}
 .pillar .info{font-size:9px;color:var(--text2);margin-top:2px}
+.pillar .tg-top{font-size:9px;color:var(--stat-lead);font-weight:700;margin-bottom:2px;min-height:11px}
+.pillar .tg-bot{font-size:9px;color:var(--stat-solo);font-weight:700;margin-top:2px;min-height:11px}
 .oh-wood{color:var(--wood)!important}.oh-fire{color:var(--fire)!important}
 .oh-earth{color:var(--earth)!important}.oh-metal{color:var(--metal)!important}
 .oh-water{color:var(--water)!important}
