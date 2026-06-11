@@ -12,7 +12,7 @@
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .header{background:var(--surface);border-bottom:2px solid var(--gold);padding:12px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .header h1{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--gold-dim)}.header .sub{font-size:11px;color:var(--text2)}
-.main{display:grid;grid-template-columns:1fr 2fr 2fr;height:calc(100vh - 50px)}
+.main{display:grid;grid-template-columns:1fr 2.5fr 2.5fr;height:calc(100vh - 50px)}
 /* 중간 해상도: 좌측은 위로, 중앙+우측은 1:1 2칼럼 유지 */
 @media(max-width:1100px){.main{grid-template-columns:1fr 1fr;height:auto}.main>.panel:first-child{grid-column:1/-1;border-right:none;border-bottom:1px solid var(--border)}}
 /* 모바일: 전부 1칼럼 */
@@ -161,3 +161,28 @@ input:focus,select:focus{border-color:var(--gold)}
 .mbti-modal-btn .mb-code{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--stat-lead)}
 .mbti-modal-btn .mb-name{font-size:9px;color:var(--text3);text-align:center;line-height:1.2}
 .mbti-modal-btn .en-badge{position:absolute;top:3px;right:5px;font-size:9px;color:var(--gold)}
+
+/* ═══ 통합 프레임 (구분선 방식) ═══ */
+.unified-frame{background:var(--surface);border:1px solid var(--gold);border-radius:var(--radius);overflow:hidden;margin-bottom:6px}
+.uf-head{background:linear-gradient(135deg,var(--surface2),var(--surface3));padding:14px;text-align:center;border-bottom:1px solid var(--border)}
+.uf-title{font-size:18px;font-weight:900;color:var(--gold-dim);margin-bottom:3px}
+.uf-sub{font-size:11px;color:var(--text2)}
+.uf-sec{padding:10px 14px;border-bottom:1px solid var(--border);text-align:left}
+.uf-sec:last-child{border-bottom:none}
+.uf-label{font-size:11px;font-weight:800;color:var(--gold-dim);margin-bottom:4px;text-align:left}
+.uf-body{font-size:12px;color:var(--text);line-height:1.6;text-align:left;margin-bottom:3px}
+.uf-body:last-child{margin-bottom:0}
+.uf-body b{color:var(--gold-dim)}
+
+/* 섹션 제목 + 인라인 버튼 */
+.section-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--gap);padding-bottom:6px;border-bottom:1px solid var(--border)}
+.section-title-row .section-title{letter-spacing:1.5px}
+.inline-select-btn{padding:5px 12px;background:var(--surface);border:1px solid var(--gold);border-radius:16px;color:var(--gold-dim);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.inline-select-btn:hover{background:var(--gold);color:#fff}
+
+/* 사주 메타 정보 (십성/12운성/신살 등) */
+.meta-box{margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.meta-row{display:flex;gap:8px;padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
+.meta-row:last-child{border-bottom:none}
+.meta-label{font-size:10px;font-weight:800;color:var(--gold-dim);width:54px;flex-shrink:0}
+.meta-val{font-size:11px;color:var(--text);line-height:1.5;flex:1}

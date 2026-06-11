@@ -39,7 +39,10 @@ window.doCalc=function(){
   S.saju=r;S.tg=countTG(r);S.stats=calcStats(r,S.tg);S.radar=calcRadar(S.tg,r);
   S.mbti=calcMBTIFull(S.tg);S.selectedMBTI=S.mbti.primary;
   S.ennea=calcEnneagram(S.tg);S.selectedEnnea=S.ennea.primary;
-  renderSajuCard();renderInterp();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();toast('✅ 분석 완료');
+  renderSajuCard();renderSajuMeta();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();
+  document.getElementById('enneaSelBtn').style.display='';
+  document.getElementById('mbtiSelBtn').style.display='';
+  toast('✅ 분석 완료');
 };
 
 function countTG(r){const c={};['year','month','day','hour'].forEach(p=>{if(!r.tenGods?.[p])return;[r.tenGods[p].stem,r.tenGods[p].branch].forEach(t=>{if(t&&t!=='(일간)'&&t!=='일간')c[t]=(c[t]||0)+1;});});return c;}
@@ -113,14 +116,31 @@ function renderSajuCard(){
   h+='</div><div style="display:flex;justify-content:center;gap:8px;margin-top:4px">';for(const[e,c]of Object.entries(oh))h+=`<span style="font-size:10px;color:${ELEM_COLOR[e]}">${e}${c}</span>`;h+='</div></div>';
   document.getElementById('sajuCardArea').innerHTML=h;
 }
-function renderInterp(){
-  const pd=S.saju.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子',mb=pd?.month?.branch||'子';
-  const gender=document.getElementById('inGender').value;const dbText=getDBPersonality(ds,gender);
-  let h=`<div class="analysis-block"><div class="a-title">🔥 ${ds+db}일주 — ${HANJA_KR[ds]||ds}</div><div class="a-body">${dbText||STEM_TEXT[ds]||''}</div></div>`;
-  h+=`<div class="analysis-block"><div class="a-title">🌙 내면 — ${HANJA_KR[db]||db}</div><div class="a-body">${BRANCH_TEXT[db]||''}</div></div>`;
-  h+=`<div class="analysis-block"><div class="a-title">🎭 페르소나 — ${HANJA_KR[mb]||mb}월</div><div class="a-body">${MONTH_TEXT[mb]||''}</div></div>`;
-  document.getElementById('interpArea').innerHTML=h;
+function renderSajuMeta(){
+  const r=S.saju;
+  const keys=['hour','day','month','year'],klabel={hour:'시',day:'일',month:'월',year:'년'};
+  let h='<div class="meta-box">';
+  // 십성
+  let tgLine=keys.map(k=>{const t=r.tenGods?.[k];if(!t)return '';return `${klabel[k]}간 ${t.stem||'-'}`;}).filter(Boolean).join(' · ');
+  let tgLine2=keys.map(k=>{const t=r.tenGods?.[k];if(!t)return '';return `${klabel[k]}지 ${t.branch||'-'}`;}).filter(Boolean).join(' · ');
+  h+=metaRow('십성', (tgLine?tgLine+'<br>':'')+tgLine2);
+  // 12운성
+  if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${klabel[k]} ${r.stages12.bong[k]}`:'').filter(Boolean).join(' · ');if(s)h+=metaRow('12운성',s);}
+  // 천간 관계
+  if(r.stemRelations&&r.stemRelations.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=metaRow('천간',s);}
+  // 지지 관계 (합충형파해 등)
+  if(r.branchRelations){const parts=[];for(const[type,val]of Object.entries(r.branchRelations)){if(val&&(Array.isArray(val)?val.length:Object.keys(val).length)){const vstr=Array.isArray(val)?val.join(','):Object.values(val).filter(Boolean).join(',');if(vstr)parts.push(type+' '+vstr);}}if(parts.length)h+=metaRow('지지',parts.join(' · '));}
+  // 신살
+  if(r.sals){const parts=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;const arr=[];if(s.twelveSal)arr.push(s.twelveSal);if(s.specialSals&&s.specialSals.length)arr.push(...s.specialSals);if(arr.length)parts.push(arr.join(','));});if(parts.length)h+=metaRow('신살',[...new Set(parts.join(',').split(','))].join(' · '));}
+  // 격국 / 용신
+  const gk=r.advanced?.geukguk||'';const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');
+  if(gk||ys)h+=metaRow('격국/용신',(gk?'격국: '+gk:'')+(gk&&ys?' / ':'')+(ys?'용신: '+ys:''));
+  // 공망
+  if(r.gongmang){const g=Array.isArray(r.gongmang)?r.gongmang.join(', '):r.gongmang;if(g)h+=metaRow('공망',g);}
+  h+='</div>';
+  document.getElementById('sajuMetaArea').innerHTML=h;
 }
+function metaRow(label,val){return `<div class="meta-row"><span class="meta-label">${label}</span><span class="meta-val">${val}</span></div>`;}
 function getDBPersonality(stem,gender){
   if(!S.db)return null;
   try{const file=S.db['30_성별나이'];if(!file)return null;
@@ -140,11 +160,26 @@ function renderMyungri(){
   const ilju=ds+db;
   const sorted=STAT_KEYS.map(k=>({k,v:st[k]})).sort((a,b)=>b.v-a.v);
   const typeName=TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형 ⚖️';
-  let h=`<div class="frame-card"><div class="frame-main">${STEM_ADJ[ds]||''} ${typeName}</div><div class="frame-sub">${ilju}일주 · ${r.advanced?.geukguk||'—'} · ${r.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}</div></div>`;
-  h+=`<div class="frame-detail"><b>일주(${HANJA_KR[ds]} ${HANJA_KR[db]}):</b> ${STEM_TEXT[ds]||''}</div>`;
-  h+=`<div class="frame-detail"><b>월주(${HANJA_KR[mb]}):</b> ${MONTH_TEXT[mb]||''}</div>`;
+  const gender=document.getElementById('inGender').value;const dbText=getDBPersonality(ds,gender);
+  // 계절
+  const seasonMap={'寅':'초봄','卯':'봄','辰':'늦봄','巳':'초여름','午':'여름','未':'늦여름','申':'초가을','酉':'가을','戌':'늦가을','亥':'초겨울','子':'겨울','丑':'늦겨울'};
+  const season=seasonMap[mb]||'';
+  let h='<div class="unified-frame">';
+  // 헤더 (키워드 - 가운데)
+  h+=`<div class="uf-head"><div class="uf-title">${STEM_ADJ[ds]||''} ${typeName}</div><div class="uf-sub">${ilju}일주 · ${r.advanced?.geukguk||'—'} · ${r.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}</div></div>`;
+  // 일주 (좌측정렬)
+  h+=`<div class="uf-sec"><div class="uf-label">📌 일주 ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</div>
+    <div class="uf-body">${dbText||STEM_TEXT[ds]||''}</div>
+    <div class="uf-body"><b>일간 ${HANJA_KR[ds]}:</b> ${STEM_TEXT[ds]||''}</div>
+    <div class="uf-body"><b>일지 ${HANJA_KR[db]}:</b> ${BRANCH_TEXT[db]||''}</div></div>`;
+  // 월주 (좌측정렬)
+  h+=`<div class="uf-sec"><div class="uf-label">🎭 월주 ${HANJA_KR[mb]} (${season})</div>
+    <div class="uf-body"><b>계절적:</b> ${season} 기운을 타고나, 이 시기의 에너지가 삶의 리듬을 형성한다.</div>
+    <div class="uf-body"><b>사회적 페르소나:</b> ${MONTH_TEXT[mb]||''}</div></div>`;
+  // 원국 오행
   const oh=getOh(r);const ohStr=Object.entries(oh).map(([e,c])=>`${e}${c}`).join(' · ');
-  h+=`<div class="frame-detail"><b>원국 오행:</b> ${ohStr}</div>`;
+  h+=`<div class="uf-sec"><div class="uf-label">🌐 원국 오행</div><div class="uf-body">${ohStr}</div></div>`;
+  h+='</div>';
   document.getElementById('myungriArea').innerHTML=h;
 }
 
@@ -153,10 +188,11 @@ function renderEnnea(){
   if(!S.ennea)return;
   const main=S.selectedEnnea,en=S.ennea;
   const w1=main===1?9:main-1,w2=main===9?1:main+1;
-  let h=`<div class="frame-card" style="border-color:var(--stat-solo)"><div class="frame-main" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="frame-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}</div></div>`;
-  h+=`<div class="frame-detail">${ENNEA_DESC[main]||''}</div>`;
-  h+=`<div class="frame-wing"><span>🪽 날개</span> <b>${w1}w${main}</b> (${ENNEA_NAMES[w1]}) ↔ <b>${main}w${w2}</b> (${ENNEA_NAMES[w2]})</div>`;
-  h+=`<button class="frame-select-btn" onclick="openEnneaModal()">👆 유저가 직접 선택하기</button>`;
+  let h='<div class="unified-frame" style="border-color:var(--stat-solo)">';
+  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="uf-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-body">${ENNEA_DESC[main]||''}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-label">🪽 날개</div><div class="uf-body"><b>${w1}w${main}</b> (${ENNEA_NAMES[w1]}) ↔ <b>${main}w${w2}</b> (${ENNEA_NAMES[w2]})</div></div>`;
+  h+='</div>';
   document.getElementById('enneaArea').innerHTML=h;
 }
 
@@ -164,17 +200,13 @@ function renderEnnea(){
 function renderMBTI(){
   if(!S.mbti)return;
   const m=S.mbti,sel=S.selectedMBTI,ax=m.axes;
-  let h=`<div class="frame-card" style="border-color:var(--stat-lead)"><div class="frame-main" style="color:var(--stat-lead)">${sel}</div><div class="frame-sub">추천: ${m.recommended.join(', ')}</div></div>`;
-  h+=`<div class="frame-detail">${MBTI_DESC[sel]||''}</div>`;
-  // 축 막대
+  let h='<div class="unified-frame" style="border-color:var(--stat-lead)">';
+  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-lead)">${sel}</div><div class="uf-sub">추천: ${m.recommended.join(', ')}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-body">${MBTI_DESC[sel]||''}</div></div>`;
   const pairs=[['E','I'],['S','N'],['T','F'],['J','P']];
-  h+='<div class="mbti-mini-axes">';
-  pairs.forEach(([a,b])=>{
-    const aOn=sel.includes(a);
-    h+=`<div class="mbti-mini-axis"><span class="${aOn?'on':''}">${a} ${ax[a]}%</span><div class="mini-bar"><div class="mini-fill" style="width:${aOn?ax[a]:ax[b]}%;background:var(--stat-lead)"></div></div><span class="${!aOn?'on':''}">${ax[b]}% ${b}</span></div>`;
-  });
-  h+='</div>';
-  h+=`<button class="frame-select-btn" onclick="openMBTIModal()">👆 유저가 직접 선택하기</button>`;
+  h+='<div class="uf-sec"><div class="mbti-mini-axes">';
+  pairs.forEach(([a,b])=>{const aOn=sel.includes(a);h+=`<div class="mbti-mini-axis"><span class="${aOn?'on':''}">${a} ${ax[a]}%</span><div class="mini-bar"><div class="mini-fill" style="width:${aOn?ax[a]:ax[b]}%;background:var(--stat-lead)"></div></div><span class="${!aOn?'on':''}">${ax[b]}% ${b}</span></div>`;});
+  h+='</div></div></div>';
   document.getElementById('mbtiArea').innerHTML=h;
 }
 

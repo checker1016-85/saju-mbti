@@ -63,9 +63,7 @@
     </div></div>
     <div class="placeholder">생년월일을 입력하세요</div>
   </div>
-  <hr class="divider">
-  <div class="section-title">📖 일주·월주 해석</div>
-  <div id="interpArea"><div class="placeholder">만세력 조회 후 자동 표시됩니다.</div></div>
+  <div id="sajuMetaArea"></div>
 </div>
 
 <!-- CENTER: 3대 프레임 + 종합 -->
@@ -74,11 +72,17 @@
   <div id="myungriArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
 
   <hr class="divider">
-  <div class="section-title">🔷 2. 에니어그램</div>
+  <div class="section-title-row">
+    <span class="section-title" style="border:none;margin:0;padding:0">🔷 2. 에니어그램</span>
+    <button class="inline-select-btn" id="enneaSelBtn" onclick="openEnneaModal()" style="display:none">👆 직접 선택</button>
+  </div>
   <div id="enneaArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
 
   <hr class="divider">
-  <div class="section-title">🧠 3. MBTI</div>
+  <div class="section-title-row">
+    <span class="section-title" style="border:none;margin:0;padding:0">🧠 3. MBTI</span>
+    <button class="inline-select-btn" id="mbtiSelBtn" onclick="openMBTIModal()" style="display:none">👆 직접 선택</button>
+  </div>
   <div id="mbtiArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
 
   <hr class="divider">
