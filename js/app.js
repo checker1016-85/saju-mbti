@@ -180,15 +180,42 @@ function renderMyungri(){
   document.getElementById('myungriArea').innerHTML=h;
 }
 
+// ═══ DB 우선 설명 헬퍼 ═══
+function getDBMbti(code){
+  if(!S.db)return null;
+  try{const f=S.db['40_성향DB'];if(!f)return null;const rows=f['MBTI'];if(!Array.isArray(rows))return null;
+    const m=rows.find(r=>(r['유형']||'')===code);if(!m)return null;
+    return {별칭:m['별칭']||'',성향:m['핵심 성향']||'',강점:m['강점']||'',약점:m['약점']||'',사주:m['사주 연계']||'',직업:m['직업 적성']||''};
+  }catch(e){return null;}
+}
+function getDBEnnea(num){
+  if(!S.db)return null;
+  try{const f=S.db['40_성향DB'];if(!f)return null;const rows=f['에니어그램'];if(!Array.isArray(rows))return null;
+    const m=rows.find(r=>(''+r['번호'])===(''+num));if(!m)return null;
+    return {유형:m['유형']||'',욕구:m['핵심 욕구']||'',성향:m['성향 설명']||'',건강:m['건강할 때']||'',불건강:m['불건강할 때']||'',사주:m['사주 연계']||''};
+  }catch(e){return null;}
+}
+function getDBWing(code){
+  if(!S.db)return null;
+  try{const f=S.db['40_성향DB'];if(!f)return null;const rows=f['에니어그램_날개'];if(!Array.isArray(rows))return null;
+    const m=rows.find(r=>(r['날개']||'')===code);if(!m)return null;
+    return {명칭:m['명칭']||'',설명:m['설명']||''};
+  }catch(e){return null;}
+}
+
 // ═══ CENTER ② 에니어그램 ═══
 function renderEnnea(){
   if(!S.ennea)return;
   const main=S.selectedEnnea,en=S.ennea;
   const w1=main===1?9:main-1,w2=main===9?1:main+1;
+  const dbE=getDBEnnea(main),dbW1=getDBWing(w1+'w'+main),dbW2=getDBWing(main+'w'+w2);
   let h='<div class="unified-frame" style="border-color:var(--stat-solo)">';
-  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="uf-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}</div></div>`;
-  h+=`<div class="uf-sec"><div class="uf-body">${ENNEA_DESC[main]||''}</div></div>`;
-  h+=`<div class="uf-sec"><div class="uf-label">🪽 날개</div><div class="uf-body"><b>${w1}w${main}</b> (${ENNEA_NAMES[w1]}) ↔ <b>${main}w${w2}</b> (${ENNEA_NAMES[w2]})</div></div>`;
+  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="uf-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}${dbE?.욕구?' · '+dbE.욕구:''}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-body">${dbE?.성향||ENNEA_DESC[main]||''}</div></div>`;
+  if(dbE?.건강)h+=`<div class="uf-sec"><div class="uf-label">✅ 건강할 때</div><div class="uf-body">${dbE.건강}</div></div>`;
+  if(dbE?.불건강)h+=`<div class="uf-sec"><div class="uf-label">⚠️ 불건강할 때</div><div class="uf-body">${dbE.불건강}</div></div>`;
+  if(dbE?.사주)h+=`<div class="uf-sec"><div class="uf-label">☯️ 사주 연계</div><div class="uf-body">${dbE.사주}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-label">🪽 날개</div><div class="uf-body"><b>${w1}w${main}</b> ${dbW1?'('+dbW1.명칭+') '+dbW1.설명:'('+ENNEA_NAMES[w1]+')'}</div><div class="uf-body"><b>${main}w${w2}</b> ${dbW2?'('+dbW2.명칭+') '+dbW2.설명:'('+ENNEA_NAMES[w2]+')'}</div></div>`;
   h+='</div>';
   document.getElementById('enneaArea').innerHTML=h;
 }
@@ -197,9 +224,14 @@ function renderEnnea(){
 function renderMBTI(){
   if(!S.mbti)return;
   const m=S.mbti,sel=S.selectedMBTI,ax=m.axes;
+  const dbM=getDBMbti(sel);
   let h='<div class="unified-frame" style="border-color:var(--stat-lead)">';
-  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-lead)">${sel}</div><div class="uf-sub">추천: ${m.recommended.join(', ')}</div></div>`;
-  h+=`<div class="uf-sec"><div class="uf-body">${MBTI_DESC[sel]||''}</div></div>`;
+  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-lead)">${sel}</div><div class="uf-sub">추천: ${m.recommended.join(', ')}${dbM?.별칭?' · '+dbM.별칭:''}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-body">${dbM?.성향||MBTI_DESC[sel]||''}</div></div>`;
+  if(dbM?.강점)h+=`<div class="uf-sec"><div class="uf-label">💪 강점</div><div class="uf-body">${dbM.강점}</div></div>`;
+  if(dbM?.약점)h+=`<div class="uf-sec"><div class="uf-label">⚠️ 약점</div><div class="uf-body">${dbM.약점}</div></div>`;
+  if(dbM?.사주)h+=`<div class="uf-sec"><div class="uf-label">☯️ 사주 연계</div><div class="uf-body">${dbM.사주}</div></div>`;
+  if(dbM?.직업)h+=`<div class="uf-sec"><div class="uf-label">💼 직업 적성</div><div class="uf-body">${dbM.직업}</div></div>`;
   const pairs=[['E','I'],['S','N'],['T','F'],['J','P']];
   h+='<div class="uf-sec"><div class="mbti-mini-axes">';
   pairs.forEach(([a,b])=>{const aOn=sel.includes(a);h+=`<div class="mbti-mini-axis"><span class="${aOn?'on':''}">${a} ${ax[a]}%</span><div class="mini-bar"><div class="mini-fill" style="width:${aOn?ax[a]:ax[b]}%;background:var(--stat-lead)"></div></div><span class="${!aOn?'on':''}">${ax[b]}% ${b}</span></div>`;});
