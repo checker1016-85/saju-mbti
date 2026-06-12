@@ -181,26 +181,30 @@ function renderMyungri(){
 }
 
 // ═══ DB 우선 설명 헬퍼 ═══
+function dbRows(fileKey){
+  if(!S.db||!S.db[fileKey])return null;
+  const f=S.db[fileKey];
+  // 파일 안 첫 탭의 배열 반환
+  for(const tab in f){if(Array.isArray(f[tab]))return f[tab];}
+  return null;
+}
 function getDBMbti(code){
-  if(!S.db)return null;
-  try{const f=S.db['40_성향DB'];if(!f)return null;const rows=f['MBTI'];if(!Array.isArray(rows))return null;
-    const m=rows.find(r=>(r['유형']||'')===code);if(!m)return null;
-    return {별칭:m['별칭']||'',성향:m['핵심 성향']||'',강점:m['강점']||'',약점:m['약점']||'',사주:m['사주 연계']||'',직업:m['직업 적성']||''};
-  }catch(e){return null;}
+  const rows=dbRows('MBTI');if(!rows)return null;
+  // code = INTJ-A 또는 INTJ. 변형 우선, 없으면 base
+  let m=rows.find(r=>(r['유형']||'')===code);
+  if(!m){const base=code.split('-')[0];m=rows.find(r=>(''+(r['유형']||'')).indexOf(base)===0);}
+  if(!m)return null;
+  return {별칭:m['별칭']||'',성향:m['핵심 성향']||'',강점:m['강점']||'',약점:m['약점']||'',연애:m['관계/연애']||'',직업:m['직업 적성']||'',사주:m['사주 연계']||''};
 }
 function getDBEnnea(num){
-  if(!S.db)return null;
-  try{const f=S.db['40_성향DB'];if(!f)return null;const rows=f['에니어그램'];if(!Array.isArray(rows))return null;
-    const m=rows.find(r=>(''+r['번호'])===(''+num));if(!m)return null;
-    return {유형:m['유형']||'',욕구:m['핵심 욕구']||'',성향:m['성향 설명']||'',건강:m['건강할 때']||'',불건강:m['불건강할 때']||'',사주:m['사주 연계']||''};
-  }catch(e){return null;}
+  const rows=dbRows('에니어그램');if(!rows)return null;
+  const m=rows.find(r=>(''+r['번호'])===(''+num));if(!m)return null;
+  return {유형:m['유형']||'',욕구:m['핵심 욕구']||'',두려움:m['핵심 두려움']||'',성향:m['성향 설명']||'',건강:m['건강할 때']||'',보통:m['보통일 때']||'',불건강:m['불건강할 때']||'',스트레스:m['스트레스(분열)']||'',안정:m['안정(통합)']||'',사주:m['사주 연계']||''};
 }
 function getDBWing(code){
-  if(!S.db)return null;
-  try{const f=S.db['40_성향DB'];if(!f)return null;const rows=f['에니어그램_날개'];if(!Array.isArray(rows))return null;
-    const m=rows.find(r=>(r['날개']||'')===code);if(!m)return null;
-    return {명칭:m['명칭']||'',설명:m['설명']||''};
-  }catch(e){return null;}
+  const rows=dbRows('에니어그램_날개');if(!rows)return null;
+  const m=rows.find(r=>(r['날개']||'')===code);if(!m)return null;
+  return {명칭:m['명칭']||'',설명:m['설명']||'',키워드:m['특징 키워드']||''};
 }
 
 // ═══ CENTER ② 에니어그램 ═══
@@ -212,8 +216,11 @@ function renderEnnea(){
   let h='<div class="unified-frame" style="border-color:var(--stat-solo)">';
   h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="uf-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}${dbE?.욕구?' · '+dbE.욕구:''}</div></div>`;
   h+=`<div class="uf-sec"><div class="uf-body">${dbE?.성향||ENNEA_DESC[main]||''}</div></div>`;
+  if(dbE?.두려움)h+=`<div class="uf-sec"><div class="uf-label">😨 핵심 두려움</div><div class="uf-body">${dbE.두려움}</div></div>`;
   if(dbE?.건강)h+=`<div class="uf-sec"><div class="uf-label">✅ 건강할 때</div><div class="uf-body">${dbE.건강}</div></div>`;
   if(dbE?.불건강)h+=`<div class="uf-sec"><div class="uf-label">⚠️ 불건강할 때</div><div class="uf-body">${dbE.불건강}</div></div>`;
+  if(dbE?.스트레스)h+=`<div class="uf-sec"><div class="uf-label">📉 스트레스 (분열)</div><div class="uf-body">${dbE.스트레스}</div></div>`;
+  if(dbE?.안정)h+=`<div class="uf-sec"><div class="uf-label">📈 안정 (통합)</div><div class="uf-body">${dbE.안정}</div></div>`;
   if(dbE?.사주)h+=`<div class="uf-sec"><div class="uf-label">☯️ 사주 연계</div><div class="uf-body">${dbE.사주}</div></div>`;
   h+=`<div class="uf-sec"><div class="uf-label">🪽 날개</div><div class="uf-body"><b>${w1}w${main}</b> ${dbW1?'('+dbW1.명칭+') '+dbW1.설명:'('+ENNEA_NAMES[w1]+')'}</div><div class="uf-body"><b>${main}w${w2}</b> ${dbW2?'('+dbW2.명칭+') '+dbW2.설명:'('+ENNEA_NAMES[w2]+')'}</div></div>`;
   h+='</div>';
@@ -230,6 +237,7 @@ function renderMBTI(){
   h+=`<div class="uf-sec"><div class="uf-body">${dbM?.성향||MBTI_DESC[sel]||''}</div></div>`;
   if(dbM?.강점)h+=`<div class="uf-sec"><div class="uf-label">💪 강점</div><div class="uf-body">${dbM.강점}</div></div>`;
   if(dbM?.약점)h+=`<div class="uf-sec"><div class="uf-label">⚠️ 약점</div><div class="uf-body">${dbM.약점}</div></div>`;
+  if(dbM?.연애)h+=`<div class="uf-sec"><div class="uf-label">💕 관계/연애</div><div class="uf-body">${dbM.연애}</div></div>`;
   if(dbM?.사주)h+=`<div class="uf-sec"><div class="uf-label">☯️ 사주 연계</div><div class="uf-body">${dbM.사주}</div></div>`;
   if(dbM?.직업)h+=`<div class="uf-sec"><div class="uf-label">💼 직업 적성</div><div class="uf-body">${dbM.직업}</div></div>`;
   const pairs=[['E','I'],['S','N'],['T','F'],['J','P']];
