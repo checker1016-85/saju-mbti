@@ -5,7 +5,7 @@ let tempJob=null,tempJobCat=null,tempMBTI=null,tempEnnea=null,timeMode='ganji';
 // ═══ INIT ═══
 document.addEventListener('DOMContentLoaded',()=>{
   for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.text=i+'월';document.getElementById('inMonth').add(o);}
-  buildDayOpts();buildGanjiOpts();buildHourOpts();buildMinOpts();updateAge();
+  buildDayOpts();buildGanjiOpts();buildHourOpts();buildMinOpts();buildCityOpts();updateAge();
   document.getElementById('inMonth').onchange=()=>{buildDayOpts();updateAge();};
   document.getElementById('inYear').onchange=()=>{buildDayOpts();updateAge();};
   document.getElementById('inDay').onchange=updateAge;
@@ -15,7 +15,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('inHour').disabled=this.checked;
   };
   loadDB();
+  if(typeof loadAstroLib==='function')loadAstroLib();
 });
+function buildCityOpts(){const s=document.getElementById('inCity');if(!s||typeof CITIES==='undefined')return;CITIES.forEach(c=>{const o=document.createElement('option');o.value=c.name;o.text=c.name;s.add(o);});}
 
 function buildDayOpts(){const m=+document.getElementById('inMonth').value||1,s=document.getElementById('inDay'),p=s.value;const d=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];s.innerHTML='';for(let i=1;i<=d;i++){const o=document.createElement('option');o.value=i;o.text=i+'일';s.add(o);}if(p&&p<=d)s.value=p;}
 function buildGanjiOpts(){const s=document.getElementById('inGanji');GANJI_HOURS.forEach(g=>{const o=document.createElement('option');o.value=g.h;o.text=g.label;s.add(o);});}
@@ -42,6 +44,14 @@ window.doCalc=function(){
   renderSajuCard();renderSajuMeta();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();
   document.getElementById('enneaSelBtn').style.display='';
   document.getElementById('mbtiSelBtn').style.display='';
+  // 점성 계산 (출생지 좌표 필요, 시간모름이면 정오 기준)
+  if(typeof calcAstro==='function'&&typeof CITIES!=='undefined'){
+    const cityName=document.getElementById('inCity').value;
+    const city=CITIES.find(c=>c.name===cityName)||CITIES[0];
+    const aHour=noTime?12:hour, aMin=noTime?0:minute;
+    const ah=calcAstro(+document.getElementById('inYear').value,+document.getElementById('inMonth').value,+document.getElementById('inDay').value,aHour,aMin,city.lat,city.lng);
+    renderAstro(ah);
+  }
   toast('✅ 분석 완료');
 };
 

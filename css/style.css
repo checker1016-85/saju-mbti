@@ -196,3 +196,9 @@ input:focus,select:focus{border-color:var(--gold)}
 .test-link-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:5px 12px;background:var(--surface);border:1px solid var(--gold);border-radius:16px;color:var(--gold-dim);font-size:11px;font-weight:700;text-decoration:none;transition:all .15s}
 .test-link-btn:hover{background:var(--gold);color:#fff}
 .center-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-top:4px}
+
+/* ═══ 점성 행 ═══ */
+.astro-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px dashed var(--border);font-size:11px}
+.astro-row:last-child{border-bottom:none}
+.astro-body{color:var(--text2);font-weight:600}
+.astro-pos{color:var(--text);font-weight:700}
