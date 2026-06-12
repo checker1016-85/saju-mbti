@@ -181,28 +181,28 @@ function renderMyungri(){
 }
 
 // ═══ DB 우선 설명 헬퍼 ═══
-function dbRows(fileKey){
+function dbTab(fileKey,tabName){
   if(!S.db||!S.db[fileKey])return null;
   const f=S.db[fileKey];
-  // 파일 안 첫 탭의 배열 반환
-  for(const tab in f){if(Array.isArray(f[tab]))return f[tab];}
+  if(tabName&&Array.isArray(f[tabName]))return f[tabName];
+  // 탭명 미지정: 첫 배열
+  for(const t in f){if(Array.isArray(f[t]))return f[t];}
   return null;
 }
 function getDBMbti(code){
-  const rows=dbRows('MBTI');if(!rows)return null;
-  // code = INTJ-A 또는 INTJ. 변형 우선, 없으면 base
+  const rows=dbTab('MBTI');if(!rows)return null;
   let m=rows.find(r=>(r['유형']||'')===code);
   if(!m){const base=code.split('-')[0];m=rows.find(r=>(''+(r['유형']||'')).indexOf(base)===0);}
   if(!m)return null;
   return {별칭:m['별칭']||'',성향:m['핵심 성향']||'',강점:m['강점']||'',약점:m['약점']||'',연애:m['관계/연애']||'',직업:m['직업 적성']||'',사주:m['사주 연계']||''};
 }
 function getDBEnnea(num){
-  const rows=dbRows('에니어그램');if(!rows)return null;
+  const rows=dbTab('에니어그램','에니어그램');if(!rows)return null;
   const m=rows.find(r=>(''+r['번호'])===(''+num));if(!m)return null;
   return {유형:m['유형']||'',욕구:m['핵심 욕구']||'',두려움:m['핵심 두려움']||'',성향:m['성향 설명']||'',건강:m['건강할 때']||'',보통:m['보통일 때']||'',불건강:m['불건강할 때']||'',스트레스:m['스트레스(분열)']||'',안정:m['안정(통합)']||'',사주:m['사주 연계']||''};
 }
 function getDBWing(code){
-  const rows=dbRows('에니어그램_날개');if(!rows)return null;
+  const rows=dbTab('에니어그램','날개');if(!rows)return null;
   const m=rows.find(r=>(r['날개']||'')===code);if(!m)return null;
   return {명칭:m['명칭']||'',설명:m['설명']||'',키워드:m['특징 키워드']||''};
 }
