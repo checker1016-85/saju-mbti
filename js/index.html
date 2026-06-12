@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사주 MBTI</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="header"><h1>✦ 사주 MBTI</h1><span class="sub">사주로 보는 내 기질·성향·적성</span></div>
+<div class="main">
+
+<!-- LEFT -->
+<div class="panel">
+  <div class="section-title">📋 사주 입력</div>
+  <div class="row">
+    <div class="field"><label>생년</label><input type="number" id="inYear" value="2000" min="1920" max="2010"></div>
+    <div class="field"><label>월</label><select id="inMonth"></select></div>
+    <div class="field"><label>일</label><select id="inDay"></select></div>
+  </div>
+  <div class="opt-row">
+    <label><input type="radio" name="cal" value="solar" checked> 양력</label>
+    <label><input type="radio" name="cal" value="lunar"> 음력</label>
+    <label><input type="radio" name="cal" value="leap"> 윤달</label>
+  </div>
+  <label>시간</label>
+  <div class="time-tabs">
+    <div class="time-tab active" onclick="setTimeMode('ganji',this)">간지</div>
+    <div class="time-tab" onclick="setTimeMode('direct',this)">시:분</div>
+  </div>
+  <div class="time-box">
+    <div id="timeGanji"><select id="inGanji"></select></div>
+    <div id="timeDirect" style="display:none">
+      <div class="row" style="margin:0">
+        <select id="inHour"></select>
+        <select id="inMin"></select>
+      </div>
+    </div>
+  </div>
+  <div class="opt-row">
+    <label><input type="checkbox" id="chkNoTime"> 시간 모름</label>
+    <label><input type="checkbox" id="chkYaja" checked> 야자시 적용안함</label>
+  </div>
+  <div class="row">
+    <div class="field"><label>성별</label><select id="inGender"><option value="여">여</option><option value="남">남</option></select></div>
+    <div class="field"><label>나이</label>
+      <select id="inAgeType">
+        <option value="kr">한국나이</option>
+        <option value="man">만나이</option>
+      </select>
+    </div>
+    <div class="field"><label>&nbsp;</label><div style="padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:center" id="ageDisplay">—</div></div>
+  </div>
+  <button class="btn btn-gold" onclick="doCalc()">🔮 만세력 조회</button>
+  <hr class="divider">
+  <div class="section-title">🀄 사주 원국</div>
+  <div id="sajuCardArea">
+    <div class="saju-card"><div class="pillar-row">
+      <div class="pillar"><div class="lbl">시주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+      <div class="pillar"><div class="lbl">일주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+      <div class="pillar"><div class="lbl">월주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+      <div class="pillar"><div class="lbl">년주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+    </div></div>
+    <div class="placeholder">생년월일을 입력하세요</div>
+  </div>
+  <div id="sajuMetaArea"></div>
+</div>
+
+<!-- CENTER: 3대 프레임 + 종합 -->
+<div class="panel">
+  <div class="section-title">☯️ 1. 명리 (사주)</div>
+  <div id="myungriArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+
+  <hr class="divider">
+  <div class="section-title-row">
+    <span class="section-title" style="border:none;margin:0;padding:0">🔷 2. 에니어그램</span>
+    <button class="inline-select-btn" id="enneaSelBtn" onclick="openEnneaModal()" style="display:none">👆 직접 선택</button>
+  </div>
+  <div id="enneaArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+
+  <hr class="divider">
+  <div class="section-title-row">
+    <span class="section-title" style="border:none;margin:0;padding:0">🧠 3. MBTI</span>
+    <button class="inline-select-btn" id="mbtiSelBtn" onclick="openMBTIModal()" style="display:none">👆 직접 선택</button>
+  </div>
+  <div id="mbtiArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+
+  <hr class="divider">
+  <div class="section-title">📋 종합 프로필</div>
+  <div id="summaryArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+</div>
+
+<!-- RIGHT: 성향 프로필 + 직업 -->
+<div class="panel">
+  <div class="section-title">📊 성향 프로필</div>
+  <div id="rightResult"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+
+  <hr class="divider">
+  <div class="section-title">💼 직업 선택 (추가)</div>
+  <button class="job-select-btn" id="jobSelectBtn" onclick="openJobModal()">🏷️ 직업 선택 (클릭)</button>
+  <div id="jobRecArea"></div>
+</div>
+</div>
+
+<!-- JOB MODAL -->
+<div class="modal-overlay" id="jobModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🏷️ 직업 선택</h2><button class="modal-close" onclick="closeJobModal()">✕</button></div>
+    <div class="modal-body" id="jobModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-sub" onclick="closeJobModal()">취소</button><button class="btn btn-gold" onclick="confirmJob()">✓ 선택 확인</button></div>
+  </div>
+</div>
+
+<!-- ENNEAGRAM MODAL -->
+<div class="modal-overlay" id="enneaModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🔷 에니어그램 선택</h2><button class="modal-close" onclick="closeEnneaModal()">✕</button></div>
+    <div class="modal-body" id="enneaModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-sub" onclick="closeEnneaModal()">취소</button><button class="btn btn-gold" onclick="confirmEnnea()">✓ 선택 확인</button></div>
+  </div>
+</div>
+
+<!-- MBTI MODAL -->
+<div class="modal-overlay" id="mbtiModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🧠 MBTI 선택</h2><button class="modal-close" onclick="closeMBTIModal()">✕</button></div>
+    <div class="modal-body" id="mbtiModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-sub" onclick="closeMBTIModal()">취소</button><button class="btn btn-gold" onclick="confirmMBTI()">✓ 선택 확인</button></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import { calculateSaju } from 'https://cdn.jsdelivr.net/npm/ssaju@0.2.0/dist/index.mjs';
+window._ssaju = calculateSaju;
+</script>
+<script src="js/data.js"></script>
+<script src="js/radar.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
