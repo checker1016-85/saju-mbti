@@ -43,8 +43,8 @@
         <div class="field"><label>나이</label><select id="inAgeType"><option value="kr">한국나이</option><option value="man">만나이</option></select></div>
         <div class="field"><label>&nbsp;</label><div style="padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:center" id="ageDisplay">—</div></div>
       </div>
-      <div class="field"><label>출생지 (점성술용)</label><select id="inCity"></select></div>
-      <button class="btn btn-gold" onclick="doCalc()">🔮 만세력 조회</button>
+      <div class="field"><label>출생지</label><select id="inCity"></select></div>
+      <button class="btn btn-gold" onclick="doCalc()">만세력·점성차트 조회</button>
     </div>
     <div class="input-col">
       <div class="sub-label">🀄 사주 원국</div>
@@ -55,12 +55,12 @@
           <div class="pillar"><div class="lbl">월주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
           <div class="pillar"><div class="lbl">년주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
         </div></div>
-        <div class="placeholder">생년월일을 입력하세요</div>
       </div>
+      <div id="sajuMetaArea" class="meta-scroll"><div class="placeholder">공망·신살 등 — 조회를 입력하세요</div></div>
     </div>
     <div class="input-col">
-      <div class="sub-label">📜 기초 정보 (공망·신살 등)</div>
-      <div id="sajuMetaArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+      <div class="sub-label">🌌 점성 원국</div>
+      <div id="astroNatalArea" class="meta-scroll"><div class="placeholder">12하우스·행성배치 — 조회를 입력하세요</div></div>
     </div>
   </div>
 </section>
@@ -72,27 +72,27 @@
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">☯️ 명리 (사주)</span>
   </div>
-  <div id="myungriArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+  <div id="myungriArea"></div>
 
   <hr class="divider">
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">🌌 점성 (Astrology)</span>
   </div>
-  <div id="astroArea"><div class="placeholder">출생지를 선택하고 만세력을 조회하세요</div></div>
+  <div id="astroArea"></div>
 
   <hr class="divider">
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">🔷 에니어그램</span>
-    <button class="inline-select-btn" id="enneaSelBtn" onclick="openEnneaModal()" style="display:none">👆 직접 선택</button>
+    <span><a class="test-link-btn" href="https://enneagram-personality.com/ko/" target="_blank">🔗 무료 검사</a> <button class="inline-select-btn" id="enneaSelBtn" onclick="openEnneaModal()">👆 직접 선택</button></span>
   </div>
-  <div id="enneaArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+  <div id="enneaArea"></div>
 
   <hr class="divider">
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">🧠 MBTI</span>
-    <button class="inline-select-btn" id="mbtiSelBtn" onclick="openMBTIModal()" style="display:none">👆 직접 선택</button>
+    <span><a class="test-link-btn" href="https://www.16personalities.com/ko/%EB%AC%B4%EB%A3%8C-%EC%84%B1%EA%B2%A9-%EC%9C%A0%ED%98%95-%EA%B2%80%EC%82%AC" target="_blank">🔗 무료 검사</a> <button class="inline-select-btn" id="mbtiSelBtn" onclick="openMBTIModal()">👆 직접 선택</button></span>
   </div>
-  <div id="mbtiArea"><div class="placeholder">만세력 조회 후 표시됩니다</div></div>
+  <div id="mbtiArea"></div>
 </section>
 
 <!-- ═══ 단락 3: 스탯/레이더 + 직업 + 종합 ═══ -->

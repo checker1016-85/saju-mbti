@@ -16,7 +16,22 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
   loadDB();
   if(typeof loadAstroLib==='function')loadAstroLib();
+  renderEmptyFrames();
 });
+function renderEmptyFrames(){
+  // 4종 빈 프레임 (조회 전에도 영역 표시)
+  document.getElementById('myungriArea').innerHTML=emptyFrame('명리',emptyViz('☯️'),[['📌 본능 일주','조회를 입력하세요'],['🎭 사회적 월주','조회를 입력하세요']]);
+  document.getElementById('astroArea').innerHTML=emptyFrame('점성',emptyViz('🌌'),[['상승궁(ASC)','조회를 입력하세요'],['태양·달·MC','조회를 입력하세요']],'#7060c0');
+  document.getElementById('enneaArea').innerHTML=emptyFrame('에니어그램',emptyViz('🔷'),[['메인 유형','조회를 입력하세요'],['날개','조회를 입력하세요']],'var(--stat-solo)');
+  document.getElementById('mbtiArea').innerHTML=emptyFrame('MBTI',emptyViz('🧠'),[['유형','조회를 입력하세요'],['세부 A/T','조회를 입력하세요']],'var(--stat-lead)');
+}
+function emptyFrame(title,viz,rows,color){
+  color=color||'var(--gold)';
+  let body=rows.map(([l,v])=>`<div class="uf-sec"><div class="uf-label">${l}</div><div class="uf-body" style="color:var(--text3)">${v}</div></div>`).join('');
+  return `<div class="unified-frame uf-fixed" style="border-color:${color}">
+    <div class="uf-head-split"><div class="uf-head-left"><div class="kw-main" style="color:${color}">${title}</div><div class="kw-sub">조회 대기 중</div></div><div class="uf-head-viz">${viz}</div></div>
+    <div class="uf-body-scroll">${body}</div></div>`;
+}
 function buildCityOpts(){const s=document.getElementById('inCity');if(!s||typeof CITIES==='undefined')return;CITIES.forEach(c=>{const o=document.createElement('option');o.value=c.name;o.text=c.name;s.add(o);});}
 
 function buildDayOpts(){const m=+document.getElementById('inMonth').value||1,s=document.getElementById('inDay'),p=s.value;const d=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];s.innerHTML='';for(let i=1;i<=d;i++){const o=document.createElement('option');o.value=i;o.text=i+'일';s.add(o);}if(p&&p<=d)s.value=p;}
@@ -163,6 +178,13 @@ function renderSajuMeta(){
     const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):(r.gongmang.branches?r.gongmang.branches.join(', '):'');
     if(g)h+=metaRow('공망',g);
   }
+  // 대운 (현재 대운 + 시작나이)
+  if(r.daeun?.list&&r.daeun.list.length){
+    const age=r.currentAge||0;
+    const cur=r.daeun.list.find(d=>age>=d.startAge&&age<=d.endAge)||r.daeun.list[0];
+    const val=`${r.daeun.startAge}세 시작 · 현재 ${cur.ganzhi}(${cur.stemTenGod||''}) ${cur.startAge}~${cur.endAge}세`;
+    h+=metaRow('대운',val);
+  }
   h+='</div>';
   document.getElementById('sajuMetaArea').innerHTML=h;
 }
@@ -187,23 +209,34 @@ function renderMyungri(){
   const sorted=STAT_KEYS.map(k=>({k,v:st[k]})).sort((a,b)=>b.v-a.v);
   const typeName=TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형 ⚖️';
   const gender=document.getElementById('inGender').value;const dbText=getDBPersonality(ds,gender);
-  // 계절
   const seasonMap={'寅':'초봄','卯':'봄','辰':'늦봄','巳':'초여름','午':'여름','未':'늦여름','申':'초가을','酉':'가을','戌':'늦가을','亥':'초겨울','子':'겨울','丑':'늦겨울'};
   const season=seasonMap[mb]||'';
   const oh=getOh(r);
-  let h='<div class="unified-frame">';
-  // 헤더: 좌 대표문구 / 우 오행 시각화
-  h+=`<div class="uf-head-split"><div class="uf-head-left"><div class="uf-title">${STEM_ADJ[ds]||''} ${typeName}</div><div class="uf-sub">${ilju}일주 · ${r.advanced?.geukguk||'—'} · ${r.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}</div></div><div class="uf-head-viz">${sajuVizSVG(oh)}</div></div>`;
-  // 일주 (좌측정렬)
+  // 일간 오행 + 십성 대표 (예: "수 비겁")
+  const dayElem=ELEM_MAP[ds]||'';
+  const tg=S.tg||{};
+  const tgTop=Object.entries(tg).sort((a,b)=>b[1]-a[1])[0];
+  const tgGroup={'비견':'비겁','겁재':'비겁','식신':'식상','상관':'식상','편재':'재성','정재':'재성','편관':'관성','정관':'관성','편인':'인성','정인':'인성'};
+  const centerTop=dayElem+' '+(tgTop?(tgGroup[tgTop[0]]||tgTop[0]):'');
+  const centerBot=r.advanced?.geukguk||'';
+  let h='<div class="unified-frame uf-fixed">';
+  h+=`<div class="uf-head-split"><div class="uf-head-left">
+    <div class="kw-main">${STEM_ADJ[ds]||''} ${typeName}</div>
+    <div class="kw-sub">${ilju}일주 · ${r.advanced?.geukguk||'—'} · ${r.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}</div>
+    <div class="kw-points">
+      <span class="kw-point"><b>본능 일주:</b> ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</span>
+      <span class="kw-point"><b>사회 월주:</b> ${HANJA_KR[mb]} (${season})</span>
+      <span class="kw-point"><b>일간 오행:</b> ${dayElem} · ${centerBot}</span>
+    </div></div><div class="uf-head-viz">${sajuVizSVG(oh,centerTop,centerBot)}</div></div>`;
+  h+='<div class="uf-body-scroll">';
   h+=`<div class="uf-sec"><div class="uf-label">📌 본능 일주 ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</div>
     <div class="uf-body">${dbText||STEM_TEXT[ds]||''}</div>
     <div class="uf-body"><b>일간 ${HANJA_KR[ds]}:</b> ${STEM_TEXT[ds]||''}</div>
     <div class="uf-body"><b>일지 ${HANJA_KR[db]}:</b> ${BRANCH_TEXT[db]||''}</div></div>`;
-  // 월주 (좌측정렬)
   h+=`<div class="uf-sec"><div class="uf-label">🎭 사회적 월주 ${HANJA_KR[mb]} (${season})</div>
     <div class="uf-body"><b>계절적:</b> ${season} 기운을 타고나, 이 시기의 에너지가 삶의 리듬을 형성한다.</div>
     <div class="uf-body"><b>사회적 페르소나:</b> ${MONTH_TEXT[mb]||''}</div></div>`;
-  h+='</div>';
+  h+='</div></div>';
   document.getElementById('myungriArea').innerHTML=h;
 }
 
@@ -242,8 +275,16 @@ function renderEnnea(){
   const dbE=getDBEnnea(main),dbW1=getDBWing(w1+'w'+main),dbW2=getDBWing(main+'w'+w2);
   const center=ENNEA_CENTER[main]||'';
   const centerC={본능:'#d06020',가슴:'#18a088',사고:'#6050c0'}[center]||'#888';
-  let h='<div class="unified-frame" style="border-color:var(--stat-solo)">';
-  h+=`<div class="uf-head-split"><div class="uf-head-left"><div class="uf-title" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="uf-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}${dbE?.욕구?' · '+dbE.욕구:''}</div><span class="center-tag" style="background:${centerC}20;color:${centerC}">${ENNEA_CENTER_DESC[center]||center}</span><br><a class="test-link-btn" href="${ENNEA_TEST_URL}" target="_blank">🔗 무료 에니어그램 검사</a></div><div class="uf-head-viz">${enneaStarSVG(main,w1,w2)}</div></div>`;
+  let h='<div class="unified-frame uf-fixed" style="border-color:var(--stat-solo)">';
+  h+=`<div class="uf-head-split"><div class="uf-head-left">
+    <div class="kw-main" style="color:var(--stat-solo)">${center} ${ENNEA_NAMES[main]}</div>
+    <div class="kw-sub">${main}번 · 추천 ${en.recommended.map(n=>n+'번').join(', ')}</div>
+    <div class="kw-points">
+      <span class="kw-point"><b>센터:</b> ${ENNEA_CENTER_DESC[center]||center}</span>
+      <span class="kw-point"><b>메인:</b> ${main}번 ${ENNEA_NAMES[main]}</span>
+      <span class="kw-point"><b>날개:</b> ${w1}w${main} / ${main}w${w2}</span>
+    </div></div><div class="uf-head-viz">${enneaStarSVG(main,w1,w2)}</div></div>`;
+  h+='<div class="uf-body-scroll">';
   h+=`<div class="uf-sec"><div class="uf-body">${dbE?.성향||ENNEA_DESC[main]||''}</div></div>`;
   if(dbE?.두려움)h+=`<div class="uf-sec"><div class="uf-label">😨 핵심 두려움</div><div class="uf-body">${dbE.두려움}</div></div>`;
   if(dbE?.건강)h+=`<div class="uf-sec"><div class="uf-label">✅ 건강할 때</div><div class="uf-body">${dbE.건강}</div></div>`;
@@ -252,7 +293,7 @@ function renderEnnea(){
   if(dbE?.안정)h+=`<div class="uf-sec"><div class="uf-label">📈 안정 (통합)</div><div class="uf-body">${dbE.안정}</div></div>`;
   if(dbE?.사주)h+=`<div class="uf-sec"><div class="uf-label">☯️ 사주 연계</div><div class="uf-body">${dbE.사주}</div></div>`;
   h+=`<div class="uf-sec"><div class="uf-label">🪽 날개</div><div class="uf-body"><b>${w1}w${main}</b> ${dbW1?'('+dbW1.명칭+') '+dbW1.설명:'('+ENNEA_NAMES[w1]+')'}</div><div class="uf-body"><b>${main}w${w2}</b> ${dbW2?'('+dbW2.명칭+') '+dbW2.설명:'('+ENNEA_NAMES[w2]+')'}</div></div>`;
-  h+='</div>';
+  h+='</div></div>';
   document.getElementById('enneaArea').innerHTML=h;
 }
 
@@ -261,15 +302,28 @@ function renderMBTI(){
   if(!S.mbti)return;
   const m=S.mbti,sel=S.selectedMBTI,ax=m.axes;
   const dbM=getDBMbti(sel);
-  let h='<div class="unified-frame" style="border-color:var(--stat-lead)">';
-  h+=`<div class="uf-head-split"><div class="uf-head-left"><div class="uf-title" style="color:var(--stat-lead)">${sel}</div><div class="uf-sub">추천: ${m.recommended.join(', ')}${dbM?.별칭?' · '+dbM.별칭:''}</div><br><a class="test-link-btn" href="${MBTI_TEST_URL}" target="_blank">🔗 무료 MBTI 검사</a></div><div class="uf-head-viz">${mbtiBigSVG(ax,sel)}</div></div>`;
+  // 세부 A/T + 최고 축 포인트
+  const variant=ax.E>=50&&ax.S>=50&&ax.T>=50&&ax.J>=50?'A':'T'; // 단순: 우세 많으면 확신형
+  const axList=[['E',ax.E,'I',ax.I],['S',ax.S,'N',ax.N],['T',ax.T,'F',ax.F],['J',ax.J,'P',ax.P]];
+  let topAxis='',topVal=0,topLabel='';
+  axList.forEach(([a,av,b,bv])=>{const on=sel.includes(a)?a:b,v=sel.includes(a)?av:bv;if(v>topVal){topVal=v;topAxis=on;topLabel=on;}});
+  let h='<div class="unified-frame uf-fixed" style="border-color:var(--stat-lead)">';
+  h+=`<div class="uf-head-split"><div class="uf-head-left">
+    <div class="kw-main" style="color:var(--stat-lead)">${sel}-${variant}</div>
+    <div class="kw-sub">${dbM?.별칭||MBTI_DESC[sel]?.split('—')[0]||''} · 추천 ${m.recommended.slice(0,4).join(', ')}</div>
+    <div class="kw-points">
+      <span class="kw-point"><b>유형:</b> ${sel}</span>
+      <span class="kw-point"><b>세부:</b> ${variant==='A'?'A (확신형)':'T (격동형)'}</span>
+      <span class="kw-point"><b>최고 지표:</b> ${topLabel} ${topVal}%</span>
+    </div></div><div class="uf-head-viz">${mbtiBigSVG(ax,sel)}</div></div>`;
+  h+='<div class="uf-body-scroll">';
   h+=`<div class="uf-sec"><div class="uf-body">${dbM?.성향||MBTI_DESC[sel]||''}</div></div>`;
   if(dbM?.강점)h+=`<div class="uf-sec"><div class="uf-label">💪 강점</div><div class="uf-body">${dbM.강점}</div></div>`;
   if(dbM?.약점)h+=`<div class="uf-sec"><div class="uf-label">⚠️ 약점</div><div class="uf-body">${dbM.약점}</div></div>`;
   if(dbM?.연애)h+=`<div class="uf-sec"><div class="uf-label">💕 관계/연애</div><div class="uf-body">${dbM.연애}</div></div>`;
   if(dbM?.사주)h+=`<div class="uf-sec"><div class="uf-label">☯️ 사주 연계</div><div class="uf-body">${dbM.사주}</div></div>`;
   if(dbM?.직업)h+=`<div class="uf-sec"><div class="uf-label">💼 직업 적성</div><div class="uf-body">${dbM.직업}</div></div>`;
-  h+='</div>';
+  h+='</div></div>';
   document.getElementById('mbtiArea').innerHTML=h;
 }
 

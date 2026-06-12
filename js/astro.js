@@ -35,58 +35,49 @@ function calcAstro(year, month, day, hour, minute, lat, lng) {
 // 렌더
 function renderAstro(h) {
   const el = document.getElementById('astroArea');
-  if (!h) { el.innerHTML = '<div class="placeholder">출생지를 선택하고 만세력을 조회하세요</div>'; return; }
+  const natalEl = document.getElementById('astroNatalArea');
+  if (!h) { if(el) el.innerHTML = ''; if(natalEl) natalEl.innerHTML='<div class="placeholder">12하우스·행성배치 — 조회를 입력하세요</div>'; return; }
 
   const ascKey = h.Ascendant.Sign.key;
   const ascDeg = h.Ascendant.ChartPosition.Ecliptic.ArcDegreesFormatted30;
   const sunKey = h.CelestialBodies.sun.Sign.key;
   const moonKey = h.CelestialBodies.moon.Sign.key;
+  const mcKey = h.Midheaven ? h.Midheaven.Sign.key : '';
 
-  let html = '<div class="unified-frame" style="border-color:#7060c0">';
-
-  // 헤더: 좌 메인3 / 우 12별자리 휠 시각화
+  // ── 단락2: 고정프레임 (차트 + 메인3 + 설명 스크롤) ──
+  let html = '<div class="unified-frame uf-fixed" style="border-color:#7060c0">';
   html += `<div class="uf-head-split"><div class="uf-head-left">`;
-  html += `<div class="uf-title" style="color:#7060c0">${SIGN_EMOJI[ascKey]} ${SIGN_KR[ascKey]} 상승</div>`;
-  html += `<div class="uf-sub">☉ 태양 ${SIGN_KR[sunKey]} · ☽ 달 ${SIGN_KR[moonKey]}</div>`;
-  html += `</div><div class="uf-head-viz">${astroWheelSVG(h)}</div></div>`;
-
-  // 메인 3 (상승궁/태양/달) 좌측정렬 상세
+  html += `<div class="kw-main" style="color:#7060c0">${SIGN_EMOJI[ascKey]} ${SIGN_KR[ascKey].replace('자리','')} 상승</div>`;
+  html += `<div class="kw-sub">상승궁 ${ascDeg}</div>`;
+  html += `<div class="kw-points">
+    <span class="kw-point"><b>상승(ASC):</b> ${SIGN_KR[ascKey]}</span>
+    <span class="kw-point"><b>태양 ☉:</b> ${SIGN_KR[sunKey]}</span>
+    <span class="kw-point"><b>달 ☽:</b> ${SIGN_KR[moonKey]}</span>
+    <span class="kw-point"><b>MC 천정:</b> ${mcKey?SIGN_KR[mcKey]:'—'}</span>
+  </div></div><div class="uf-head-viz">${astroChartSVG(h)}</div></div>`;
+  html += '<div class="uf-body-scroll">';
   html += `<div class="uf-sec"><div class="uf-label">${SIGN_EMOJI[ascKey]} 상승궁 (ASC) — ${SIGN_KR[ascKey]} ${ascDeg}</div><div class="uf-body">${ASC_DESC[ascKey] || ''}</div></div>`;
   html += `<div class="uf-sec"><div class="uf-label">☉ 태양 — ${SIGN_KR[sunKey]}</div><div class="uf-body"><b>본질·자아:</b> ${SIGN_DESC[sunKey] || ''}</div></div>`;
   html += `<div class="uf-sec"><div class="uf-label">☽ 달 — ${SIGN_KR[moonKey]}</div><div class="uf-body"><b>감정·내면:</b> ${SIGN_DESC[moonKey] || ''}</div></div>`;
+  if (mcKey) html += `<div class="uf-sec"><div class="uf-label">⬆️ MC 천정 — ${SIGN_KR[mcKey]}</div><div class="uf-body"><b>직업·사회적 정점:</b> ${SIGN_DESC[mcKey] || ''}</div></div>`;
+  html += '</div></div>';
+  if(el) el.innerHTML = html;
 
-  // 상세: 10행성 전체
-  html += `<div class="uf-sec"><div class="uf-label">🪐 행성 배치 (전체)</div>`;
-  const bodies = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
-  bodies.forEach(b => {
-    const cb = h.CelestialBodies[b];
-    if (!cb) return;
-    const sk = cb.Sign.key;
-    const deg = cb.ChartPosition.Ecliptic.ArcDegreesFormatted30;
-    const houseId = cb.House ? cb.House.id : '';
-    const retro = cb.isRetrograde ? ' ℞' : '';
-    html += `<div class="astro-row"><span class="astro-body">${BODY_KR[b]}${retro}</span><span class="astro-pos">${SIGN_EMOJI[sk]} ${SIGN_KR[sk]} ${deg}${houseId ? ' · '+houseId+'H' : ''}</span></div>`;
-  });
-  html += `</div>`;
-
-  // 상세: 12하우스
-  html += `<div class="uf-sec"><div class="uf-label">🏠 12하우스 (전체)</div>`;
-  if (h.Houses) {
-    h.Houses.forEach((house, i) => {
-      const sk = house.Sign.key;
-      html += `<div class="astro-row"><span class="astro-body">${HOUSE_KR[i+1] || (i+1)+'하우스'}</span><span class="astro-pos">${SIGN_EMOJI[sk]} ${SIGN_KR[sk]}</span></div>`;
+  // ── 단락1: 점성 원국 (12하우스 + 행성배치, 칩 형태) ──
+  if(natalEl){
+    let n = '<div class="sub-label" style="margin-top:4px">🪐 행성 배치</div><div class="chip-wrap">';
+    const bodies = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
+    bodies.forEach(b => {
+      const cb = h.CelestialBodies[b]; if (!cb) return;
+      const sk = cb.Sign.key, houseId = cb.House ? cb.House.id : '', retro = cb.isRetrograde ? '℞' : '';
+      const hl=(b==='sun'||b==='moon');
+      n += `<span class="chip${hl?' hl':''}">${BODY_KR[b].split(' ')[1]||''}${BODY_KR[b].split(' ')[0]} ${SIGN_EMOJI[sk]}${houseId?' '+houseId+'H':''}${retro}</span>`;
     });
+    n += '</div><div class="sub-label" style="margin-top:8px">🏠 12하우스</div><div class="chip-wrap">';
+    if (h.Houses) h.Houses.forEach((house, i) => { n += `<span class="chip">${i+1}H ${SIGN_EMOJI[house.Sign.key]}</span>`; });
+    n += '</div>';
+    natalEl.innerHTML = n;
   }
-  html += `</div>`;
-
-  // MC (천정)
-  if (h.Midheaven) {
-    const mk = h.Midheaven.Sign.key;
-    html += `<div class="uf-sec"><div class="uf-label">⬆️ MC 천정 (사회적 정점) — ${SIGN_KR[mk]}</div><div class="uf-body">직업·사회적 목표의 방향: ${SIGN_DESC[mk] || ''}</div></div>`;
-  }
-
-  html += '</div>';
-  el.innerHTML = html;
 }
 
 // 12별자리 휠 SVG
