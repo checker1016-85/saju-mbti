@@ -110,30 +110,49 @@ function renderSajuCard(){
     const ganTg=r.tenGods?.[k]?.stem||'';
     const jiTg=r.tenGods?.[k]?.branch||'';
     h+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="tg-top">${ganTg}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div><div class="tg-bot">${jiTg}</div></div>`;});
-  h+='</div>';
-  const oh=getOh(r),ohT=Object.values(oh).reduce((a,b)=>a+b,1);
-  h+='<div class="oh-bar">';for(const[e,c]of Object.entries(oh)){if(c>0)h+=`<span style="flex:${c};background:${ELEM_COLOR[e]}"></span>`;}
-  h+='</div><div style="display:flex;justify-content:center;gap:8px;margin-top:4px;flex-wrap:wrap">';for(const[e,c]of Object.entries(oh))h+=`<span style="font-size:10px;color:${ELEM_COLOR[e]}">${e}${c}</span>`;h+='</div></div>';
+  h+='</div></div>';
   document.getElementById('sajuCardArea').innerHTML=h;
 }
 function renderSajuMeta(){
   const r=S.saju;
   const keys=['hour','day','month','year'],klabel={hour:'시',day:'일',month:'월',year:'년'};
   let h='<div class="meta-box">';
-  // 12운성
+  // 12운성 (bong)
   if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${klabel[k]} ${r.stages12.bong[k]}`:'').filter(Boolean).join(' · ');if(s)h+=metaRow('12운성',s);}
   // 천간 관계
   if(r.stemRelations&&r.stemRelations.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=metaRow('천간 관계',s);}
-  // 지지 관계
-  if(r.branchRelations){const parts=[];for(const[type,val]of Object.entries(r.branchRelations)){if(val&&(Array.isArray(val)?val.length:Object.keys(val).length)){const vstr=Array.isArray(val)?val.join(','):Object.values(val).filter(Boolean).join(',');if(vstr)parts.push(type+' '+vstr);}}if(parts.length)h+=metaRow('지지 관계',parts.join(' · '));}
-  // 신살
-  if(r.sals){const parts=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;const arr=[];if(s.twelveSal)arr.push(s.twelveSal);if(s.specialSals&&s.specialSals.length)arr.push(...s.specialSals);if(arr.length)parts.push(arr.join(','));});if(parts.length)h+=metaRow('신살',[...new Set(parts.join(',').split(','))].join(' · '));}
+  // 지지 관계 (육합/충/형/파/해/원진/귀문/삼합/방합/반합) — 각 타입은 {key:desc} 객체
+  if(r.branchRelations){
+    const parts=[];
+    const order=['육합','삼합','반합','방합','충','형','파','해','원진','귀문'];
+    order.forEach(type=>{
+      const val=r.branchRelations[type];
+      if(val&&typeof val==='object'){
+        const descs=[...new Set(Object.values(val).filter(Boolean))];
+        if(descs.length)parts.push(descs.join(', '));
+      }
+    });
+    if(parts.length)h+=metaRow('지지 관계',parts.join(' · '));
+  }
+  // 신살 (각 기둥 twelveSal + specialSals)
+  if(r.sals){
+    const all=[];
+    keys.forEach(k=>{const s=r.sals[k];if(!s)return;if(s.twelveSal)all.push(s.twelveSal);if(s.specialSals&&s.specialSals.length)all.push(...s.specialSals);});
+    const uniq=[...new Set(all)];
+    if(uniq.length)h+=metaRow('신살',uniq.join(' · '));
+  }
   // 격국
-  const gk=r.advanced?.geukguk||'';if(gk)h+=metaRow('격국',gk);
+  if(r.advanced?.geukguk)h+=metaRow('격국',r.advanced.geukguk);
   // 용신
-  const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');if(ys)h+=metaRow('용신',ys);
-  // 공망
-  if(r.gongmang){const g=Array.isArray(r.gongmang)?r.gongmang.join(', '):r.gongmang;if(g)h+=metaRow('공망',g);}
+  const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');
+  if(ys)h+=metaRow('용신',ys);
+  // 강약
+  if(r.advanced?.dayStrength)h+=metaRow('신강/신약',(r.advanced.dayStrength.strength==='strong'?'신강':'신약')+' ('+r.advanced.dayStrength.score+')');
+  // 공망 (branchesKo 배열)
+  if(r.gongmang){
+    const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):(r.gongmang.branches?r.gongmang.branches.join(', '):'');
+    if(g)h+=metaRow('공망',g);
+  }
   h+='</div>';
   document.getElementById('sajuMetaArea').innerHTML=h;
 }
@@ -161,21 +180,19 @@ function renderMyungri(){
   // 계절
   const seasonMap={'寅':'초봄','卯':'봄','辰':'늦봄','巳':'초여름','午':'여름','未':'늦여름','申':'초가을','酉':'가을','戌':'늦가을','亥':'초겨울','子':'겨울','丑':'늦겨울'};
   const season=seasonMap[mb]||'';
+  const oh=getOh(r);
   let h='<div class="unified-frame">';
-  // 헤더 (키워드 - 가운데)
-  h+=`<div class="uf-head"><div class="uf-title">${STEM_ADJ[ds]||''} ${typeName}</div><div class="uf-sub">${ilju}일주 · ${r.advanced?.geukguk||'—'} · ${r.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}</div></div>`;
+  // 헤더: 좌 대표문구 / 우 오행 시각화
+  h+=`<div class="uf-head-split"><div class="uf-head-left"><div class="uf-title">${STEM_ADJ[ds]||''} ${typeName}</div><div class="uf-sub">${ilju}일주 · ${r.advanced?.geukguk||'—'} · ${r.advanced?.dayStrength?.strength==='strong'?'신강':'신약'}</div></div><div class="uf-head-viz">${sajuVizSVG(oh)}</div></div>`;
   // 일주 (좌측정렬)
-  h+=`<div class="uf-sec"><div class="uf-label">📌 일주 ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</div>
+  h+=`<div class="uf-sec"><div class="uf-label">📌 본능 일주 ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</div>
     <div class="uf-body">${dbText||STEM_TEXT[ds]||''}</div>
     <div class="uf-body"><b>일간 ${HANJA_KR[ds]}:</b> ${STEM_TEXT[ds]||''}</div>
     <div class="uf-body"><b>일지 ${HANJA_KR[db]}:</b> ${BRANCH_TEXT[db]||''}</div></div>`;
   // 월주 (좌측정렬)
-  h+=`<div class="uf-sec"><div class="uf-label">🎭 월주 ${HANJA_KR[mb]} (${season})</div>
+  h+=`<div class="uf-sec"><div class="uf-label">🎭 사회적 월주 ${HANJA_KR[mb]} (${season})</div>
     <div class="uf-body"><b>계절적:</b> ${season} 기운을 타고나, 이 시기의 에너지가 삶의 리듬을 형성한다.</div>
     <div class="uf-body"><b>사회적 페르소나:</b> ${MONTH_TEXT[mb]||''}</div></div>`;
-  // 원국 오행
-  const oh=getOh(r);const ohStr=Object.entries(oh).map(([e,c])=>`${e}${c}`).join(' · ');
-  h+=`<div class="uf-sec"><div class="uf-label">🌐 원국 오행</div><div class="uf-body">${ohStr}</div></div>`;
   h+='</div>';
   document.getElementById('myungriArea').innerHTML=h;
 }
@@ -213,8 +230,10 @@ function renderEnnea(){
   const main=S.selectedEnnea,en=S.ennea;
   const w1=main===1?9:main-1,w2=main===9?1:main+1;
   const dbE=getDBEnnea(main),dbW1=getDBWing(w1+'w'+main),dbW2=getDBWing(main+'w'+w2);
+  const center=ENNEA_CENTER[main]||'';
+  const centerC={본능:'#d06020',가슴:'#18a088',사고:'#6050c0'}[center]||'#888';
   let h='<div class="unified-frame" style="border-color:var(--stat-solo)">';
-  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="uf-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}${dbE?.욕구?' · '+dbE.욕구:''}</div></div>`;
+  h+=`<div class="uf-head-split"><div class="uf-head-left"><div class="uf-title" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]}</div><div class="uf-sub">추천: ${en.recommended.map(n=>n+'번').join(', ')}${dbE?.욕구?' · '+dbE.욕구:''}</div><span class="center-tag" style="background:${centerC}20;color:${centerC}">${ENNEA_CENTER_DESC[center]||center}</span><br><a class="test-link-btn" href="${ENNEA_TEST_URL}" target="_blank">🔗 무료 에니어그램 검사</a></div><div class="uf-head-viz">${enneaStarSVG(main,w1,w2)}</div></div>`;
   h+=`<div class="uf-sec"><div class="uf-body">${dbE?.성향||ENNEA_DESC[main]||''}</div></div>`;
   if(dbE?.두려움)h+=`<div class="uf-sec"><div class="uf-label">😨 핵심 두려움</div><div class="uf-body">${dbE.두려움}</div></div>`;
   if(dbE?.건강)h+=`<div class="uf-sec"><div class="uf-label">✅ 건강할 때</div><div class="uf-body">${dbE.건강}</div></div>`;
@@ -233,17 +252,14 @@ function renderMBTI(){
   const m=S.mbti,sel=S.selectedMBTI,ax=m.axes;
   const dbM=getDBMbti(sel);
   let h='<div class="unified-frame" style="border-color:var(--stat-lead)">';
-  h+=`<div class="uf-head"><div class="uf-title" style="color:var(--stat-lead)">${sel}</div><div class="uf-sub">추천: ${m.recommended.join(', ')}${dbM?.별칭?' · '+dbM.별칭:''}</div></div>`;
+  h+=`<div class="uf-head-split"><div class="uf-head-left"><div class="uf-title" style="color:var(--stat-lead)">${sel}</div><div class="uf-sub">추천: ${m.recommended.join(', ')}${dbM?.별칭?' · '+dbM.별칭:''}</div><br><a class="test-link-btn" href="${MBTI_TEST_URL}" target="_blank">🔗 무료 MBTI 검사</a></div><div class="uf-head-viz">${mbtiBigSVG(ax,sel)}</div></div>`;
   h+=`<div class="uf-sec"><div class="uf-body">${dbM?.성향||MBTI_DESC[sel]||''}</div></div>`;
   if(dbM?.강점)h+=`<div class="uf-sec"><div class="uf-label">💪 강점</div><div class="uf-body">${dbM.강점}</div></div>`;
   if(dbM?.약점)h+=`<div class="uf-sec"><div class="uf-label">⚠️ 약점</div><div class="uf-body">${dbM.약점}</div></div>`;
   if(dbM?.연애)h+=`<div class="uf-sec"><div class="uf-label">💕 관계/연애</div><div class="uf-body">${dbM.연애}</div></div>`;
   if(dbM?.사주)h+=`<div class="uf-sec"><div class="uf-label">☯️ 사주 연계</div><div class="uf-body">${dbM.사주}</div></div>`;
   if(dbM?.직업)h+=`<div class="uf-sec"><div class="uf-label">💼 직업 적성</div><div class="uf-body">${dbM.직업}</div></div>`;
-  const pairs=[['E','I'],['S','N'],['T','F'],['J','P']];
-  h+='<div class="uf-sec"><div class="mbti-mini-axes">';
-  pairs.forEach(([a,b])=>{const aOn=sel.includes(a);h+=`<div class="mbti-mini-axis"><span class="${aOn?'on':''}">${a} ${ax[a]}%</span><div class="mini-bar"><div class="mini-fill" style="width:${aOn?ax[a]:ax[b]}%;background:var(--stat-lead)"></div></div><span class="${!aOn?'on':''}">${ax[b]}% ${b}</span></div>`;});
-  h+='</div></div></div>';
+  h+='</div>';
   document.getElementById('mbtiArea').innerHTML=h;
 }
 

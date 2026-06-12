@@ -73,3 +73,10 @@ const ENNEA_WEIGHTS={
 };
 
 const MBTI_ALL=['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
+
+// 에니어그램 센터 (본능=장/사고=머리/가슴=감정)
+const ENNEA_CENTER={8:'본능',9:'본능',1:'본능',2:'가슴',3:'가슴',4:'가슴',5:'사고',6:'사고',7:'사고'};
+const ENNEA_CENTER_DESC={'본능':'본능(장) — 분노·통제 중심','가슴':'가슴(감정) — 이미지·관계 중심','사고':'사고(머리) — 불안·사고 중심'};
+// 무료 검사 링크
+const MBTI_TEST_URL='https://www.16personalities.com/ko/%EB%AC%B4%EB%A3%8C-%EC%84%B1%EA%B2%A9-%EC%9C%A0%ED%98%95-%EA%B2%80%EC%82%AC';
+const ENNEA_TEST_URL='https://enneagram-personality.com/ko/';

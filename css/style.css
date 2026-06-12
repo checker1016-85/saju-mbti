@@ -5,7 +5,7 @@
   --text:#2a2520;--text2:#6a6358;--text3:#9a9488;
   --gold:#b8860b;--gold-dim:#8a6508;--gold-light:#f0d878;
   --stat-money:#d4a017;--stat-play:#d44060;--stat-lead:#6050c0;--stat-study:#18a088;--stat-solo:#d06020;
-  --wood:#2e8b40;--fire:#c83030;--earth:#a08020;--metal:#707088;--water:#3060a0;
+  --wood:#2e8b40;--fire:#c83030;--earth:#d4a82a;--metal:#707088;--water:#3060a0;
   --radius:10px;--gap:14px;--panel-w:320px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -187,3 +187,13 @@ input:focus,select:focus{border-color:var(--gold)}
 .meta-row:last-child{border-bottom:none}
 .meta-label{font-size:10px;font-weight:800;color:var(--gold-dim);margin-bottom:3px}
 .meta-val{font-size:11px;color:var(--text);line-height:1.5}
+
+/* ═══ 프레임 헤더 좌우 배치 (대표문구 좌 / 시각화 우) ═══ */
+.uf-head-split{display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--surface2),var(--surface3))}
+.uf-head-left{flex:1;text-align:left}
+.uf-head-left .uf-title{font-size:18px;font-weight:900;color:var(--gold-dim);margin-bottom:3px;text-align:left}
+.uf-head-left .uf-sub{font-size:11px;color:var(--text2);text-align:left}
+.uf-head-viz{flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.test-link-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:5px 12px;background:var(--surface);border:1px solid var(--gold);border-radius:16px;color:var(--gold-dim);font-size:11px;font-weight:700;text-decoration:none;transition:all .15s}
+.test-link-btn:hover{background:var(--gold);color:#fff}
+.center-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-top:4px}
