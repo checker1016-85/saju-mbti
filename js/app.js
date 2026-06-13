@@ -172,6 +172,26 @@ function renderSajuCard(){
   h+='</div></div>';
   document.getElementById('sajuCardArea').innerHTML=h;
 }
+// 시각화 좌측 하단용 메타 (공망·대운·신살·12운성 등)
+function sajuMetaInline(r){
+  const keys=['hour','day','month','year'],kl={hour:'시',day:'일',month:'월',year:'년'};
+  let rows='';
+  const add=(label,val)=>{if(val)rows+=`<div class="ke-row"><span class="ke-label">${label}</span><span class="ke-val">${val}</span></div>`;};
+  // 대운
+  if(r.daeun?.list&&r.daeun.list.length){const age=r.currentAge||0;const cur=r.daeun.list.find(d=>age>=d.startAge&&age<=d.endAge)||r.daeun.list[0];add('대운',`${cur.ganzhi}(${cur.stemTenGod||''}) ${cur.startAge}~${cur.endAge}세`);}
+  // 공망
+  if(r.gongmang){const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):'';add('공망',g);}
+  // 12운성
+  if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${kl[k]} ${r.stages12.bong[k]}`:'').filter(Boolean).join(' · ');add('12운성',s);}
+  // 신살
+  if(r.sals){const all=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;if(s.twelveSal)all.push(s.twelveSal);if(s.specialSals)all.push(...s.specialSals);});const u=[...new Set(all)];if(u.length)add('신살',u.join(' · '));}
+  // 지지 관계
+  if(r.branchRelations){const parts=[];['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)parts.push(d.join(', '));}});if(parts.length)add('지지',parts.join(' · '));}
+  // 용신
+  const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');add('용신',ys);
+  return `<div class="kw-extra">${rows||'<div class="ke-row"><span class="ke-val">—</span></div>'}</div>`;
+}
+
 function renderSajuMeta(){
   const r=S.saju;
   const keys=['hour','day','month','year'],klabel={hour:'시',day:'일',month:'월',year:'년'};
@@ -261,7 +281,9 @@ function renderMyungri(){
       <span class="kw-point"><b>본능 일주:</b> ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</span>
       <span class="kw-point"><b>사회 월주:</b> ${HANJA_KR[mb]} (${season})</span>
       <span class="kw-point"><b>일간 오행:</b> ${dayElem} · ${centerBot}</span>
-    </div></div><div class="uf-head-viz">${sajuVizSVG(oh,centerTop,centerBot)}</div></div>`;
+    </div>
+    ${sajuMetaInline(r)}
+    </div><div class="uf-head-viz">${sajuVizSVG(oh,centerTop,centerBot)}</div></div>`;
   h+='<div class="uf-body-scroll">';
   h+=`<div class="uf-sec"><div class="uf-label">📌 본능 일주 ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</div>
     <div class="uf-body">${dbText||STEM_TEXT[ds]||''}</div>

@@ -40,6 +40,7 @@
       </div>
     </div>
     <div class="birth-col">
+      <hr class="soft-line">
       <div class="row">
         <div class="field"><label>성별</label><select id="inGender"><option value="여">여</option><option value="남">남</option></select></div>
         <div class="field"><label>나이</label><select id="inAgeType"><option value="kr">한국나이</option><option value="man">만나이</option></select></div>
@@ -77,33 +78,18 @@
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">☯️ 명리 (사주)</span>
   </div>
-  <div class="natal-row">
-    <div class="natal-card">
-      <div class="sub-label">🀄 사주 원국</div>
-      <div id="sajuCardArea">
-        <div class="saju-card"><div class="pillar-row">
-          <div class="pillar"><div class="lbl">시주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-          <div class="pillar"><div class="lbl">일주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-          <div class="pillar"><div class="lbl">월주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-          <div class="pillar"><div class="lbl">년주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-        </div></div>
-      </div>
-      <div id="sajuMetaArea" class="meta-scroll"><div class="placeholder">공망·신살·대운 등 — 조회를 입력하세요</div></div>
-    </div>
-  </div>
   <div id="myungriArea"></div>
 
   <hr class="divider">
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">🌌 점성 (Astrology)</span>
   </div>
-  <div class="natal-row">
-    <div class="natal-card">
-      <div class="sub-label">🪐 점성 원국 (12하우스·행성)</div>
-      <div id="astroNatalArea" class="meta-scroll"><div class="placeholder">12하우스·행성배치 — 조회를 입력하세요</div></div>
-    </div>
-  </div>
   <div id="astroArea"></div>
+
+  <!-- 숨김: 원국 데이터 렌더 타겟 (시각화 내부로 합쳐짐) -->
+  <div id="sajuCardArea" style="display:none"></div>
+  <div id="sajuMetaArea" style="display:none"></div>
+  <div id="astroNatalArea" style="display:none"></div>
 
   <hr class="divider">
   <div class="section-title-row">

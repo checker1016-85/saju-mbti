@@ -54,7 +54,19 @@ function renderAstro(h) {
     <span class="kw-point"><b>태양 ☉:</b> ${SIGN_KR[sunKey]}</span>
     <span class="kw-point"><b>달 ☽:</b> ${SIGN_KR[moonKey]}</span>
     <span class="kw-point"><b>MC 천정:</b> ${mcKey?SIGN_KR[mcKey]:'—'}</span>
-  </div></div><div class="uf-head-viz">${astroChartSVG(h)}</div></div>`;
+  </div>`;
+  // 좌측 하단 스크롤: 행성배치 + 12하우스 칩
+  html += '<div class="kw-extra"><div class="chip-wrap">';
+  const bodies = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
+  bodies.forEach(b => {
+    const cb = h.CelestialBodies[b]; if (!cb) return;
+    const sk = cb.Sign.key, houseId = cb.House ? cb.House.id : '', retro = cb.isRetrograde ? '℞' : '';
+    const hl=(b==='sun'||b==='moon');
+    html += `<span class="chip${hl?' hl':''}">${BODY_KR[b].split(' ')[1]||''} ${SIGN_EMOJI[sk]}${houseId?' '+houseId+'H':''}${retro}</span>`;
+  });
+  if (h.Houses) h.Houses.forEach((house, i) => { html += `<span class="chip">${i+1}H ${SIGN_EMOJI[house.Sign.key]}</span>`; });
+  html += '</div></div>';
+  html += `</div><div class="uf-head-viz">${astroChartSVG(h)}</div></div>`;
   html += '<div class="uf-body-scroll">';
   html += `<div class="uf-sec"><div class="uf-label">${SIGN_EMOJI[ascKey]} 상승궁 (ASC) — ${SIGN_KR[ascKey]} ${ascDeg}</div><div class="uf-body">${ASC_DESC[ascKey] || ''}</div></div>`;
   html += `<div class="uf-sec"><div class="uf-label">☉ 태양 — ${SIGN_KR[sunKey]}</div><div class="uf-body"><b>본질·자아:</b> ${SIGN_DESC[sunKey] || ''}</div></div>`;
@@ -62,22 +74,6 @@ function renderAstro(h) {
   if (mcKey) html += `<div class="uf-sec"><div class="uf-label">⬆️ MC 천정 — ${SIGN_KR[mcKey]}</div><div class="uf-body"><b>직업·사회적 정점:</b> ${SIGN_DESC[mcKey] || ''}</div></div>`;
   html += '</div></div>';
   if(el) el.innerHTML = html;
-
-  // ── 단락1: 점성 원국 (12하우스 + 행성배치, 칩 형태) ──
-  if(natalEl){
-    let n = '<div class="sub-label" style="margin-top:4px">🪐 행성 배치</div><div class="chip-wrap">';
-    const bodies = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
-    bodies.forEach(b => {
-      const cb = h.CelestialBodies[b]; if (!cb) return;
-      const sk = cb.Sign.key, houseId = cb.House ? cb.House.id : '', retro = cb.isRetrograde ? '℞' : '';
-      const hl=(b==='sun'||b==='moon');
-      n += `<span class="chip${hl?' hl':''}">${BODY_KR[b].split(' ')[1]||''}${BODY_KR[b].split(' ')[0]} ${SIGN_EMOJI[sk]}${houseId?' '+houseId+'H':''}${retro}</span>`;
-    });
-    n += '</div><div class="sub-label" style="margin-top:8px">🏠 12하우스</div><div class="chip-wrap">';
-    if (h.Houses) h.Houses.forEach((house, i) => { n += `<span class="chip">${i+1}H ${SIGN_EMOJI[house.Sign.key]}</span>`; });
-    n += '</div>';
-    natalEl.innerHTML = n;
-  }
 }
 
 // 12별자리 휠 SVG
