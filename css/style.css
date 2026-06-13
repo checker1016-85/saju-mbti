@@ -15,9 +15,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .vstack{max-width:880px;margin:0 auto;padding:var(--gap)}
 .block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px}
 .block-title{font-size:14px;font-weight:900;color:var(--gold-dim);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--gold)}
-.input-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-@media(max-width:760px){.input-grid{grid-template-columns:1fr}}
-.input-col{min-width:0}
+.input-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+@media(max-width:760px){.input-grid{grid-template-columns:1fr}.input-col{border-right:none!important;border-bottom:1px solid var(--border)}}
+.input-col{min-width:0;padding:0 18px;border-right:1px solid var(--border);display:flex;flex-direction:column}
+.input-col:first-child{padding-left:0}
+.input-col:last-child{padding-right:0;border-right:none}
+.input-col-inner{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;flex:1;min-height:280px}
 .sub-label{font-size:11px;font-weight:800;color:var(--gold-dim);margin-bottom:8px}
 .section-title{font-size:11px;font-weight:800;color:var(--gold-dim);letter-spacing:1.5px;margin-bottom:var(--gap);padding-bottom:6px;border-bottom:1px solid var(--border)}
 label{display:block;font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:600}
