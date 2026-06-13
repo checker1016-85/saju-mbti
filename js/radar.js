@@ -1,10 +1,10 @@
 // ═══ 공용: 4종 시각화 200px 통일 ═══
 const VIZ_SIZE=200;
 
-// 방사형 (성향 프로필용)
-function radarSVG(axes, color, size = 130) {
-  const cx=size/2,cy=size/2,r=size/2-22,n=axes.length;
-  const ang=(i)=>-Math.PI/2+2*Math.PI*i/n;
+// 방사형 (성향 프로필용) — 반시계 방향, 라벨에 퍼센트 포함
+function radarSVG(axes, color, size = 200) {
+  const cx=size/2,cy=size/2,r=size/2-36,n=axes.length;
+  const ang=(i)=>-Math.PI/2-2*Math.PI*i/n; // 반시계
   const pt=(i,v)=>[(cx+r*(v/100)*Math.cos(ang(i))).toFixed(1),(cy+r*(v/100)*Math.sin(ang(i))).toFixed(1)];
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   [25,50,75,100].forEach(lv=>{let pts='';for(let i=0;i<n;i++){const[x,y]=pt(i,lv);pts+=`${x},${y} `;}svg+=`<polygon points="${pts}" fill="none" stroke="#d4cfc4" stroke-width=".5"/>`;});
@@ -12,9 +12,12 @@ function radarSVG(axes, color, size = 130) {
   let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
   svg+=`<polygon points="${dpts}" fill="${color}25" stroke="${color}" stroke-width="2"/>`;
   axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);svg+=`<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;});
-  axes.forEach((a,i)=>{const[x,y]=pt(i,120);const lines=a.label.split('\n');lines.forEach((l,li)=>{svg+=`<text x="${x}" y="${(+y)+li*11}" text-anchor="middle" fill="#6a6358" font-size="10" font-family="Noto Sans KR">${l}</text>`;});
-    // 퍼센트
-    const[px,py]=pt(i,a.value);svg+=`<text x="${px}" y="${(+py)-5}" text-anchor="middle" fill="${color}" font-size="9" font-weight="800" font-family="Space Grotesk">${a.value}</text>`;});
+  // 라벨: 텍스트(퍼센트) — 잘림 방지 여백 확보
+  axes.forEach((a,i)=>{
+    const[lx,ly]=pt(i,128);
+    const labelText=a.label.replace('\n',' ')+'('+a.value+'%)';
+    svg+=`<text x="${lx}" y="${(+ly)+3}" text-anchor="middle" fill="#5a5348" font-size="9" font-weight="700" font-family="Noto Sans KR">${labelText}</text>`;
+  });
   svg+='</svg>';return svg;
 }
 
@@ -82,8 +85,8 @@ function astroChartSVG(h, size=VIZ_SIZE){
   // MC 축
   const mcDeg=h.Midheaven.ChartPosition.Ecliptic.DecimalDegrees;
   const mcA=toAngle(mcDeg);
-  svg+=`<line x1="${cx}" y1="${cy}" x2="${(cx+rZod*Math.cos(mcA)).toFixed(1)}" y2="${(cy-rZod*Math.sin(mcA)).toFixed(1)}" stroke="#7060c0" stroke-width="1.2" stroke-dasharray="3,2"/>`;
-  svg+=`<text x="${(cx+(rZod-14)*Math.cos(mcA)).toFixed(1)}" y="${(cy-(rZod-14)*Math.sin(mcA)).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#7060c0" font-family="Space Grotesk">MC</text>`;
+  svg+=`<line x1="${cx}" y1="${cy}" x2="${(cx+rZod*Math.cos(mcA)).toFixed(1)}" y2="${(cy-rZod*Math.sin(mcA)).toFixed(1)}" stroke="#5040a0" stroke-width="1.2" stroke-dasharray="3,2"/>`;
+  svg+=`<text x="${(cx+(rZod-14)*Math.cos(mcA)).toFixed(1)}" y="${(cy-(rZod-14)*Math.sin(mcA)).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#5040a0" font-family="Space Grotesk">MC</text>`;
   // 애스펙트 선 (행성 간 연결)
   if(h.Aspects&&h.Aspects.all){
     const ASPECT_C={conjunction:'#999',opposition:'#c83030',trine:'#2e8b40',square:'#d06020',sextile:'#3060a0'};
@@ -98,42 +101,57 @@ function astroChartSVG(h, size=VIZ_SIZE){
     });
   }
   // ☉ ☽ 마커
-  [['sun','☉','#d4a017'],['moon','☽','#6080c0']].forEach(([b,sym,col])=>{
+  [['sun','☉','#d4a017'],['moon','☽','#3050a0']].forEach(([b,sym,col])=>{
     const deg=h.CelestialBodies[b].ChartPosition.Ecliptic.DecimalDegrees;
     const a=toAngle(deg),mr=(rHouse+rHouseIn)/2;
     svg+=`<circle cx="${(cx+mr*Math.cos(a)).toFixed(1)}" cy="${(cy-mr*Math.sin(a)).toFixed(1)}" r="9" fill="${col}"/>`;
     svg+=`<text x="${(cx+mr*Math.cos(a)).toFixed(1)}" y="${(cy-mr*Math.sin(a)+4).toFixed(1)}" text-anchor="middle" font-size="11" fill="#fff" font-weight="800">${sym}</text>`;
   });
-  // 중앙 상승궁
+  // 중앙 상승궁 아이콘만
   const ascKey=h.Ascendant.Sign.key;
-  svg+=`<text x="${cx}" y="${cy-8}" text-anchor="middle" font-size="18">${SIGN_EMOJI[ascKey]}</text>`;
-  svg+=`<text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="11" font-weight="900" fill="#7060c0" font-family="Noto Sans KR">${SIGN_KR[ascKey].replace('자리','')} 상승</text>`;
+  svg+=`<text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="22">${SIGN_EMOJI[ascKey]}</text>`;
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC 상승</span><span><i style="background:#7060c0"></i>MC 천정</span><span><i style="background:#d4a017"></i>☉ 태양</span><span><i style="background:#6080c0"></i>☽ 달</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#5040a0"></i>MC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#3050a0"></i>☽</span></div>';
   return svg+legend;
 }
 
-// ═══ ③ 에니어그램: 9각 + 센터 호(본능/가슴/사고) + 방향선 + 중앙 메인 ═══
+// ═══ ③ 에니어그램: 9각 + 센터호 + 삼각형 라벨(본능/사고/가슴) + 중앙 "N번 센터형" ═══
 function enneaStarSVG(main, w1, w2, size=VIZ_SIZE){
   const cx=size/2,cy=size/2,r=size/2-34;
-  const CENTER_C={본능:'#d06020',가슴:'#18a088',사고:'#6050c0'};
+  const CENTER_C={본능:'#c04010',가슴:'#10806a',사고:'#4838a0'};
   const CENTER={8:'본능',9:'본능',1:'본능',2:'가슴',3:'가슴',4:'가슴',5:'사고',6:'사고',7:'사고'};
   const pos={};
-  for(let i=1;i<=9;i++){const a=-Math.PI/2+2*Math.PI*((i-1)/9);pos[i]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+  // 9번이 맨 위 (12시 방향), 시계 방향 1→2→…→8
+  for(let i=1;i<=9;i++){const a=-Math.PI/2+2*Math.PI*((i%9)/9);pos[i]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  // 센터 호 라벨 (외곽)
+  // 센터 호 (외곽 3등분)
   const arcR=size/2-8;
-  const arcs=[{label:'본능(장)',from:7.5,to:10.5,c:'#d06020'},{label:'가슴(감정)',from:1.5,to:4.5,c:'#18a088'},{label:'사고(머리)',from:4.5,to:7.5,c:'#6050c0'}];
+  const arcs=[
+    {from:8,to:1,c:'#c04010'},  // 본능 (8,9,1) — 위쪽
+    {from:2,to:4,c:'#10806a'},  // 가슴 (2,3,4) — 우하
+    {from:5,to:7,c:'#4838a0'}   // 사고 (5,6,7) — 좌하
+  ];
   arcs.forEach(arc=>{
-    const a1=-Math.PI/2+2*Math.PI*((arc.from-1)/9),a2=-Math.PI/2+2*Math.PI*((arc.to-1)/9);
+    const a1=-Math.PI/2+2*Math.PI*((arc.from-0.5)%9/9);
+    const a2=-Math.PI/2+2*Math.PI*((arc.to+0.5)%9/9);
     const x1=cx+arcR*Math.cos(a1),y1=cy+arcR*Math.sin(a1);
     const x2=cx+arcR*Math.cos(a2),y2=cy+arcR*Math.sin(a2);
-    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${arcR} ${arcR} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${arc.c}" stroke-width="3" opacity="0.5"/>`;
-    const mid=(a1+a2)/2;
-    svg+=`<text x="${(cx+(arcR+0)*Math.cos(mid)).toFixed(1)}" y="${(cy+(arcR)*Math.sin(mid)+3).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="800" fill="${arc.c}" font-family="Noto Sans KR" transform="translate(0,-10)">${arc.label}</text>`;
+    const large=(a2-a1+2*Math.PI)%(2*Math.PI)>Math.PI?1:0;
+    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${arcR} ${arcR} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${arc.c}" stroke-width="4" opacity="0.5"/>`;
+  });
+  // 삼각형 라벨 (본능=위, 가슴=우하, 사고=좌하) — 노드 바깥
+  const lblR=size/2-2;
+  const lbls=[
+    {label:'본능',angle:-Math.PI/2+2*Math.PI*(0/9),c:'#c04010'},         // 9번 위치 (위)
+    {label:'가슴',angle:-Math.PI/2+2*Math.PI*(3/9),c:'#10806a'},         // 3번 위치 (우하)
+    {label:'사고',angle:-Math.PI/2+2*Math.PI*(6/9),c:'#4838a0'}          // 6번 위치 (좌하)
+  ];
+  lbls.forEach(lb=>{
+    const lx=cx+lblR*Math.cos(lb.angle),ly=cy+lblR*Math.sin(lb.angle);
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="900" fill="${lb.c}" font-family="Noto Sans KR">${lb.label}</text>`;
   });
   svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4cfc4" stroke-width="1"/>`;
-  // 날개 방향선만 (메인 → 양쪽 인접 날개)
+  // 날개 방향선
   [[main,w1],[main,w2]].forEach(([a,b])=>{
     svg+=`<line x1="${pos[a][0].toFixed(1)}" y1="${pos[a][1].toFixed(1)}" x2="${pos[b][0].toFixed(1)}" y2="${pos[b][1].toFixed(1)}" stroke="${CENTER_C[CENTER[main]]}" stroke-width="3" opacity="0.75"/>`;
   });
@@ -146,34 +164,45 @@ function enneaStarSVG(main, w1, w2, size=VIZ_SIZE){
     svg+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad}" fill="${fill}" stroke="${c}" stroke-width="${sw}"/>`;
     svg+=`<text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" fill="${tc}" font-size="${i===main?14:12}" font-weight="800" font-family="Space Grotesk">${i}</text>`;
   }
-  // 중앙: "본능 / 완벽주의자" 식
+  // 중앙: "N번 센터형"
   const centerName=CENTER[main]||'';
-  svg+=`<text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="13" font-weight="900" fill="${CENTER_C[centerName]}" font-family="Noto Sans KR">${centerName}</text>`;
-  svg+=`<text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="13" font-weight="900" fill="#2a2520" font-family="Noto Sans KR">${(typeof ENNEA_NAMES!=='undefined'?ENNEA_NAMES[main]:'')}</text>`;
+  svg+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="14" font-weight="900" fill="${CENTER_C[centerName]}" font-family="Space Grotesk">${main}번</text>`;
+  svg+=`<text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="11" font-weight="900" fill="#2a2520" font-family="Noto Sans KR">${centerName}형</text>`;
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#d06020"></i>본능(장)</span><span><i style="background:#18a088"></i>가슴(감정)</span><span><i style="background:#6050c0"></i>사고(머리)</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#c04010"></i>본능(장)</span><span><i style="background:#10806a"></i>가슴(감정)</span><span><i style="background:#4838a0"></i>사고(머리)</span></div>';
   return svg+legend;
 }
 
-// ═══ ④ MBTI: 동일 200px 박스 안 4축 ═══
+// ═══ ④ MBTI: 4축 + 양쪽 게이지 + 한글 서브라벨 ═══
 function mbtiBigSVG(axes, selected, size=VIZ_SIZE){
-  const pairs=[['E','I','에너지'],['S','N','인식'],['T','F','판단'],['J','P','생활']];
+  const pairs=[['E','I','에너지','외향','내향'],['S','N','인식','감각','직관'],['T','F','판단','사고','감정'],['J','P','생활','판단','인식']];
   const PC={E:'#d44060',S:'#d4a82a',T:'#18a088',J:'#6050c0'};
-  const rowH=46,topPad=14;
+  const rowH=46,topPad=10;
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  pairs.forEach(([a,b,mid],i)=>{
+  pairs.forEach(([a,b,mid,aKr,bKr],i)=>{
     const y=topPad+i*rowH+18;
     const aOn=selected.includes(a);
     const c=PC[a];
-    const pct=aOn?axes[a]:axes[b];
-    svg+=`<text x="4" y="${y+6}" font-size="19" font-weight="900" fill="${aOn?c:'#c0baa8'}" font-family="Space Grotesk">${a}</text>`;
-    svg+=`<text x="${size-4}" y="${y+6}" text-anchor="end" font-size="19" font-weight="900" fill="${!aOn?c:'#c0baa8'}" font-family="Space Grotesk">${b}</text>`;
-    const bx=28,bw=size-56;
-    svg+=`<rect x="${bx}" y="${y-6}" width="${bw}" height="10" rx="5" fill="#e6e2d8"/>`;
-    const fillW=bw*pct/100;
-    if(aOn){svg+=`<rect x="${bx}" y="${y-6}" width="${fillW.toFixed(1)}" height="10" rx="5" fill="${c}"/>`;}
-    else{svg+=`<rect x="${(bx+bw-fillW).toFixed(1)}" y="${y-6}" width="${fillW.toFixed(1)}" height="10" rx="5" fill="${c}"/>`;}
-    svg+=`<text x="${size/2}" y="${y-9}" text-anchor="middle" font-size="9" fill="#6a6358" font-family="Noto Sans KR">${mid} ${pct}%</text>`;
+    const aPct=axes[a],bPct=axes[b];
+    // 영문 라벨 + 한글 서브
+    svg+=`<text x="4" y="${y+3}" font-size="17" font-weight="900" fill="${aOn?c:'#c0baa8'}" font-family="Space Grotesk">${a}</text>`;
+    svg+=`<text x="4" y="${y+14}" font-size="8" fill="${aOn?c:'#b0a898'}" font-family="Noto Sans KR">${aKr}</text>`;
+    svg+=`<text x="${size-4}" y="${y+3}" text-anchor="end" font-size="17" font-weight="900" fill="${!aOn?c:'#c0baa8'}" font-family="Space Grotesk">${b}</text>`;
+    svg+=`<text x="${size-4}" y="${y+14}" text-anchor="end" font-size="8" fill="${!aOn?c:'#b0a898'}" font-family="Noto Sans KR">${bKr}</text>`;
+    // 게이지 바: 양쪽 모두 표시 (진한 = 선택, 옅은 = 비선택)
+    const bx=28,bw=size-56,half=bw/2,midX=bx+half;
+    svg+=`<rect x="${bx}" y="${y-8}" width="${bw}" height="12" rx="6" fill="#e6e2d8"/>`;
+    // A쪽 (왼→중앙): 진한 or 옅은
+    const aW=half*aPct/100;
+    svg+=`<rect x="${(midX-aW).toFixed(1)}" y="${y-8}" width="${aW.toFixed(1)}" height="12" rx="6" fill="${c}" opacity="${aOn?'0.9':'0.25'}"/>`;
+    // B쪽 (중앙→오른): 진한 or 옅은
+    const bW=half*bPct/100;
+    svg+=`<rect x="${midX}" y="${y-8}" width="${bW.toFixed(1)}" height="12" rx="6" fill="${c}" opacity="${!aOn?'0.9':'0.25'}"/>`;
+    // 중앙 구분선
+    svg+=`<line x1="${midX}" y1="${y-8}" x2="${midX}" y2="${y+4}" stroke="#fff" stroke-width="1.5"/>`;
+    // 퍼센트 표시
+    svg+=`<text x="${midX-4}" y="${y-11}" text-anchor="end" font-size="9" fill="${aOn?c:'#9a9488'}" font-weight="800" font-family="Space Grotesk">${aPct}%</text>`;
+    svg+=`<text x="${midX+4}" y="${y-11}" text-anchor="start" font-size="9" fill="${!aOn?c:'#9a9488'}" font-weight="800" font-family="Space Grotesk">${bPct}%</text>`;
   });
   svg+='</svg>';
   let legend='<div class="viz-legend"><span><i style="background:#d44060"></i>E/I</span><span><i style="background:#d4a82a"></i>S/N</span><span><i style="background:#18a088"></i>T/F</span><span><i style="background:#6050c0"></i>J/P</span></div>';
@@ -243,25 +272,33 @@ function defaultAstroViz(){
   svg+=`<line x1="${cx-rZod}" y1="${cy}" x2="${cx+rZod}" y2="${cy}" stroke="#d4cfc4" stroke-width="1"/>`;
   svg+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#9a9488" font-family="Noto Sans KR">조회 대기</text>`;
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#7060c0"></i>MC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#6080c0"></i>☽</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#5040a0"></i>MC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#3050a0"></i>☽</span></div>';
   return svg+legend;
 }
 function defaultEnneaViz(){
-  // 9각 골고루 (메인 강조 없이)
+  // 9번이 맨 위, 삼각형 라벨 포함
   const size=VIZ_SIZE,cx=size/2,cy=size/2,r=size/2-34;
-  const CENTER_C={본능:'#d06020',가슴:'#18a088',사고:'#6050c0'};
+  const CENTER_C={'본능':'#c04010','가슴':'#10806a','사고':'#4838a0'};
   const CENTER={8:'본능',9:'본능',1:'본능',2:'가슴',3:'가슴',4:'가슴',5:'사고',6:'사고',7:'사고'};
-  const pos={};for(let i=1;i<=9;i++){const a=-Math.PI/2+2*Math.PI*((i-1)/9);pos[i]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+  const pos={};for(let i=1;i<=9;i++){const a=-Math.PI/2+2*Math.PI*((i%9)/9);pos[i]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   // 센터 호
   const arcR=size/2-8;
-  const arcs=[{from:7.5,to:10.5,c:'#d06020'},{from:1.5,to:4.5,c:'#18a088'},{from:4.5,to:7.5,c:'#6050c0'}];
-  arcs.forEach(arc=>{const a1=-Math.PI/2+2*Math.PI*((arc.from-1)/9),a2=-Math.PI/2+2*Math.PI*((arc.to-1)/9);svg+=`<path d="M${(cx+arcR*Math.cos(a1)).toFixed(1)} ${(cy+arcR*Math.sin(a1)).toFixed(1)} A${arcR} ${arcR} 0 0 1 ${(cx+arcR*Math.cos(a2)).toFixed(1)} ${(cy+arcR*Math.sin(a2)).toFixed(1)}" fill="none" stroke="${arc.c}" stroke-width="3" opacity="0.4"/>`;});
+  [{from:8,to:1,c:'#c04010'},{from:2,to:4,c:'#10806a'},{from:5,to:7,c:'#4838a0'}].forEach(arc=>{
+    const a1=-Math.PI/2+2*Math.PI*((arc.from-0.5)%9/9),a2=-Math.PI/2+2*Math.PI*((arc.to+0.5)%9/9);
+    const large=(a2-a1+2*Math.PI)%(2*Math.PI)>Math.PI?1:0;
+    svg+=`<path d="M${(cx+arcR*Math.cos(a1)).toFixed(1)} ${(cy+arcR*Math.sin(a1)).toFixed(1)} A${arcR} ${arcR} 0 ${large} 1 ${(cx+arcR*Math.cos(a2)).toFixed(1)} ${(cy+arcR*Math.sin(a2)).toFixed(1)}" fill="none" stroke="${arc.c}" stroke-width="4" opacity="0.35"/>`;
+  });
+  // 삼각형 라벨
+  const lblR=size/2-2;
+  [{label:'본능',angle:-Math.PI/2,c:'#c04010'},{label:'가슴',angle:-Math.PI/2+2*Math.PI*(3/9),c:'#10806a'},{label:'사고',angle:-Math.PI/2+2*Math.PI*(6/9),c:'#4838a0'}].forEach(lb=>{
+    svg+=`<text x="${(cx+lblR*Math.cos(lb.angle)).toFixed(1)}" y="${(cy+lblR*Math.sin(lb.angle)+4).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="900" fill="${lb.c}" font-family="Noto Sans KR">${lb.label}</text>`;
+  });
   svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4cfc4" stroke-width="1"/>`;
   for(let i=1;i<=9;i++){const[x,y]=pos[i];const c=CENTER_C[CENTER[i]];svg+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#fff" stroke="${c}" stroke-width="1" opacity="0.6"/><text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" fill="${c}" font-size="12" font-weight="800" font-family="Space Grotesk" opacity="0.7">${i}</text>`;}
   svg+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#9a9488" font-family="Noto Sans KR">조회 대기</text>`;
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#d06020"></i>본능(장)</span><span><i style="background:#18a088"></i>가슴(감정)</span><span><i style="background:#6050c0"></i>사고(머리)</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#c04010"></i>본능(장)</span><span><i style="background:#10806a"></i>가슴(감정)</span><span><i style="background:#4838a0"></i>사고(머리)</span></div>';
   return svg+legend;
 }
 function defaultMbtiViz(){

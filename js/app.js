@@ -1,5 +1,5 @@
 // ═══ STATE ═══
-const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null,mbti:null,ennea:null,selectedMBTI:null,selectedEnnea:null};
+const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null,mbti:null,ennea:null,selectedMBTI:null,selectedEnnea:null,astroAscSign:''};
 let tempJob=null,tempJobCat=null,tempMBTI=null,tempEnnea=null,timeMode='ganji';
 
 // ═══ INIT ═══
@@ -113,6 +113,8 @@ window.doCalc=function(){
     const aHour=noTime?12:hour, aMin=noTime?0:minute;
     const ah=calcAstro(+document.getElementById('inYear').value,+document.getElementById('inMonth').value,+document.getElementById('inDay').value,aHour,aMin,geo.lat,geo.lng);
     renderAstro(ah);
+    // 상승궁 저장 (종합 프로필용)
+    if(ah&&ah.Ascendant)S.astroAscSign=(typeof SIGN_KR!=='undefined'?SIGN_KR[ah.Ascendant.Sign.key]||'':'').replace('자리','');
   }
   toast('✅ 분석 완료');
 };
@@ -343,12 +345,16 @@ function renderMyungri(){
   const seasonMap={'寅':'초봄','卯':'봄','辰':'늦봄','巳':'초여름','午':'여름','未':'늦여름','申':'초가을','酉':'가을','戌':'늦가을','亥':'초겨울','子':'겨울','丑':'늦겨울'};
   const season=seasonMap[mb]||'';
   const oh=getOh(r);
-  // 일간 오행 + 십성 대표 (예: "수 비겁")
+  // 일간 오행 + 십성 대표 (그룹별 합산: 비겁/식상/재성/관성/인성)
   const dayElem=ELEM_MAP[ds]||'';
   const tg=S.tg||{};
-  const tgTop=Object.entries(tg).sort((a,b)=>b[1]-a[1])[0];
-  const tgGroup={'비견':'비겁','겁재':'비겁','식신':'식상','상관':'식상','편재':'재성','정재':'재성','편관':'관성','정관':'관성','편인':'인성','정인':'인성'};
-  const centerTop=dayElem+' '+(tgTop?(tgGroup[tgTop[0]]||tgTop[0]):'');
+  const tgGroups=[
+    {name:'비겁',keys:['비견','겁재']},{name:'식상',keys:['식신','상관']},
+    {name:'재성',keys:['편재','정재']},{name:'관성',keys:['편관','정관']},
+    {name:'인성',keys:['편인','정인']}
+  ];
+  const topGroup=tgGroups.map(g=>({name:g.name,val:g.keys.reduce((s,k)=>s+(tg[k]||0),0)})).sort((a,b)=>b.val-a.val)[0];
+  const centerTop=dayElem+' '+(topGroup?topGroup.name:'');
   const centerBot=r.advanced?.geukguk||'';
   let h='<div class="unified-frame uf-fixed">';
   h+=`<div class="uf-head-split"><div class="uf-head-left">
@@ -407,11 +413,11 @@ function renderEnnea(){
   const w1=main===1?9:main-1,w2=main===9?1:main+1;
   const dbE=getDBEnnea(main),dbW1=getDBWing(w1+'w'+main),dbW2=getDBWing(main+'w'+w2);
   const center=ENNEA_CENTER[main]||'';
-  const centerC={본능:'#d06020',가슴:'#18a088',사고:'#6050c0'}[center]||'#888';
-  let h='<div class="unified-frame uf-fixed" style="border-color:var(--stat-solo)">';
+  const centerC={본능:'#c04010',가슴:'#10806a',사고:'#4838a0'}[center]||'#888';
+  let h='<div class="unified-frame uf-fixed" style="border-color:'+centerC+'">';
   h+=`<div class="uf-head-split"><div class="uf-head-left">
-    <div class="kw-main" style="color:var(--stat-solo)">${center} ${ENNEA_NAMES[main]}</div>
-    <div class="kw-sub">${main}번 · 추천 ${en.recommended.map(n=>n+'번').join(', ')}</div>
+    <div class="kw-main" style="color:${centerC}">${main}번 ${center}: ${ENNEA_NAMES[main]}형</div>
+    <div class="kw-sub">추천 ${en.recommended.map(n=>n+'번 '+ENNEA_NAMES[n]).join(', ')}</div>
     <div class="kw-points">
       <span class="kw-point"><b>센터:</b> ${ENNEA_CENTER_DESC[center]||center}</span>
       <span class="kw-point"><b>메인:</b> ${main}번 ${ENNEA_NAMES[main]}</span>
@@ -460,32 +466,53 @@ function renderMBTI(){
   document.getElementById('mbtiArea').innerHTML=h;
 }
 
-// ═══ CENTER 종합 프로필 ═══
-function renderSummary(){
+// ═══ CENTER 종합 프로필 (한 문장 + 4종 키워드) ═══
+function buildSummaryHTML(){
   const r=S.saju,st=S.stats;const pd=r.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子';
+  const ilju=ds+db;
   const sorted=STAT_KEYS.map(k=>({k,v:st[k]})).sort((a,b)=>b.v-a.v);
-  const typeName=(TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형').replace(/[^\w가-힣]/g,'');
+  const typeName=(TYPE_NAMES[sorted[0].k+'_'+sorted[1].k]||'균형형').replace(/[^\w가-힣 ]/g,'').trim();
+  const stemAdj=STEM_ADJ[ds]||'';
   const main=S.selectedEnnea,w1=main===1?9:main-1,w2=main===9?1:main+1;
+  const enCenter=ENNEA_CENTER[main]||'';
+  const enName=ENNEA_NAMES[main]||'';
+  const mbtiCode=S.selectedMBTI;
+  const mbtiShort=(MBTI_DESC[mbtiCode]||'').split('—')[0].trim();
+  // 점성 상승궁 (있으면)
+  const ascSign=S.astroAscSign||'';
+  // 한 문장 요약: "묵직한 고독연구형이자, 전갈의 통찰을 지닌, 충성스러운 사고형, 현실주의 관리자"
+  let phrase=`${stemAdj} ${typeName}`;
+  if(ascSign)phrase+=`, ${ascSign}의 기운을 품은`;
+  phrase+=`, ${enName}의 ${enCenter}형`;
+  phrase+=`, ${mbtiShort}`;
   let h=`<div class="summary-card">
-    <div class="summary-row"><span class="s-icon">☯️</span><span class="s-label">명리</span><span class="s-val">${STEM_ADJ[ds]} ${typeName} <small>(${ds+db})</small></span></div>
-    <div class="summary-row"><span class="s-icon">🔷</span><span class="s-label">에니어</span><span class="s-val" style="color:var(--stat-solo)">${main}번 ${ENNEA_NAMES[main]} <small>(${w1}w${main}/${main}w${w2})</small></span></div>
-    <div class="summary-row"><span class="s-icon">🧠</span><span class="s-label">MBTI</span><span class="s-val" style="color:var(--stat-lead)">${S.selectedMBTI} <small>${MBTI_DESC[S.selectedMBTI]?.split('—')[0]||''}</small></span></div>
-    ${S.jobName?`<div class="summary-row"><span class="s-icon">💼</span><span class="s-label">직업</span><span class="s-val">${S.jobName} <small>(${S.jobCat})</small></span></div>`:''}
+    <div class="summary-phrase">${phrase}</div>
+    <div class="summary-keywords">
+      <span class="sk-tag sk-saju">☯️ '${ilju}일주' ${stemAdj} ${typeName}</span>
+      ${ascSign?`<span class="sk-tag sk-astro">🌌 '${ascSign}상승'</span>`:''}
+      <span class="sk-tag sk-ennea">🔷 '${main}번' ${enCenter}: ${enName}형</span>
+      <span class="sk-tag sk-mbti">🧠 '${mbtiCode}' ${mbtiShort}</span>
+    </div>
   </div>`;
-  document.getElementById('summaryArea').innerHTML=h;
+  return h;
+}
+function renderSummary(){
+  document.getElementById('summaryArea').innerHTML=buildSummaryHTML();
 }
 
-// ═══ RIGHT: 스탯 + 레이더 ═══
+// ═══ RIGHT: 종합 프로필(상단) + 스탯 + 레이더 ═══
 function renderRight(){
   const st=S.stats;if(!st)return;
   let h='';
-  // 스탯 5개
+  // ① 종합 프로필 (성향 프로필 최상단)
+  h+=buildSummaryHTML();
+  // ② 스탯 5개
   const SM=[{key:'재물력',icon:'💰',color:'var(--stat-money)'},{key:'놀기력',icon:'🎉',color:'var(--stat-play)'},{key:'리더력',icon:'👑',color:'var(--stat-lead)'},{key:'학습력',icon:'🧠',color:'var(--stat-study)'},{key:'독립력',icon:'⚔️',color:'var(--stat-solo)'}];
   h+='<div class="right-card">';
   SM.forEach(s=>{const v=st[s.key];h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:14px;width:20px;text-align:center">${s.icon}</span><span style="width:42px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span><div style="flex:1;height:20px;background:var(--surface3);border-radius:10px;overflow:hidden"><div style="height:100%;width:${v}%;background:${s.color};border-radius:10px;position:relative"><span style="position:absolute;right:6px;top:2px;font-size:10px;font-weight:800;color:#fff">${v}</span></div></div></div>`;});
   h+=`<div style="text-align:center;padding:8px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-top:4px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:28px;font-weight:700;color:var(--gold-dim)">${st.종합}</span></div>`;
   h+='</div>';
-  // 레이더 6종 (3×2, 크게, 퍼센트 포함)
+  // ③ 레이더 6종
   h+='<div class="radar-grid6">';
   for(const[title,data]of Object.entries(S.radar)){
     const avg=Math.round(data.axes.reduce((s,a)=>s+a.value,0)/data.axes.length);

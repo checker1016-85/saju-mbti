@@ -45,9 +45,9 @@ function renderAstro(h) {
   const mcKey = h.Midheaven ? h.Midheaven.Sign.key : '';
 
   // ── 단락2: 고정프레임 (차트 + 메인3 + 설명 스크롤) ──
-  let html = '<div class="unified-frame uf-fixed" style="border-color:#7060c0">';
+  let html = '<div class="unified-frame uf-fixed" style="border-color:#5040a0">';
   html += `<div class="uf-head-split"><div class="uf-head-left">`;
-  html += `<div class="kw-main" style="color:#7060c0">${SIGN_EMOJI[ascKey]} ${SIGN_KR[ascKey].replace('자리','')} 상승</div>`;
+  html += `<div class="kw-main" style="color:#5040a0">${SIGN_EMOJI[ascKey]} ${SIGN_KR[ascKey].replace('자리','')} 상승</div>`;
   html += `<div class="kw-sub">상승궁 ${ascDeg}</div>`;
   html += `<div class="kw-points">
     <span class="kw-point"><b>상승(ASC):</b> ${SIGN_KR[ascKey]}</span>

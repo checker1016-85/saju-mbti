@@ -151,8 +151,15 @@ input:focus,select:focus{border-color:var(--gold)}
 .mbti-mini-axis .mini-bar{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;position:relative}
 .mbti-mini-axis .mini-fill{height:100%;border-radius:3px}
 
-/* 종합 프로필 카드 */
-.summary-card{background:var(--surface2);border-radius:var(--radius);padding:12px;border:1px solid var(--gold)}
+/* 종합 프로필 카드 — 한 문장 요약 + 4종 키워드 태그 */
+.summary-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border-radius:var(--radius);padding:16px;border:1px solid var(--gold);margin-bottom:16px}
+.summary-phrase{font-size:15px;font-weight:900;color:var(--gold-dim);line-height:1.6;margin-bottom:12px;text-align:center}
+.summary-keywords{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.sk-tag{display:inline-block;padding:5px 12px;border-radius:16px;font-size:11px;font-weight:700;border:1px solid var(--border)}
+.sk-tag.sk-saju{background:rgba(48,96,160,.1);color:#2a6090;border-color:#3060a0}
+.sk-tag.sk-astro{background:rgba(80,64,160,.1);color:#5040a0;border-color:#5040a0}
+.sk-tag.sk-ennea{background:rgba(192,64,16,.1);color:#c04010;border-color:#c04010}
+.sk-tag.sk-mbti{background:rgba(96,80,192,.1);color:#6050c0;border-color:#6050c0}
 .summary-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
 .summary-row:last-child{border-bottom:none}
 .summary-row .s-icon{font-size:16px;width:22px;text-align:center}
