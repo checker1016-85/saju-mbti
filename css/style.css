@@ -243,3 +243,12 @@ input:focus,select:focus{border-color:var(--gold)}
 
 /* 출생지 입력 박스 */
 .geo-box{margin-bottom:6px}
+
+/* 생년월일 입력 2칼럼 가로 (좌측정렬) */
+.birth-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+@media(max-width:680px){.birth-grid{grid-template-columns:1fr}}
+.birth-col{display:flex;flex-direction:column;align-items:stretch}
+.birth-col .btn{margin-top:auto}
+/* 원국 카드 (성격 분석 안) */
+.natal-row{margin-bottom:12px}
+.natal-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}

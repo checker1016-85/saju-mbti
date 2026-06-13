@@ -10,12 +10,11 @@
 <div class="header"><h1>✦ 사주 MBTI</h1><span class="sub">사주로 보는 내 기질·성향·적성</span></div>
 <div class="vstack">
 
-<!-- ═══ 단락 1: 입력 + 원국 + 기초정보 ═══ -->
+<!-- ═══ 단락 1: 생년월일 입력 (2칼럼 가로) ═══ -->
 <section class="block">
   <div class="block-title">📋 1. 생년월일 입력</div>
-  <div class="input-grid">
-    <div class="input-col">
-      <div class="sub-label">✍️ 정보 입력</div>
+  <div class="birth-grid">
+    <div class="birth-col">
       <div class="row">
         <div class="field"><label>생년</label><input type="number" id="inYear" value="2000" min="1920" max="2010"></div>
         <div class="field"><label>월</label><select id="inMonth"></select></div>
@@ -39,6 +38,8 @@
         <label><input type="checkbox" id="chkNoTime"> 시간 모름</label>
         <label><input type="checkbox" id="chkYaja"> 야자시 적용</label>
       </div>
+    </div>
+    <div class="birth-col">
       <div class="row">
         <div class="field"><label>성별</label><select id="inGender"><option value="여">여</option><option value="남">남</option></select></div>
         <div class="field"><label>나이</label><select id="inAgeType"><option value="kr">한국나이</option><option value="man">만나이</option></select></div>
@@ -66,26 +67,6 @@
       </div>
       <button class="btn btn-gold" onclick="doCalc()">만세력·점성차트 조회</button>
     </div>
-    <div class="input-col">
-      <div class="sub-label">🀄 사주 원국</div>
-      <div class="input-col-inner">
-        <div id="sajuCardArea">
-          <div class="saju-card"><div class="pillar-row">
-            <div class="pillar"><div class="lbl">시주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-            <div class="pillar"><div class="lbl">일주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-            <div class="pillar"><div class="lbl">월주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-            <div class="pillar"><div class="lbl">년주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
-          </div></div>
-        </div>
-        <div id="sajuMetaArea" class="meta-scroll"><div class="placeholder">공망·신살·대운 등 — 조회를 입력하세요</div></div>
-      </div>
-    </div>
-    <div class="input-col">
-      <div class="sub-label">🌌 점성 원국</div>
-      <div class="input-col-inner">
-        <div id="astroNatalArea" class="meta-scroll"><div class="placeholder">12하우스·행성배치 — 조회를 입력하세요</div></div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -96,11 +77,31 @@
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">☯️ 명리 (사주)</span>
   </div>
+  <div class="natal-row">
+    <div class="natal-card">
+      <div class="sub-label">🀄 사주 원국</div>
+      <div id="sajuCardArea">
+        <div class="saju-card"><div class="pillar-row">
+          <div class="pillar"><div class="lbl">시주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+          <div class="pillar"><div class="lbl">일주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+          <div class="pillar"><div class="lbl">월주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+          <div class="pillar"><div class="lbl">년주</div><div class="gan" style="color:var(--text3)">·</div><div class="ji" style="color:var(--text3)">·</div></div>
+        </div></div>
+      </div>
+      <div id="sajuMetaArea" class="meta-scroll"><div class="placeholder">공망·신살·대운 등 — 조회를 입력하세요</div></div>
+    </div>
+  </div>
   <div id="myungriArea"></div>
 
   <hr class="divider">
   <div class="section-title-row">
     <span class="section-title" style="border:none;margin:0;padding:0">🌌 점성 (Astrology)</span>
+  </div>
+  <div class="natal-row">
+    <div class="natal-card">
+      <div class="sub-label">🪐 점성 원국 (12하우스·행성)</div>
+      <div id="astroNatalArea" class="meta-scroll"><div class="placeholder">12하우스·행성배치 — 조회를 입력하세요</div></div>
+    </div>
   </div>
   <div id="astroArea"></div>
 

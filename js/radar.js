@@ -184,3 +184,54 @@ function mbtiBigSVG(axes, selected, size=VIZ_SIZE){
 function emptyViz(label){
   return `<div class="empty-viz"><span style="font-size:24px">◌</span><span>${label}</span><span style="font-size:10px">조회를 입력하세요</span></div>`;
 }
+
+// ═══ 기본형(중립) 시각화 — 조회 전 표시 ═══
+function defaultSajuViz(){
+  // 오행 골고루 (각 2~3)
+  return sajuVizSVG({목:2,화:2,토:2,금:2,수:2},'오행','균형');
+}
+function defaultAstroViz(){
+  // 12별자리 휠 골격만 (마커 없이) — 간이 차트
+  const size=VIZ_SIZE,cx=size/2,cy=size/2,rZod=size/2-6,rZodIn=size/2-26;
+  const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
+  const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
+  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  signs.forEach((s,i)=>{
+    const a1=Math.PI-(i*30*Math.PI/180),a2=Math.PI-((i+1)*30*Math.PI/180);
+    const x1=cx+rZod*Math.cos(a1),y1=cy-rZod*Math.sin(a1);
+    const x2=cx+rZod*Math.cos(a2),y2=cy-rZod*Math.sin(a2);
+    const xi2=cx+rZodIn*Math.cos(a2),yi2=cy-rZodIn*Math.sin(a2);
+    const xi1=cx+rZodIn*Math.cos(a1),yi1=cy-rZodIn*Math.sin(a1);
+    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rZod} ${rZod} 0 0 0 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rZodIn} ${rZodIn} 0 0 1 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.25" stroke="#d4cfc4" stroke-width=".5"/>`;
+    const mid=Math.PI-((i+0.5)*30*Math.PI/180),lr=(rZod+rZodIn)/2;
+    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy-lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" font-size="11" opacity="0.6">${SIGN_EMOJI[s]}</text>`;
+  });
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="#fff" stroke="#d4cfc4" stroke-width=".6"/>`;
+  svg+=`<line x1="${cx-rZod}" y1="${cy}" x2="${cx+rZod}" y2="${cy}" stroke="#d4cfc4" stroke-width="1"/>`;
+  svg+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#9a9488" font-family="Noto Sans KR">조회 대기</text>`;
+  svg+='</svg>';
+  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#7060c0"></i>MC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#6080c0"></i>☽</span></div>';
+  return svg+legend;
+}
+function defaultEnneaViz(){
+  // 9각 골고루 (메인 강조 없이)
+  const size=VIZ_SIZE,cx=size/2,cy=size/2,r=size/2-34;
+  const CENTER_C={본능:'#d06020',가슴:'#18a088',사고:'#6050c0'};
+  const CENTER={8:'본능',9:'본능',1:'본능',2:'가슴',3:'가슴',4:'가슴',5:'사고',6:'사고',7:'사고'};
+  const pos={};for(let i=1;i<=9;i++){const a=-Math.PI/2+2*Math.PI*((i-1)/9);pos[i]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  // 센터 호
+  const arcR=size/2-8;
+  const arcs=[{from:7.5,to:10.5,c:'#d06020'},{from:1.5,to:4.5,c:'#18a088'},{from:4.5,to:7.5,c:'#6050c0'}];
+  arcs.forEach(arc=>{const a1=-Math.PI/2+2*Math.PI*((arc.from-1)/9),a2=-Math.PI/2+2*Math.PI*((arc.to-1)/9);svg+=`<path d="M${(cx+arcR*Math.cos(a1)).toFixed(1)} ${(cy+arcR*Math.sin(a1)).toFixed(1)} A${arcR} ${arcR} 0 0 1 ${(cx+arcR*Math.cos(a2)).toFixed(1)} ${(cy+arcR*Math.sin(a2)).toFixed(1)}" fill="none" stroke="${arc.c}" stroke-width="3" opacity="0.4"/>`;});
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4cfc4" stroke-width="1"/>`;
+  for(let i=1;i<=9;i++){const[x,y]=pos[i];const c=CENTER_C[CENTER[i]];svg+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#fff" stroke="${c}" stroke-width="1" opacity="0.6"/><text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" fill="${c}" font-size="12" font-weight="800" font-family="Space Grotesk" opacity="0.7">${i}</text>`;}
+  svg+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#9a9488" font-family="Noto Sans KR">조회 대기</text>`;
+  svg+='</svg>';
+  let legend='<div class="viz-legend"><span><i style="background:#d06020"></i>본능(장)</span><span><i style="background:#18a088"></i>가슴(감정)</span><span><i style="background:#6050c0"></i>사고(머리)</span></div>';
+  return svg+legend;
+}
+function defaultMbtiViz(){
+  // 4축 50:50
+  return mbtiBigSVG({E:50,I:50,S:50,N:50,T:50,F:50,J:50,P:50},'____');
+}

@@ -19,11 +19,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderEmptyFrames();
 });
 function renderEmptyFrames(){
-  // 4종 빈 프레임 (조회 전에도 영역 표시)
-  document.getElementById('myungriArea').innerHTML=emptyFrame('명리',emptyViz('☯️'),[['📌 본능 일주','조회를 입력하세요'],['🎭 사회적 월주','조회를 입력하세요']]);
-  document.getElementById('astroArea').innerHTML=emptyFrame('점성',emptyViz('🌌'),[['상승궁(ASC)','조회를 입력하세요'],['태양·달·MC','조회를 입력하세요']],'#7060c0');
-  document.getElementById('enneaArea').innerHTML=emptyFrame('에니어그램',emptyViz('🔷'),[['메인 유형','조회를 입력하세요'],['날개','조회를 입력하세요']],'var(--stat-solo)');
-  document.getElementById('mbtiArea').innerHTML=emptyFrame('MBTI',emptyViz('🧠'),[['유형','조회를 입력하세요'],['세부 A/T','조회를 입력하세요']],'var(--stat-lead)');
+  // 4종 기본형 프레임 (조회 전에도 골고루 채워진 시각화)
+  document.getElementById('myungriArea').innerHTML=emptyFrame('명리',defaultSajuViz(),[['📌 본능 일주','조회를 입력하세요'],['🎭 사회적 월주','조회를 입력하세요']]);
+  document.getElementById('astroArea').innerHTML=emptyFrame('점성',defaultAstroViz(),[['상승궁(ASC)','조회를 입력하세요'],['태양·달·MC','조회를 입력하세요']],'#7060c0');
+  document.getElementById('enneaArea').innerHTML=emptyFrame('에니어그램',defaultEnneaViz(),[['메인 유형','조회를 입력하세요'],['날개','조회를 입력하세요']],'var(--stat-solo)');
+  document.getElementById('mbtiArea').innerHTML=emptyFrame('MBTI',defaultMbtiViz(),[['유형','조회를 입력하세요'],['세부 A/T','조회를 입력하세요']],'var(--stat-lead)');
 }
 function emptyFrame(title,viz,rows,color){
   color=color||'var(--gold)';
