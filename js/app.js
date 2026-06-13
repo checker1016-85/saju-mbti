@@ -19,8 +19,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderEmptyFrames();
 });
 function renderEmptyFrames(){
-  // 4종 기본형 프레임 (조회 전에도 골고루 채워진 시각화)
-  document.getElementById('myungriArea').innerHTML=emptyFrame('명리',defaultSajuViz(),[['📌 본능 일주','조회를 입력하세요'],['🎭 사회적 월주','조회를 입력하세요']]);
+  // 5종 기본형 프레임 (조회 전에도 골고루 채워진 시각화)
+  document.getElementById('sajuWonguArea').innerHTML=emptyFrame('사주 원국',defaultTenGodViz(),[['📌 사주 4주','조회를 입력하세요'],['⚖️ 십성 분포','조회를 입력하세요']]);
+  document.getElementById('myungriArea').innerHTML=emptyFrame('명리 해석',defaultSajuViz(),[['📌 본능 일주','조회를 입력하세요'],['🎭 사회적 월주','조회를 입력하세요']]);
   document.getElementById('astroArea').innerHTML=emptyFrame('점성',defaultAstroViz(),[['상승궁(ASC)','조회를 입력하세요'],['태양·달·MC','조회를 입력하세요']],'#7060c0');
   document.getElementById('enneaArea').innerHTML=emptyFrame('에니어그램',defaultEnneaViz(),[['메인 유형','조회를 입력하세요'],['날개','조회를 입력하세요']],'var(--stat-solo)');
   document.getElementById('mbtiArea').innerHTML=emptyFrame('MBTI',defaultMbtiViz(),[['유형','조회를 입력하세요'],['세부 A/T','조회를 입력하세요']],'var(--stat-lead)');
@@ -36,24 +37,36 @@ function buildCityOpts(){
   if(typeof COUNTRIES==='undefined')return;
   const cs=document.getElementById('inCountry');if(!cs)return;
   Object.keys(COUNTRIES).forEach(c=>{const o=document.createElement('option');o.value=c;o.text=c;cs.add(o);});
-  cs.onchange=fillCities;
-  fillCities();
+  cs.onchange=()=>{fillRegions();fillCities();showCityCoord();};
+  const rs=document.getElementById('inRegion');if(rs)rs.onchange=()=>{fillCities();showCityCoord();};
+  document.getElementById('inCity').onchange=showCityCoord;
+  fillRegions();fillCities();showCityCoord();
+}
+function fillRegions(){
+  const country=document.getElementById('inCountry').value;
+  const rs=document.getElementById('inRegion');if(!rs)return;rs.innerHTML='';
+  const regions=COUNTRIES[country];if(!regions)return;
+  Object.keys(regions).forEach(r=>{const o=document.createElement('option');o.value=r;o.text=r;rs.add(o);});
 }
 function fillCities(){
   const country=document.getElementById('inCountry').value;
+  const region=document.getElementById('inRegion')?.value||'';
   const cs=document.getElementById('inCity');cs.innerHTML='';
-  (COUNTRIES[country]||[]).forEach(c=>{const o=document.createElement('option');o.value=c.name;o.text=c.name;cs.add(o);});
-  cs.onchange=showCityCoord;
-  showCityCoord();
+  const regions=COUNTRIES[country];if(!regions)return;
+  const cities=regions[region]||[];
+  cities.forEach(c=>{const o=document.createElement('option');o.value=c.name;o.text=c.name;cs.add(o);});
 }
 function showCityCoord(){
   const country=document.getElementById('inCountry').value;
+  const region=document.getElementById('inRegion')?.value||'';
   const cityName=document.getElementById('inCity').value;
-  const city=(COUNTRIES[country]||[]).find(c=>c.name===cityName);
+  const regions=COUNTRIES[country];if(!regions)return;
+  const city=(regions[region]||[]).find(c=>c.name===cityName);
   if(city)document.getElementById('cityCoord').textContent=`위도 ${city.lat}, 경도 ${city.lng}`;
+  else document.getElementById('cityCoord').textContent='위도 —, 경도 —';
 }
 window.setGeoMode=function(mode,el){
-  document.querySelectorAll('.time-tabs')[1]?.querySelectorAll('.time-tab').forEach(t=>t.classList.remove('active'));
+  el.parentElement.querySelectorAll('.time-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('geoCity').style.display=mode==='city'?'':'none';
   document.getElementById('geoCoord').style.display=mode==='coord'?'':'none';
@@ -62,8 +75,10 @@ function getGeo(){
   const coordMode=document.getElementById('geoCoord').style.display!=='none';
   if(coordMode){return {lat:+document.getElementById('inLat').value,lng:+document.getElementById('inLng').value};}
   const country=document.getElementById('inCountry').value;
+  const region=document.getElementById('inRegion')?.value||'';
   const cityName=document.getElementById('inCity').value;
-  const city=(COUNTRIES[country]||[]).find(c=>c.name===cityName)||{lat:37.5665,lng:126.978};
+  const regions=COUNTRIES[country];if(!regions)return {lat:37.5665,lng:126.978};
+  const city=(regions[region]||[]).find(c=>c.name===cityName)||{lat:37.5665,lng:126.978};
   return {lat:city.lat,lng:city.lng};
 }
 
@@ -89,7 +104,7 @@ window.doCalc=function(){
   S.saju=r;S.tg=countTG(r);S.stats=calcStats(r,S.tg);S.radar=calcRadar(S.tg,r);
   S.mbti=calcMBTIFull(S.tg);S.selectedMBTI=S.mbti.primary;
   S.ennea=calcEnneagram(S.tg);S.selectedEnnea=S.ennea.primary;
-  renderSajuCard();renderSajuMeta();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();
+  renderSajuCard();renderSajuMeta();renderSajuWongu();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();
   document.getElementById('enneaSelBtn').style.display='';
   document.getElementById('mbtiSelBtn').style.display='';
   // 점성 계산 (출생지 좌표 필요, 시간모름이면 정오 기준)
@@ -256,7 +271,69 @@ function getDBPersonality(stem,gender){
   return null;
 }
 
-// ═══ CENTER ① 명리 ═══
+// ═══ CENTER ⓪ 사주 원국 (4주 카드 + 십성 분포 바) ═══
+function renderSajuWongu(){
+  if(!S.saju||!S.tg)return;
+  const r=S.saju,tg=S.tg,pd=r.pillarDetails;
+  const ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子';
+  const ilju=ds+db;
+  // 강약
+  const strength=r.advanced?.dayStrength?.strength==='strong'?'신강':'신약';
+  const score=r.advanced?.dayStrength?.score||'';
+  const geukguk=r.advanced?.geukguk||'';
+  // 용신
+  const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');
+  // 십성 그룹 합계
+  const tgGroup=[
+    {label:'비겁',keys:['비견','겁재']},{label:'식상',keys:['식신','상관']},
+    {label:'재성',keys:['편재','정재']},{label:'관성',keys:['편관','정관']},
+    {label:'인성',keys:['편인','정인']}
+  ];
+  const sorted=tgGroup.map(g=>{let s=0;g.keys.forEach(k=>s+=(tg[k]||0));return {label:g.label,val:s};}).sort((a,b)=>b.val-a.val);
+  const topTg=sorted[0]?.label||'';
+
+  // 미니 사주카드 HTML
+  const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
+  let cardH='<div class="wongu-card"><div class="pillar-row">';
+  keys.forEach((k,i)=>{
+    const p=pd?.[k];const gc=p?OC[ELEM_MAP[p.stem]]||'':'',jc=p?OC[ELEM_MAP[p.branch]]||'':'';
+    const gKr=p?HANJA_KR[p.stem]||'':'',jKr=p?HANJA_KR[p.branch]||'':'';
+    const ganTg=r.tenGods?.[k]?.stem||'';
+    const jiTg=r.tenGods?.[k]?.branch||'';
+    cardH+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="tg-top">${ganTg}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div><div class="tg-bot">${jiTg}</div></div>`;
+  });
+  cardH+='</div></div>';
+
+  let h='<div class="unified-frame uf-fixed">';
+  h+=`<div class="uf-head-split"><div class="uf-head-left">
+    <div class="kw-main">${ilju} 원국</div>
+    <div class="kw-sub">${geukguk} · ${strength}(${score}) · ${topTg} 우세</div>
+    ${cardH}
+    <div class="kw-points">
+      <span class="kw-point"><b>격국:</b> ${geukguk||'—'}</span>
+      <span class="kw-point"><b>강약:</b> ${strength} (${score})</span>
+      <span class="kw-point"><b>용신:</b> ${ys||'—'}</span>
+    </div>
+    </div><div class="uf-head-viz">${tenGodBarSVG(tg)}</div></div>`;
+  h+='<div class="uf-body-scroll">';
+  // 12운성
+  const kl={hour:'시',day:'일',month:'월',year:'년'};
+  if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${kl[k]} ${r.stages12.bong[k]}`:'').filter(Boolean).join(' · ');if(s)h+=`<div class="uf-sec"><div class="uf-label">🔄 12운성</div><div class="uf-body">${s}</div></div>`;}
+  // 대운
+  if(r.daeun?.list?.length){const age=r.currentAge||0;const cur=r.daeun.list.find(d=>age>=d.startAge&&age<=d.endAge)||r.daeun.list[0];h+=`<div class="uf-sec"><div class="uf-label">🔮 대운</div><div class="uf-body">${r.daeun.startAge}세 시작 · 현재 <b>${cur.ganzhi}</b>(${cur.stemTenGod||''}) ${cur.startAge}~${cur.endAge}세</div></div>`;}
+  // 공망
+  if(r.gongmang){const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):'';if(g)h+=`<div class="uf-sec"><div class="uf-label">⭕ 공망</div><div class="uf-body">${g}</div></div>`;}
+  // 신살
+  if(r.sals){const all=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;if(s.twelveSal)all.push(s.twelveSal);if(s.specialSals?.length)all.push(...s.specialSals);});const u=[...new Set(all)];if(u.length)h+=`<div class="uf-sec"><div class="uf-label">⚡ 신살</div><div class="uf-body">${u.join(' · ')}</div></div>`;}
+  // 지지 관계
+  if(r.branchRelations){const parts=[];['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)parts.push(`<b>${t}</b> ${d.join(', ')}`);}});if(parts.length)h+=`<div class="uf-sec"><div class="uf-label">🔗 지지 관계</div><div class="uf-body">${parts.join(' · ')}</div></div>`;}
+  // 천간 관계
+  if(r.stemRelations?.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=`<div class="uf-sec"><div class="uf-label">🔗 천간 관계</div><div class="uf-body">${s}</div></div>`;}
+  h+='</div></div>';
+  document.getElementById('sajuWonguArea').innerHTML=h;
+}
+
+// ═══ CENTER ① 명리 해석 ═══
 function renderMyungri(){
   const r=S.saju,st=S.stats;const pd=r.pillarDetails,ds=pd?.day?.stem||'甲',db=pd?.day?.branch||'子',mb=pd?.month?.branch||'子';
   const ilju=ds+db;

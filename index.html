@@ -10,11 +10,11 @@
 <div class="header"><h1>✦ 사주 MBTI</h1><span class="sub">사주로 보는 내 기질·성향·적성</span></div>
 <div class="vstack">
 
-<!-- ═══ 단락 1: 생년월일 입력 (2칼럼 가로) ═══ -->
+<!-- ═══ 단락 1: 생년월일 입력 (2칼럼 가로, 세로 구분선) ═══ -->
 <section class="block">
   <div class="block-title">📋 1. 생년월일 입력</div>
   <div class="birth-grid">
-    <div class="birth-col">
+    <div class="birth-col birth-col-left">
       <div class="row">
         <div class="field"><label>생년</label><input type="number" id="inYear" value="2000" min="1920" max="2010"></div>
         <div class="field"><label>월</label><select id="inMonth"></select></div>
@@ -39,8 +39,7 @@
         <label><input type="checkbox" id="chkYaja"> 야자시 적용</label>
       </div>
     </div>
-    <div class="birth-col">
-      <hr class="soft-line">
+    <div class="birth-col birth-col-right">
       <div class="row">
         <div class="field"><label>성별</label><select id="inGender"><option value="여">여</option><option value="남">남</option></select></div>
         <div class="field"><label>나이</label><select id="inAgeType"><option value="kr">한국나이</option><option value="man">만나이</option></select></div>
@@ -53,17 +52,19 @@
       </div>
       <div class="geo-box">
         <div id="geoCity">
-          <div class="row" style="margin:0 0 6px">
+          <div class="row geo-3row">
             <select id="inCountry"></select>
+            <select id="inRegion"></select>
             <select id="inCity"></select>
           </div>
-          <div style="font-size:10px;color:var(--text3)" id="cityCoord">위도 —, 경도 —</div>
+          <div class="geo-coord-label" id="cityCoord">위도 —, 경도 —</div>
         </div>
         <div id="geoCoord" style="display:none">
-          <div class="row" style="margin:0">
-            <div class="field" style="margin:0"><label>위도</label><input type="number" id="inLat" value="37.5665" step="0.0001"></div>
-            <div class="field" style="margin:0"><label>경도</label><input type="number" id="inLng" value="126.9780" step="0.0001"></div>
+          <div class="row geo-3row">
+            <input type="number" id="inLat" value="37.5665" step="0.0001" placeholder="위도">
+            <input type="number" id="inLng" value="126.9780" step="0.0001" placeholder="경도">
           </div>
+          <div class="geo-coord-label">&nbsp;</div>
         </div>
       </div>
       <button class="btn btn-gold" onclick="doCalc()">만세력·점성차트 조회</button>
@@ -71,12 +72,18 @@
   </div>
 </section>
 
-<!-- ═══ 단락 2: 명리 → 점성 → 에니어그램 → MBTI ═══ -->
+<!-- ═══ 단락 2: 사주 원국 → 명리해석 → 점성 → 에니어그램 → MBTI ═══ -->
 <section class="block">
   <div class="block-title">🔮 2. 성격 유형 분석</div>
 
   <div class="section-title-row">
-    <span class="section-title" style="border:none;margin:0;padding:0">☯️ 명리 (사주)</span>
+    <span class="section-title" style="border:none;margin:0;padding:0">☯️ 사주 원국</span>
+  </div>
+  <div id="sajuWonguArea"></div>
+
+  <hr class="divider">
+  <div class="section-title-row">
+    <span class="section-title" style="border:none;margin:0;padding:0">☯️ 명리 해석</span>
   </div>
   <div id="myungriArea"></div>
 

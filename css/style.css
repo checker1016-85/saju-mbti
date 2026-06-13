@@ -40,6 +40,21 @@ input:focus,select:focus{border-color:var(--gold)}
 .time-tab:first-child{border-radius:6px 0 0 6px}.time-tab:last-child{border-radius:0 6px 6px 0}
 .time-tab.active{background:var(--gold);color:#fff;border-color:var(--gold)}
 .time-box{height:42px;margin-top:10px;margin-bottom:6px}
+/* ═══ 생년월일 2칼럼 (세로 구분선) ═══ */
+.birth-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:start}
+@media(max-width:680px){.birth-grid{grid-template-columns:1fr}.birth-col-left{border-right:none!important;border-bottom:1px solid var(--border);padding:0 0 16px!important;margin-bottom:16px}}
+.birth-col{display:flex;flex-direction:column;align-items:stretch}
+.birth-col .btn{margin-top:auto}
+.birth-col-left{padding-right:18px;border-right:1px solid var(--border)}
+.birth-col-right{padding-left:18px}
+/* 출생지 입력 박스 높이 통일 */
+.geo-box{margin-bottom:6px}
+.geo-box>div{min-height:64px}
+.geo-3row{margin:0 0 4px!important;gap:6px!important}
+.geo-3row>*{flex:1;min-width:0}
+.geo-coord-label{font-size:10px;color:var(--text3);margin-top:2px}
+.geo-box input[type="number"]::placeholder{color:var(--text3);font-weight:600;font-size:11px}
+/* 사주 원국 카드 */
 .saju-card{background:var(--surface2);border-radius:var(--radius);padding:var(--gap);margin-bottom:var(--gap);border:1px solid var(--border)}
 .pillar-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .pillar{text-align:center;background:var(--surface);border-radius:8px;padding:8px 4px;border:1px solid var(--border);min-height:104px}
@@ -241,21 +256,21 @@ input:focus,select:focus{border-color:var(--gold)}
 .mbti-modal-btn.active.recommended,.mbti-modal-btn.active{background:var(--stat-lead)!important}
 .mbti-modal-btn.active .mb-code,.mbti-modal-btn.active .mb-name,.mbti-modal-btn.active .en-badge{color:#fff!important}
 
-/* 출생지 입력 박스 */
-.geo-box{margin-bottom:6px;height:64px}
-.geo-box>div{height:100%}
+/* 출생지 입력 박스 — geo-box 높이 통일은 상단 정의 참조 */
 
-/* 생년월일 입력 2칼럼 가로 (좌측정렬) */
-.birth-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
-@media(max-width:680px){.birth-grid{grid-template-columns:1fr}}
-.birth-col{display:flex;flex-direction:column;align-items:stretch}
-.birth-col .btn{margin-top:auto}
 /* 원국 카드 (성격 분석 안) */
 .natal-row{margin-bottom:12px}
 .natal-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
 
-/* 옅은 가로 구분선 */
-.soft-line{border:none;border-top:1px solid var(--border);margin:0 0 12px;opacity:0.6}
+/* 사주 원국 미니카드 (uf-head-left 내부) */
+.wongu-card{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:8px;margin-bottom:8px}
+.wongu-card .pillar-row{gap:4px}
+.wongu-card .pillar{min-height:88px;padding:5px 3px;border-radius:6px}
+.wongu-card .pillar .gan{font-size:17px;line-height:20px}
+.wongu-card .pillar .ji{font-size:17px;line-height:20px}
+.wongu-card .pillar .lbl{font-size:8px;margin-bottom:2px}
+.wongu-card .pillar .gan-kr,.wongu-card .pillar .ji-kr{font-size:8px}
+.wongu-card .pillar .tg-top,.wongu-card .pillar .tg-bot{font-size:8px}
 
 /* 시각화 헤더 좌측 하단 스크롤 정보 */
 .kw-extra{margin-top:auto;max-height:90px;overflow-y:auto;border-top:1px dashed var(--border);padding-top:6px}
