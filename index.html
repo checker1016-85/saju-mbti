@@ -44,7 +44,26 @@
         <div class="field"><label>나이</label><select id="inAgeType"><option value="kr">한국나이</option><option value="man">만나이</option></select></div>
         <div class="field"><label>&nbsp;</label><div style="padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:center" id="ageDisplay">—</div></div>
       </div>
-      <div class="field"><label>출생지</label><select id="inCity"></select></div>
+      <label>출생지</label>
+      <div class="time-tabs">
+        <div class="time-tab active" onclick="setGeoMode('city',this)">도시 선택</div>
+        <div class="time-tab" onclick="setGeoMode('coord',this)">위경도 직접</div>
+      </div>
+      <div class="geo-box">
+        <div id="geoCity">
+          <div class="row" style="margin:0 0 6px">
+            <select id="inCountry"></select>
+            <select id="inCity"></select>
+          </div>
+          <div style="font-size:10px;color:var(--text3)" id="cityCoord">위도 —, 경도 —</div>
+        </div>
+        <div id="geoCoord" style="display:none">
+          <div class="row" style="margin:0">
+            <div class="field" style="margin:0"><label>위도</label><input type="number" id="inLat" value="37.5665" step="0.0001"></div>
+            <div class="field" style="margin:0"><label>경도</label><input type="number" id="inLng" value="126.9780" step="0.0001"></div>
+          </div>
+        </div>
+      </div>
       <button class="btn btn-gold" onclick="doCalc()">만세력·점성차트 조회</button>
     </div>
     <div class="input-col">

@@ -32,12 +32,45 @@ function emptyFrame(title,viz,rows,color){
     <div class="uf-head-split"><div class="uf-head-left"><div class="kw-main" style="color:${color}">${title}</div><div class="kw-sub">조회 대기 중</div></div><div class="uf-head-viz">${viz}</div></div>
     <div class="uf-body-scroll">${body}</div></div>`;
 }
-function buildCityOpts(){const s=document.getElementById('inCity');if(!s||typeof CITIES==='undefined')return;CITIES.forEach(c=>{const o=document.createElement('option');o.value=c.name;o.text=c.name;s.add(o);});}
+function buildCityOpts(){
+  if(typeof COUNTRIES==='undefined')return;
+  const cs=document.getElementById('inCountry');if(!cs)return;
+  Object.keys(COUNTRIES).forEach(c=>{const o=document.createElement('option');o.value=c;o.text=c;cs.add(o);});
+  cs.onchange=fillCities;
+  fillCities();
+}
+function fillCities(){
+  const country=document.getElementById('inCountry').value;
+  const cs=document.getElementById('inCity');cs.innerHTML='';
+  (COUNTRIES[country]||[]).forEach(c=>{const o=document.createElement('option');o.value=c.name;o.text=c.name;cs.add(o);});
+  cs.onchange=showCityCoord;
+  showCityCoord();
+}
+function showCityCoord(){
+  const country=document.getElementById('inCountry').value;
+  const cityName=document.getElementById('inCity').value;
+  const city=(COUNTRIES[country]||[]).find(c=>c.name===cityName);
+  if(city)document.getElementById('cityCoord').textContent=`위도 ${city.lat}, 경도 ${city.lng}`;
+}
+window.setGeoMode=function(mode,el){
+  document.querySelectorAll('.time-tabs')[1]?.querySelectorAll('.time-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('geoCity').style.display=mode==='city'?'':'none';
+  document.getElementById('geoCoord').style.display=mode==='coord'?'':'none';
+};
+function getGeo(){
+  const coordMode=document.getElementById('geoCoord').style.display!=='none';
+  if(coordMode){return {lat:+document.getElementById('inLat').value,lng:+document.getElementById('inLng').value};}
+  const country=document.getElementById('inCountry').value;
+  const cityName=document.getElementById('inCity').value;
+  const city=(COUNTRIES[country]||[]).find(c=>c.name===cityName)||{lat:37.5665,lng:126.978};
+  return {lat:city.lat,lng:city.lng};
+}
 
 function buildDayOpts(){const m=+document.getElementById('inMonth').value||1,s=document.getElementById('inDay'),p=s.value;const d=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];s.innerHTML='';for(let i=1;i<=d;i++){const o=document.createElement('option');o.value=i;o.text=i+'일';s.add(o);}if(p&&p<=d)s.value=p;}
 function buildGanjiOpts(){const s=document.getElementById('inGanji');GANJI_HOURS.forEach(g=>{const o=document.createElement('option');o.value=g.h;o.text=g.label;s.add(o);});}
 function buildHourOpts(){const s=document.getElementById('inHour');for(let i=0;i<24;i++){const o=document.createElement('option');o.value=i;o.text=String(i).padStart(2,'0')+'시';s.add(o);}}
-function buildMinOpts(){const s=document.getElementById('inMin');for(let i=0;i<60;i+=10){const o=document.createElement('option');o.value=i;o.text=String(i).padStart(2,'0')+'분';s.add(o);}}
+function buildMinOpts(){const s=document.getElementById('inMin');for(let i=0;i<60;i++){const o=document.createElement('option');o.value=i;o.text=String(i).padStart(2,'0')+'분';s.add(o);}}
 function updateAge(){const y=+document.getElementById('inYear').value;const isKr=document.getElementById('inAgeType').value==='kr';const age=isKr?(2026-y+1):(2026-y);document.getElementById('ageDisplay').textContent=age+'세';}
 window.setTimeMode=function(mode,el){timeMode=mode;document.querySelectorAll('.time-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('timeGanji').style.display=mode==='ganji'?'':'none';document.getElementById('timeDirect').style.display=mode==='direct'?'':'none';};
 
@@ -60,11 +93,10 @@ window.doCalc=function(){
   document.getElementById('enneaSelBtn').style.display='';
   document.getElementById('mbtiSelBtn').style.display='';
   // 점성 계산 (출생지 좌표 필요, 시간모름이면 정오 기준)
-  if(typeof calcAstro==='function'&&typeof CITIES!=='undefined'){
-    const cityName=document.getElementById('inCity').value;
-    const city=CITIES.find(c=>c.name===cityName)||CITIES[0];
+  if(typeof calcAstro==='function'&&typeof COUNTRIES!=='undefined'){
+    const geo=getGeo();
     const aHour=noTime?12:hour, aMin=noTime?0:minute;
-    const ah=calcAstro(+document.getElementById('inYear').value,+document.getElementById('inMonth').value,+document.getElementById('inDay').value,aHour,aMin,city.lat,city.lng);
+    const ah=calcAstro(+document.getElementById('inYear').value,+document.getElementById('inMonth').value,+document.getElementById('inDay').value,aHour,aMin,geo.lat,geo.lng);
     renderAstro(ah);
   }
   toast('✅ 분석 완료');
@@ -90,7 +122,9 @@ function calcRadar(tg,r){
     '체력·멘탈':{color:'#d44060',axes:[{label:'체력',value:clamp(tgVal(tg,['비견','겁재'])*16+str*.3)},{label:'멘탈력',value:clamp(tgVal(tg,['편인','정인'])*16+str*.2)},{label:'회복력',value:clamp(tgVal(tg,['식신','상관'])*14+tgVal(tg,['정인'])*8)},{label:'인내력',value:clamp(tgVal(tg,['편관','정관'])*12+tgVal(tg,['정재'])*10)},{label:'스트레스\n내성',value:clamp(str*.5+tgVal(tg,['비견'])*12)}]},
     '사회성':{color:'#6050c0',axes:[{label:'리더십',value:clamp(tgVal(tg,['편관','정관'])*16)},{label:'소통력',value:clamp(tgVal(tg,['식신','상관'])*16)},{label:'협업력',value:clamp(tgVal(tg,['비견'])*18+tgVal(tg,['정관'])*8)},{label:'매력',value:clamp(tgVal(tg,['편재','정재'])*12+tgVal(tg,['상관'])*8)},{label:'공감력',value:clamp(tgVal(tg,['정인'])*14+tgVal(tg,['식신'])*10)}]},
     '재능·두뇌':{color:'#18a088',axes:[{label:'창의력',value:clamp(tgVal(tg,['상관'])*18+tgVal(tg,['식신'])*10)},{label:'분석력',value:clamp(tgVal(tg,['정인'])*16+tgVal(tg,['편인'])*10)},{label:'실행력',value:clamp(tgVal(tg,['비견','겁재'])*12+tgVal(tg,['편관'])*10)},{label:'전략력',value:clamp(tgVal(tg,['정관'])*12+tgVal(tg,['정인'])*12)},{label:'직관력',value:clamp(tgVal(tg,['편인'])*16+tgVal(tg,['상관'])*10)}]},
-    '재물·야망':{color:'#d4a017',axes:[{label:'수익감각',value:clamp(tgVal(tg,['정재'])*18+tgVal(tg,['편재'])*8)},{label:'투자감각',value:clamp(tgVal(tg,['편재'])*18+tgVal(tg,['정재'])*6)},{label:'야망',value:clamp(tgVal(tg,['편관'])*16+tgVal(tg,['겁재'])*8)},{label:'안정추구',value:clamp(tgVal(tg,['정관'])*14+tgVal(tg,['정재'])*12)},{label:'모험도',value:clamp(tgVal(tg,['겁재'])*14+tgVal(tg,['편재'])*12)}]}
+    '재물·야망':{color:'#d4a017',axes:[{label:'수익감각',value:clamp(tgVal(tg,['정재'])*18+tgVal(tg,['편재'])*8)},{label:'투자감각',value:clamp(tgVal(tg,['편재'])*18+tgVal(tg,['정재'])*6)},{label:'야망',value:clamp(tgVal(tg,['편관'])*16+tgVal(tg,['겁재'])*8)},{label:'안정추구',value:clamp(tgVal(tg,['정관'])*14+tgVal(tg,['정재'])*12)},{label:'모험도',value:clamp(tgVal(tg,['겁재'])*14+tgVal(tg,['편재'])*12)}]},
+    '관계·연애':{color:'#d44060',axes:[{label:'애정표현',value:clamp(tgVal(tg,['정재','편재'])*14+tgVal(tg,['상관'])*8)},{label:'헌신도',value:clamp(tgVal(tg,['정재'])*16+tgVal(tg,['정인'])*8)},{label:'매력',value:clamp(tgVal(tg,['상관'])*14+tgVal(tg,['편재'])*10)},{label:'안정성',value:clamp(tgVal(tg,['정관','정재'])*12)},{label:'자유추구',value:clamp(tgVal(tg,['겁재','상관'])*12)}]},
+    '직업·사회':{color:'#18a088',axes:[{label:'조직력',value:clamp(tgVal(tg,['정관'])*16+tgVal(tg,['정재'])*8)},{label:'전문성',value:clamp(tgVal(tg,['정인','편인'])*14)},{label:'추진력',value:clamp(tgVal(tg,['편관','겁재'])*14)},{label:'창업기질',value:clamp(tgVal(tg,['편재','상관'])*14)},{label:'협상력',value:clamp(tgVal(tg,['정재','식신'])*13)}]}
   };
 }
 
@@ -352,9 +386,12 @@ function renderRight(){
   SM.forEach(s=>{const v=st[s.key];h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:14px;width:20px;text-align:center">${s.icon}</span><span style="width:42px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span><div style="flex:1;height:20px;background:var(--surface3);border-radius:10px;overflow:hidden"><div style="height:100%;width:${v}%;background:${s.color};border-radius:10px;position:relative"><span style="position:absolute;right:6px;top:2px;font-size:10px;font-weight:800;color:#fff">${v}</span></div></div></div>`;});
   h+=`<div style="text-align:center;padding:8px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-top:4px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:28px;font-weight:700;color:var(--gold-dim)">${st.종합}</span></div>`;
   h+='</div>';
-  // 레이더 4종
-  h+='<div class="radar-grid">';
-  for(const[title,data]of Object.entries(S.radar)){h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title}</div>${radarSVG(data.axes,data.color)}</div>`;}
+  // 레이더 6종 (3×2, 크게, 퍼센트 포함)
+  h+='<div class="radar-grid6">';
+  for(const[title,data]of Object.entries(S.radar)){
+    const avg=Math.round(data.axes.reduce((s,a)=>s+a.value,0)/data.axes.length);
+    h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,200)}</div>`;
+  }
   h+='</div>';
   document.getElementById('rightResult').innerHTML=h;
 }

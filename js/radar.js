@@ -12,7 +12,9 @@ function radarSVG(axes, color, size = 130) {
   let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
   svg+=`<polygon points="${dpts}" fill="${color}25" stroke="${color}" stroke-width="2"/>`;
   axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);svg+=`<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;});
-  axes.forEach((a,i)=>{const[x,y]=pt(i,120);const lines=a.label.split('\n');lines.forEach((l,li)=>{svg+=`<text x="${x}" y="${(+y)+li*11}" text-anchor="middle" fill="#6a6358" font-size="9" font-family="Noto Sans KR">${l}</text>`;});});
+  axes.forEach((a,i)=>{const[x,y]=pt(i,120);const lines=a.label.split('\n');lines.forEach((l,li)=>{svg+=`<text x="${x}" y="${(+y)+li*11}" text-anchor="middle" fill="#6a6358" font-size="10" font-family="Noto Sans KR">${l}</text>`;});
+    // 퍼센트
+    const[px,py]=pt(i,a.value);svg+=`<text x="${px}" y="${(+py)-5}" text-anchor="middle" fill="${color}" font-size="9" font-weight="800" font-family="Space Grotesk">${a.value}</text>`;});
   svg+='</svg>';return svg;
 }
 
@@ -82,6 +84,19 @@ function astroChartSVG(h, size=VIZ_SIZE){
   const mcA=toAngle(mcDeg);
   svg+=`<line x1="${cx}" y1="${cy}" x2="${(cx+rZod*Math.cos(mcA)).toFixed(1)}" y2="${(cy-rZod*Math.sin(mcA)).toFixed(1)}" stroke="#7060c0" stroke-width="1.2" stroke-dasharray="3,2"/>`;
   svg+=`<text x="${(cx+(rZod-14)*Math.cos(mcA)).toFixed(1)}" y="${(cy-(rZod-14)*Math.sin(mcA)).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#7060c0" font-family="Space Grotesk">MC</text>`;
+  // 애스펙트 선 (행성 간 연결)
+  if(h.Aspects&&h.Aspects.all){
+    const ASPECT_C={conjunction:'#999',opposition:'#c83030',trine:'#2e8b40',square:'#d06020',sextile:'#3060a0'};
+    const arP=rHouseIn-3;
+    const pdeg=(k)=>h.CelestialBodies[k]?h.CelestialBodies[k].ChartPosition.Ecliptic.DecimalDegrees:null;
+    h.Aspects.all.slice(0,28).forEach(asp=>{
+      const d1=pdeg(asp.point1Key),d2=pdeg(asp.point2Key);
+      if(d1==null||d2==null)return;
+      const a1=toAngle(d1),a2=toAngle(d2);
+      const c=ASPECT_C[asp.aspectKey]||'#ccc';
+      svg+=`<line x1="${(cx+arP*Math.cos(a1)).toFixed(1)}" y1="${(cy-arP*Math.sin(a1)).toFixed(1)}" x2="${(cx+arP*Math.cos(a2)).toFixed(1)}" y2="${(cy-arP*Math.sin(a2)).toFixed(1)}" stroke="${c}" stroke-width="0.7" opacity="0.45"/>`;
+    });
+  }
   // ☉ ☽ 마커
   [['sun','☉','#d4a017'],['moon','☽','#6080c0']].forEach(([b,sym,col])=>{
     const deg=h.CelestialBodies[b].ChartPosition.Ecliptic.DecimalDegrees;
@@ -118,12 +133,9 @@ function enneaStarSVG(main, w1, w2, size=VIZ_SIZE){
     svg+=`<text x="${(cx+(arcR+0)*Math.cos(mid)).toFixed(1)}" y="${(cy+(arcR)*Math.sin(mid)+3).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="800" fill="${arc.c}" font-family="Noto Sans KR" transform="translate(0,-10)">${arc.label}</text>`;
   });
   svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4cfc4" stroke-width="1"/>`;
-  // 내부 연결선
-  const lines=[[1,4],[4,2],[2,8],[8,5],[5,7],[7,1],[3,6],[6,9],[9,3]];
-  lines.forEach(([a,b])=>{svg+=`<line x1="${pos[a][0].toFixed(1)}" y1="${pos[a][1].toFixed(1)}" x2="${pos[b][0].toFixed(1)}" y2="${pos[b][1].toFixed(1)}" stroke="#e6e2d8" stroke-width="1"/>`;});
-  // 날개 방향선 (메인 → 양쪽 날개, 굵게)
+  // 날개 방향선만 (메인 → 양쪽 인접 날개)
   [[main,w1],[main,w2]].forEach(([a,b])=>{
-    svg+=`<line x1="${pos[a][0].toFixed(1)}" y1="${pos[a][1].toFixed(1)}" x2="${pos[b][0].toFixed(1)}" y2="${pos[b][1].toFixed(1)}" stroke="${CENTER_C[CENTER[main]]}" stroke-width="2.5" opacity="0.7"/>`;
+    svg+=`<line x1="${pos[a][0].toFixed(1)}" y1="${pos[a][1].toFixed(1)}" x2="${pos[b][0].toFixed(1)}" y2="${pos[b][1].toFixed(1)}" stroke="${CENTER_C[CENTER[main]]}" stroke-width="3" opacity="0.75"/>`;
   });
   // 노드
   for(let i=1;i<=9;i++){
