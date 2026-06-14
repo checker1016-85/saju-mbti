@@ -243,19 +243,14 @@ input:focus,select:focus{border-color:var(--gold)}
 
 /* ═══ v11: 고정높이 프레임 + 시각화 확대 ═══ */
 .uf-fixed{height:480px;display:flex;flex-direction:column;overflow:hidden}
-/* 명리 프레임은 원국+키워드+해석이 모두 들어가 더 높게 */
-#myungriArea .unified-frame{height:auto;min-height:480px;max-height:620px}
-/* 상단 원국(좌) + 대운·신살(우) 2분할 */
-.wongu-split{display:flex;gap:12px;padding:14px 14px 8px;align-items:flex-start;background:linear-gradient(135deg,var(--surface2),var(--surface3));border-bottom:1px solid var(--border)}
-.wongu-left{flex:0 0 auto;width:200px}
-.wongu-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding-top:2px}
-.wm-row{display:flex;gap:6px;font-size:10px;line-height:1.4;align-items:baseline}
-.wm-row .wm-k{flex:0 0 46px;font-weight:800;color:var(--gold-dim)}
-.wm-row .wm-v{flex:1;min-width:0;color:var(--text);word-break:keep-all}
-/* 키워드 밴드 (원국 아래, 시각화 위) */
-.uf-kw-band{padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:center}
-.uf-kw-band .kw-main{font-size:20px;font-weight:900;color:var(--gold-dim);margin-bottom:3px}
-.uf-kw-band .kw-sub{font-size:11px;color:var(--text2)}
+/* 원국 풀 레이아웃 (body-scroll 내 좌우 분할) */
+.wongu-full{display:flex;gap:14px;align-items:flex-start}
+.wongu-full-left{flex:0 0 auto;width:240px}
+.wongu-full-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.wf-group{font-size:11px}
+.wf-group .wf-title{font-weight:800;color:var(--gold-dim);margin-bottom:3px}
+.wf-group .wf-val{color:var(--text);line-height:1.5}
+@media(max-width:680px){.wongu-full{flex-direction:column}.wongu-full-left{width:100%}}
 .uf-fixed .uf-head-split{flex-shrink:0;min-height:230px;align-items:stretch}
 .uf-head-split .uf-head-left{display:flex;flex-direction:column;justify-content:flex-start}
 .uf-head-split .uf-head-viz{align-self:flex-end}
@@ -290,7 +285,7 @@ input:focus,select:focus{border-color:var(--gold)}
 .natal-row{margin-bottom:12px}
 .natal-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
 
-/* 사주 원국 미니카드 */
+/* 사주 원국 카드 */
 .wongu-card{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:6px;margin:0}
 .wongu-card .pillar-row{gap:3px}
 .wongu-card .pillar{min-height:84px;padding:4px 2px;border-radius:6px}
@@ -299,6 +294,15 @@ input:focus,select:focus{border-color:var(--gold)}
 .wongu-card .pillar .lbl{font-size:8px;margin-bottom:2px}
 .wongu-card .pillar .gan-kr,.wongu-card .pillar .ji-kr{font-size:7px}
 .wongu-card .pillar .tg-top,.wongu-card .pillar .tg-bot{font-size:7px}
+/* 큰 원국 카드 (body-scroll 내) */
+.wongu-big{padding:10px}
+.wongu-big .pillar-row{gap:6px}
+.wongu-big .pillar{min-height:100px;padding:6px 4px;border-radius:8px}
+.wongu-big .pillar .gan{font-size:22px;line-height:26px}
+.wongu-big .pillar .ji{font-size:22px;line-height:26px}
+.wongu-big .pillar .lbl{font-size:9px;margin-bottom:3px}
+.wongu-big .pillar .gan-kr,.wongu-big .pillar .ji-kr{font-size:9px}
+.wongu-big .pillar .tg-top,.wongu-big .pillar .tg-bot{font-size:9px}
 
 /* 시각화 헤더 좌측 하단 스크롤 정보 */
 .kw-extra{margin-top:auto;max-height:90px;overflow-y:auto;border-top:1px dashed var(--border);padding-top:6px}

@@ -287,7 +287,6 @@ function renderMyungri(){
   const score=r.advanced?.dayStrength?.score||'';
   const geukguk=r.advanced?.geukguk||'';
   const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');
-  // 일간 오행 + 십성 대표 (그룹별 합산)
   const dayElem=ELEM_MAP[ds]||'';
   const tgGroups=[
     {name:'비겁',keys:['비견','겁재']},{name:'식상',keys:['식신','상관']},
@@ -297,50 +296,71 @@ function renderMyungri(){
   const topGroup=tgGroups.map(g=>({name:g.name,val:g.keys.reduce((s,k)=>s+(tg[k]||0),0)})).sort((a,b)=>b.val-a.val)[0];
   const centerTop=dayElem+' '+(topGroup?topGroup.name:'');
   const centerBot=geukguk;
-
-  // 미니 사주카드 (4주 한자 + 십성)
   const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
-  let cardH='<div class="wongu-card"><div class="pillar-row">';
+  const kl={hour:'시',day:'일',month:'월',year:'년'};
+
+  // ── 원국 카드 (크게) ──
+  let cardH='<div class="wongu-card wongu-big"><div class="pillar-row">';
   keys.forEach((k,i)=>{
     const p=pd?.[k];const gc=p?OC[ELEM_MAP[p.stem]]||'':'',jc=p?OC[ELEM_MAP[p.branch]]||'':'';
     const gKr=p?HANJA_KR[p.stem]||'':'',jKr=p?HANJA_KR[p.branch]||'':'';
-    const ganTg=r.tenGods?.[k]?.stem||'';
-    const jiTg=r.tenGods?.[k]?.branch||'';
+    const ganTg=r.tenGods?.[k]?.stem||'';const jiTg=r.tenGods?.[k]?.branch||'';
     cardH+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="tg-top">${ganTg}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div><div class="tg-bot">${jiTg}</div></div>`;
   });
   cardH+='</div></div>';
 
-  // 대운/공망/신살 요약 (헤드 우측용)
-  const kl={hour:'시',day:'일',month:'월',year:'년'};
-  let metaRight='';
-  if(r.daeun?.list?.length){const age=r.currentAge||0;const cur=r.daeun.list.find(d=>age>=d.startAge&&age<=d.endAge)||r.daeun.list[0];metaRight+=`<div class="wm-row"><span class="wm-k">🔮 대운</span><span class="wm-v">${cur.ganzhi}(${cur.stemTenGod||''}) ${cur.startAge}~${cur.endAge}세</span></div>`;}
-  if(r.gongmang){const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):'';if(g)metaRight+=`<div class="wm-row"><span class="wm-k">⭕ 공망</span><span class="wm-v">${g}</span></div>`;}
-  if(r.sals){const all=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;if(s.twelveSal)all.push(s.twelveSal);if(s.specialSals?.length)all.push(...s.specialSals);});const u=[...new Set(all)];if(u.length)metaRight+=`<div class="wm-row"><span class="wm-k">⚡ 신살</span><span class="wm-v">${u.join(' · ')}</span></div>`;}
-  if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${kl[k]}${r.stages12.bong[k]}`:'').filter(Boolean).join(' ');if(s)metaRight+=`<div class="wm-row"><span class="wm-k">🔄 운성</span><span class="wm-v">${s}</span></div>`;}
-  metaRight+=`<div class="wm-row"><span class="wm-k">⚖️ 격국</span><span class="wm-v">${geukguk||'—'} · ${strength}(${score})</span></div>`;
-  metaRight+=`<div class="wm-row"><span class="wm-k">💧 용신</span><span class="wm-v">${ys||'—'}</span></div>`;
+  // ── 대운 전체 리스트 ──
+  let daeunH='';
+  if(r.daeun?.list?.length){
+    const age=r.currentAge||0;
+    daeunH=r.daeun.list.map(d=>{
+      const cur=(age>=d.startAge&&age<=d.endAge);
+      return `<span class="chip${cur?' hl':''}">${d.ganzhi}(${d.stemTenGod||''}) ${d.startAge}~${d.endAge}세</span>`;
+    }).join('');
+  }
 
+  // ── 신살 (기둥별) ──
+  let salH='';
+  if(r.sals){
+    keys.forEach(k=>{
+      const s=r.sals[k];if(!s)return;
+      const items=[];if(s.twelveSal)items.push(s.twelveSal);if(s.specialSals?.length)items.push(...s.specialSals);
+      if(items.length)salH+=`<span class="chip">${kl[k]} ${items.join('·')}</span>`;
+    });
+  }
+
+  // ── 12운성 (기둥별) ──
+  let stageH='';
+  if(r.stages12?.bong){keys.forEach(k=>{const v=r.stages12.bong[k];if(v)stageH+=`<span class="chip">${kl[k]} ${v}</span>`;});}
+
+  // ═══ 프레임: 점성과 동일 구조 ═══
   let h='<div class="unified-frame uf-fixed">';
-  // ── 상단: 원국 카드(좌) + 대운·공망·신살(우) ──
-  h+=`<div class="wongu-split">
-    <div class="wongu-left">${cardH}</div>
-    <div class="wongu-right">${metaRight}</div>
+  // ── 상단: kw-main + 오행도넛 (점성과 동일) ──
+  h+=`<div class="uf-head-split"><div class="uf-head-left">`;
+  h+=`<div class="kw-main">${STEM_ADJ[ds]||''} ${typeName}</div>`;
+  h+=`<div class="kw-sub">${ilju}일주 · ${geukguk||'—'} · ${strength}(${score}) · ${topGroup?topGroup.name:''} 우세</div>`;
+  h+=`<div class="kw-points">
+    <span class="kw-point"><b>본능 일주:</b> ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</span>
+    <span class="kw-point"><b>사회 월주:</b> ${HANJA_KR[mb]} (${season})</span>
+    <span class="kw-point"><b>격국:</b> ${geukguk||'—'} · <b>강약:</b> ${strength}(${score})</span>
+    <span class="kw-point"><b>용신:</b> ${ys||'—'}</span>
   </div>`;
-  // ── 키워드 타이틀 ──
-  h+=`<div class="uf-kw-band">
-    <div class="kw-main">${STEM_ADJ[ds]||''} ${typeName}</div>
-    <div class="kw-sub">${ilju}일주 · ${geukguk||'—'} · ${strength}(${score}) · ${topGroup?topGroup.name:''} 우세</div>
-  </div>`;
-  // ── 본문: 오행도넛(우) + 해석(스크롤) ──
-  h+=`<div class="uf-head-split"><div class="uf-head-left">
-    <div class="kw-points">
-      <span class="kw-point"><b>본능 일주:</b> ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</span>
-      <span class="kw-point"><b>사회 월주:</b> ${HANJA_KR[mb]} (${season})</span>
-      <span class="kw-point"><b>십성 분포:</b> ${tgGroups.map(g=>g.name+' '+g.keys.reduce((s,k)=>s+(tg[k]||0),0)).join(' · ')}</span>
-    </div>
-    </div><div class="uf-head-viz">${sajuVizSVG(oh,centerTop,centerBot)}</div></div>`;
+  h+=`</div><div class="uf-head-viz">${sajuVizSVG(oh,centerTop,centerBot)}</div></div>`;
+  // ── 본문 스크롤 ──
   h+='<div class="uf-body-scroll">';
-  // ── 해석 (일주/월주) ──
+  // 원국 카드 + 대운/공망/신살/12운성
+  h+=`<div class="uf-sec"><div class="uf-label">🀄 사주 원국</div>
+    <div class="wongu-full">
+      <div class="wongu-full-left">${cardH}</div>
+      <div class="wongu-full-right">
+        <div class="wf-group"><div class="wf-title">🔮 대운 (${r.daeun?.startAge||''}세~)</div><div class="chip-wrap">${daeunH||'—'}</div></div>
+        <div class="wf-group"><div class="wf-title">⭕ 공망</div><div class="wf-val">${r.gongmang?.branchesKo?r.gongmang.branchesKo.join(', '):'—'}</div></div>
+        <div class="wf-group"><div class="wf-title">⚡ 신살</div><div class="chip-wrap">${salH||'—'}</div></div>
+        <div class="wf-group"><div class="wf-title">🔄 12운성</div><div class="chip-wrap">${stageH||'—'}</div></div>
+        <div class="wf-group"><div class="wf-title">📊 십성 분포</div><div class="wf-val">${tgGroups.map(g=>g.name+' '+g.keys.reduce((s,k)=>s+(tg[k]||0),0)).join(' · ')}</div></div>
+      </div>
+    </div></div>`;
+  // 해석 (일주/월주)
   h+=`<div class="uf-sec"><div class="uf-label">📌 본능 일주 ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</div>
     <div class="uf-body">${dbText||STEM_TEXT[ds]||''}</div>
     <div class="uf-body"><b>일간 ${HANJA_KR[ds]}:</b> ${STEM_TEXT[ds]||''}</div>
@@ -348,7 +368,7 @@ function renderMyungri(){
   h+=`<div class="uf-sec"><div class="uf-label">🎭 사회적 월주 ${HANJA_KR[mb]} (${season})</div>
     <div class="uf-body"><b>계절적:</b> ${season} 기운을 타고나, 이 시기의 에너지가 삶의 리듬을 형성한다.</div>
     <div class="uf-body"><b>사회적 페르소나:</b> ${MONTH_TEXT[mb]||''}</div></div>`;
-  // ── 관계 (지지/천간) ──
+  // 관계
   if(r.branchRelations){const parts=[];['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)parts.push(`<b>${t}</b> ${d.join(', ')}`);}});if(parts.length)h+=`<div class="uf-sec"><div class="uf-label">🔗 지지 관계</div><div class="uf-body">${parts.join(' · ')}</div></div>`;}
   if(r.stemRelations?.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=`<div class="uf-sec"><div class="uf-label">🔗 천간 관계</div><div class="uf-body">${s}</div></div>`;}
   h+='</div></div>';
