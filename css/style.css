@@ -198,6 +198,9 @@ input:focus,select:focus{border-color:var(--gold)}
 .uf-sub{font-size:11px;color:var(--text2)}
 .uf-sec{padding:10px 14px;border-bottom:1px solid var(--border);text-align:left}
 .uf-sec:last-child{border-bottom:none}
+.uf-divider{height:0;border-top:2px dashed var(--border2);margin:4px 14px;opacity:0.7}
+.uf-wongu-sec{background:var(--surface2)}
+.uf-wongu-sec .wongu-card{margin:6px 0}
 .uf-label{font-size:11px;font-weight:800;color:var(--gold-dim);margin-bottom:4px;text-align:left}
 .uf-body{font-size:12px;color:var(--text);line-height:1.6;text-align:left;margin-bottom:3px}
 .uf-body:last-child{margin-bottom:0}

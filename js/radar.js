@@ -139,16 +139,17 @@ function enneaStarSVG(main, w1, w2, size=VIZ_SIZE){
     const large=(a2-a1+2*Math.PI)%(2*Math.PI)>Math.PI?1:0;
     svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${arcR} ${arcR} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${arc.c}" stroke-width="4" opacity="0.5"/>`;
   });
-  // 삼각형 라벨 (본능=위, 가슴=우하, 사고=좌하) — 노드 바깥
-  const lblR=size/2-2;
+  // 삼각형 라벨 (본능=위, 가슴=우하, 사고=좌하) — 노드 안쪽, 배경 pill로 겹침 방지
+  const lblR=r-26;
   const lbls=[
-    {label:'본능',angle:-Math.PI/2+2*Math.PI*(0/9),c:'#c04010'},         // 9번 위치 (위)
-    {label:'가슴',angle:-Math.PI/2+2*Math.PI*(3/9),c:'#10806a'},         // 3번 위치 (우하)
-    {label:'사고',angle:-Math.PI/2+2*Math.PI*(6/9),c:'#4838a0'}          // 6번 위치 (좌하)
+    {label:'본능',angle:-Math.PI/2,c:'#c04010'},
+    {label:'가슴',angle:-Math.PI/2+2*Math.PI*(3/9),c:'#10806a'},
+    {label:'사고',angle:-Math.PI/2+2*Math.PI*(6/9),c:'#4838a0'}
   ];
   lbls.forEach(lb=>{
     const lx=cx+lblR*Math.cos(lb.angle),ly=cy+lblR*Math.sin(lb.angle);
-    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="900" fill="${lb.c}" font-family="Noto Sans KR">${lb.label}</text>`;
+    svg+=`<rect x="${(lx-16).toFixed(1)}" y="${(ly-7).toFixed(1)}" width="32" height="14" rx="7" fill="#fff" stroke="${lb.c}" stroke-width="1" opacity="0.95"/>`;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+3.5).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="900" fill="${lb.c}" font-family="Noto Sans KR">${lb.label}</text>`;
   });
   svg+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4cfc4" stroke-width="1"/>`;
   // 날개 방향선
@@ -173,36 +174,40 @@ function enneaStarSVG(main, w1, w2, size=VIZ_SIZE){
   return svg+legend;
 }
 
-// ═══ ④ MBTI: 4축 + 양쪽 게이지 + 한글 서브라벨 ═══
+// ═══ ④ MBTI: 4축 + 항상 보이는 빈 게이지 + 짙은 채움 ═══
 function mbtiBigSVG(axes, selected, size=VIZ_SIZE){
-  const pairs=[['E','I','에너지','외향','내향'],['S','N','인식','감각','직관'],['T','F','판단','사고','감정'],['J','P','생활','판단','인식']];
+  const pairs=[['E','I','외향','내향'],['S','N','감각','직관'],['T','F','사고','감정'],['J','P','판단','인식']];
   const PC={E:'#d44060',S:'#d4a82a',T:'#18a088',J:'#6050c0'};
-  const rowH=46,topPad=10;
+  const rowH=46,topPad=12;
+  const barH=7; // 얇게
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  pairs.forEach(([a,b,mid,aKr,bKr],i)=>{
+  pairs.forEach(([a,b,aKr,bKr],i)=>{
     const y=topPad+i*rowH+18;
     const aOn=selected.includes(a);
     const c=PC[a];
     const aPct=axes[a],bPct=axes[b];
     // 영문 라벨 + 한글 서브
-    svg+=`<text x="4" y="${y+3}" font-size="17" font-weight="900" fill="${aOn?c:'#c0baa8'}" font-family="Space Grotesk">${a}</text>`;
-    svg+=`<text x="4" y="${y+14}" font-size="8" fill="${aOn?c:'#b0a898'}" font-family="Noto Sans KR">${aKr}</text>`;
-    svg+=`<text x="${size-4}" y="${y+3}" text-anchor="end" font-size="17" font-weight="900" fill="${!aOn?c:'#c0baa8'}" font-family="Space Grotesk">${b}</text>`;
-    svg+=`<text x="${size-4}" y="${y+14}" text-anchor="end" font-size="8" fill="${!aOn?c:'#b0a898'}" font-family="Noto Sans KR">${bKr}</text>`;
-    // 게이지 바: 양쪽 모두 표시 (진한 = 선택, 옅은 = 비선택)
-    const bx=28,bw=size-56,half=bw/2,midX=bx+half;
-    svg+=`<rect x="${bx}" y="${y-8}" width="${bw}" height="12" rx="6" fill="#e6e2d8"/>`;
-    // A쪽 (왼→중앙): 진한 or 옅은
-    const aW=half*aPct/100;
-    svg+=`<rect x="${(midX-aW).toFixed(1)}" y="${y-8}" width="${aW.toFixed(1)}" height="12" rx="6" fill="${c}" opacity="${aOn?'0.9':'0.25'}"/>`;
-    // B쪽 (중앙→오른): 진한 or 옅은
-    const bW=half*bPct/100;
-    svg+=`<rect x="${midX}" y="${y-8}" width="${bW.toFixed(1)}" height="12" rx="6" fill="${c}" opacity="${!aOn?'0.9':'0.25'}"/>`;
-    // 중앙 구분선
-    svg+=`<line x1="${midX}" y1="${y-8}" x2="${midX}" y2="${y+4}" stroke="#fff" stroke-width="1.5"/>`;
-    // 퍼센트 표시
-    svg+=`<text x="${midX-4}" y="${y-11}" text-anchor="end" font-size="9" fill="${aOn?c:'#9a9488'}" font-weight="800" font-family="Space Grotesk">${aPct}%</text>`;
-    svg+=`<text x="${midX+4}" y="${y-11}" text-anchor="start" font-size="9" fill="${!aOn?c:'#9a9488'}" font-weight="800" font-family="Space Grotesk">${bPct}%</text>`;
+    svg+=`<text x="4" y="${y+2}" font-size="16" font-weight="900" fill="${aOn?c:'#c0baa8'}" font-family="Space Grotesk">${a}</text>`;
+    svg+=`<text x="4" y="${y+13}" font-size="8" fill="${aOn?c:'#b0a898'}" font-family="Noto Sans KR">${aKr}</text>`;
+    svg+=`<text x="${size-4}" y="${y+2}" text-anchor="end" font-size="16" font-weight="900" fill="${!aOn?c:'#c0baa8'}" font-family="Space Grotesk">${b}</text>`;
+    svg+=`<text x="${size-4}" y="${y+13}" text-anchor="end" font-size="8" fill="${!aOn?c:'#b0a898'}" font-family="Noto Sans KR">${bKr}</text>`;
+    const bx=28,bw=size-56,midX=bx+bw/2;
+    // ① 빈 게이지 트랙 (항상 풀 폭으로 보임)
+    svg+=`<rect x="${bx}" y="${y-barH/2}" width="${bw}" height="${barH}" rx="${barH/2}" fill="#e6e2d8"/>`;
+    // ② 중앙 기준 채움: 우세한 쪽 색으로 (한쪽만)
+    const dom=aPct>=bPct?'a':'b';
+    const domPct=Math.max(aPct,bPct);
+    const fillW=(bw/2)*(domPct-50)/50; // 50%=중앙, 100%=끝
+    if(dom==='a'){
+      svg+=`<rect x="${(midX-fillW).toFixed(1)}" y="${y-barH/2}" width="${fillW.toFixed(1)}" height="${barH}" rx="${barH/2}" fill="${c}"/>`;
+    }else{
+      svg+=`<rect x="${midX}" y="${y-barH/2}" width="${fillW.toFixed(1)}" height="${barH}" rx="${barH/2}" fill="${c}"/>`;
+    }
+    // ③ 중앙 기준선
+    svg+=`<line x1="${midX}" y1="${y-barH/2-2}" x2="${midX}" y2="${y+barH/2+2}" stroke="#b0a898" stroke-width="1"/>`;
+    // ④ 퍼센트 (우세쪽 강조)
+    svg+=`<text x="${bx}" y="${y-9}" font-size="9" fill="${aPct>=bPct?c:'#9a9488'}" font-weight="${aPct>=bPct?'800':'500'}" font-family="Space Grotesk">${aPct}%</text>`;
+    svg+=`<text x="${bx+bw}" y="${y-9}" text-anchor="end" font-size="9" fill="${bPct>aPct?c:'#9a9488'}" font-weight="${bPct>aPct?'800':'500'}" font-family="Space Grotesk">${bPct}%</text>`;
   });
   svg+='</svg>';
   let legend='<div class="viz-legend"><span><i style="background:#d44060"></i>E/I</span><span><i style="background:#d4a82a"></i>S/N</span><span><i style="background:#18a088"></i>T/F</span><span><i style="background:#6050c0"></i>J/P</span></div>';
