@@ -60,6 +60,9 @@ function astroChartSVG(h, size=VIZ_SIZE){
   const ascDeg=h.Ascendant.ChartPosition.Ecliptic.DecimalDegrees;
   const toAngle=(eclDeg)=>Math.PI-((eclDeg-ascDeg)*Math.PI/180); // ASC=좌측, 반시계
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  // 외곽 원형 테두리 (원형감 강조)
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZod}" fill="none" stroke="#c0baa8" stroke-width="1.2"/>`;
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="none" stroke="#d4cfc4" stroke-width="0.8"/>`;
   // 조디악 링
   signs.forEach((s,i)=>{
     const d1=i*30,d2=(i+1)*30;
@@ -87,17 +90,18 @@ function astroChartSVG(h, size=VIZ_SIZE){
   const mcA=toAngle(mcDeg);
   svg+=`<line x1="${cx}" y1="${cy}" x2="${(cx+rZod*Math.cos(mcA)).toFixed(1)}" y2="${(cy-rZod*Math.sin(mcA)).toFixed(1)}" stroke="#5040a0" stroke-width="1.2" stroke-dasharray="3,2"/>`;
   svg+=`<text x="${(cx+(rZod-14)*Math.cos(mcA)).toFixed(1)}" y="${(cy-(rZod-14)*Math.sin(mcA)).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#5040a0" font-family="Space Grotesk">MC</text>`;
-  // 애스펙트 선 (행성 간 연결)
+  // 애스펙트 선 (행성 간 연결) — 원형감 유지 위해 최소화
   if(h.Aspects&&h.Aspects.all){
-    const ASPECT_C={conjunction:'#999',opposition:'#c83030',trine:'#2e8b40',square:'#d06020',sextile:'#3060a0'};
+    const ASPECT_C={conjunction:'#bbb',opposition:'#c83030',trine:'#2e8b40',square:'#d06020',sextile:'#3060a0'};
     const arP=rHouseIn-3;
     const pdeg=(k)=>h.CelestialBodies[k]?h.CelestialBodies[k].ChartPosition.Ecliptic.DecimalDegrees:null;
-    h.Aspects.all.slice(0,28).forEach(asp=>{
+    // 주요 애스펙트(대립·삼각·사각)만, 합·육각 제외해 깔끔하게
+    h.Aspects.all.filter(a=>['opposition','trine','square'].includes(a.aspectKey)).slice(0,14).forEach(asp=>{
       const d1=pdeg(asp.point1Key),d2=pdeg(asp.point2Key);
       if(d1==null||d2==null)return;
       const a1=toAngle(d1),a2=toAngle(d2);
       const c=ASPECT_C[asp.aspectKey]||'#ccc';
-      svg+=`<line x1="${(cx+arP*Math.cos(a1)).toFixed(1)}" y1="${(cy-arP*Math.sin(a1)).toFixed(1)}" x2="${(cx+arP*Math.cos(a2)).toFixed(1)}" y2="${(cy-arP*Math.sin(a2)).toFixed(1)}" stroke="${c}" stroke-width="0.7" opacity="0.45"/>`;
+      svg+=`<line x1="${(cx+arP*Math.cos(a1)).toFixed(1)}" y1="${(cy-arP*Math.sin(a1)).toFixed(1)}" x2="${(cx+arP*Math.cos(a2)).toFixed(1)}" y2="${(cy-arP*Math.sin(a2)).toFixed(1)}" stroke="${c}" stroke-width="0.6" opacity="0.3"/>`;
     });
   }
   // ☉ ☽ 마커
@@ -177,41 +181,55 @@ function enneaStarSVG(main, w1, w2, size=VIZ_SIZE){
   return svg+legend;
 }
 
-// ═══ ④ MBTI: 4축 + 양쪽 게이지 동시 표시 ═══
-function mbtiBigSVG(axes, selected, size=VIZ_SIZE){
+// ═══ ④ MBTI: 4축(둥근 박스 안) + A/T형 게이지(박스 밖) ═══
+function mbtiBigSVG(axes, selected, at, size=VIZ_SIZE){
   const pairs=[['E','I','외향','내향'],['S','N','감각','직관'],['T','F','사고','감정'],['J','P','판단','인식']];
   const PC={E:'#d44060',S:'#d4a82a',T:'#18a088',J:'#6050c0'};
-  const rowH=46,topPad=12;
   const barH=8;
+  // 박스 영역: 위 4축, 아래 A/T 분리
+  const boxX=2,boxW=size-4,boxY=4,boxH=152;       // 4축 박스
+  const rowH=(boxH-16)/4, topPad=boxY+8;
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  // ── 둥근 사각형 박스 (옅은 선) ──
+  svg+=`<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="12" fill="#fbfaf7" stroke="#d4cfc4" stroke-width="1"/>`;
   pairs.forEach(([a,b,aKr,bKr],i)=>{
-    const y=topPad+i*rowH+18;
-    const aOn=selected.includes(a);
-    const bOn=!aOn;
-    const c=PC[a];
+    const y=topPad+i*rowH+rowH/2;
+    const aOn=selected.includes(a),bOn=!aOn,c=PC[a];
     const aPct=axes[a],bPct=axes[b];
-    // 영문 라벨 + 한글 서브
-    svg+=`<text x="4" y="${y+2}" font-size="16" font-weight="900" fill="${aOn?c:'#b0a898'}" font-family="Space Grotesk">${a}</text>`;
-    svg+=`<text x="4" y="${y+13}" font-size="8" fill="${aOn?c:'#b0a898'}" font-family="Noto Sans KR">${aKr}</text>`;
-    svg+=`<text x="${size-4}" y="${y+2}" text-anchor="end" font-size="16" font-weight="900" fill="${bOn?c:'#b0a898'}" font-family="Space Grotesk">${b}</text>`;
-    svg+=`<text x="${size-4}" y="${y+13}" text-anchor="end" font-size="8" fill="${bOn?c:'#b0a898'}" font-family="Noto Sans KR">${bKr}</text>`;
-    const bx=28,bw=size-56,half=bw/2,midX=bx+half;
-    // ① 빈 트랙: 짙은 회색 (항상 풀 폭)
+    svg+=`<text x="${boxX+8}" y="${y+1}" font-size="15" font-weight="900" fill="${aOn?c:'#b0a898'}" font-family="Space Grotesk">${a}</text>`;
+    svg+=`<text x="${boxX+8}" y="${y+11}" font-size="7" fill="${aOn?c:'#b0a898'}" font-family="Noto Sans KR">${aKr}</text>`;
+    svg+=`<text x="${boxX+boxW-8}" y="${y+1}" text-anchor="end" font-size="15" font-weight="900" fill="${bOn?c:'#b0a898'}" font-family="Space Grotesk">${b}</text>`;
+    svg+=`<text x="${boxX+boxW-8}" y="${y+11}" text-anchor="end" font-size="7" fill="${bOn?c:'#b0a898'}" font-family="Noto Sans KR">${bKr}</text>`;
+    const bx=boxX+30,bw=boxW-60,half=bw/2,midX=bx+half;
     svg+=`<rect x="${bx}" y="${y-barH/2}" width="${bw}" height="${barH}" rx="${barH/2}" fill="#c8c2b4"/>`;
-    // ② A쪽 게이지 (중앙→왼쪽), 길이 = aPct%
     const aW=half*aPct/100;
     svg+=`<rect x="${(midX-aW).toFixed(1)}" y="${y-barH/2}" width="${aW.toFixed(1)}" height="${barH}" rx="${barH/2}" fill="${c}" opacity="${aOn?'1':'0.45'}"/>`;
-    // ③ B쪽 게이지 (중앙→오른쪽), 길이 = bPct%
     const bW=half*bPct/100;
     svg+=`<rect x="${midX}" y="${y-barH/2}" width="${bW.toFixed(1)}" height="${barH}" rx="${barH/2}" fill="${c}" opacity="${bOn?'1':'0.45'}"/>`;
-    // ④ 중앙 기준선
     svg+=`<line x1="${midX}" y1="${y-barH/2-2}" x2="${midX}" y2="${y+barH/2+2}" stroke="#6a6358" stroke-width="1.5"/>`;
-    // ⑤ 퍼센트 (양쪽, 우세쪽 강조)
-    svg+=`<text x="${midX-4}" y="${y-9}" text-anchor="end" font-size="9" fill="${aOn?c:'#9a9488'}" font-weight="${aOn?'800':'600'}" font-family="Space Grotesk">${aPct}%</text>`;
-    svg+=`<text x="${midX+4}" y="${y-9}" text-anchor="start" font-size="9" fill="${bOn?c:'#9a9488'}" font-weight="${bOn?'800':'600'}" font-family="Space Grotesk">${bPct}%</text>`;
+    svg+=`<text x="${midX-3}" y="${y-7}" text-anchor="end" font-size="8" fill="${aOn?c:'#9a9488'}" font-weight="${aOn?'800':'600'}" font-family="Space Grotesk">${aPct}</text>`;
+    svg+=`<text x="${midX+3}" y="${y-7}" text-anchor="start" font-size="8" fill="${bOn?c:'#9a9488'}" font-weight="${bOn?'800':'600'}" font-family="Space Grotesk">${bPct}</text>`;
   });
+  // ── A/T 게이지 (박스 밖, 아래) ──
+  if(at){
+    const aClr='#2a8a5a',tClr='#d4762a'; // A=확신(초록), T=격동(주황)
+    const aOn=at.variant==='A';
+    const gy=boxY+boxH+20;
+    const gx=boxX+34,gw=boxW-68,half=gw/2,midX=gx+half;
+    svg+=`<text x="${boxX+6}" y="${gy+2}" font-size="14" font-weight="900" fill="${aOn?aClr:'#b0a898'}" font-family="Space Grotesk">A</text>`;
+    svg+=`<text x="${boxX+6}" y="${gy+11}" font-size="7" fill="${aOn?aClr:'#b0a898'}" font-family="Noto Sans KR">확신</text>`;
+    svg+=`<text x="${boxX+boxW-6}" y="${gy+2}" text-anchor="end" font-size="14" font-weight="900" fill="${!aOn?tClr:'#b0a898'}" font-family="Space Grotesk">T</text>`;
+    svg+=`<text x="${boxX+boxW-6}" y="${gy+11}" text-anchor="end" font-size="7" fill="${!aOn?tClr:'#b0a898'}" font-family="Noto Sans KR">격동</text>`;
+    svg+=`<rect x="${gx}" y="${gy-5}" width="${gw}" height="9" rx="4.5" fill="#c8c2b4"/>`;
+    const aW=half*at.a/100,tW=half*at.t/100;
+    svg+=`<rect x="${(midX-aW).toFixed(1)}" y="${gy-5}" width="${aW.toFixed(1)}" height="9" rx="4.5" fill="${aClr}" opacity="${aOn?'1':'0.45'}"/>`;
+    svg+=`<rect x="${midX}" y="${gy-5}" width="${tW.toFixed(1)}" height="9" rx="4.5" fill="${tClr}" opacity="${!aOn?'1':'0.45'}"/>`;
+    svg+=`<line x1="${midX}" y1="${gy-8}" x2="${midX}" y2="${gy+5}" stroke="#6a6358" stroke-width="1.5"/>`;
+    svg+=`<text x="${midX-3}" y="${gy-8}" text-anchor="end" font-size="8" fill="${aOn?aClr:'#9a9488'}" font-weight="800" font-family="Space Grotesk">${at.a}</text>`;
+    svg+=`<text x="${midX+3}" y="${gy-8}" text-anchor="start" font-size="8" fill="${!aOn?tClr:'#9a9488'}" font-weight="800" font-family="Space Grotesk">${at.t}</text>`;
+  }
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#d44060"></i>E/I</span><span><i style="background:#d4a82a"></i>S/N</span><span><i style="background:#18a088"></i>T/F</span><span><i style="background:#6050c0"></i>J/P</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#d44060"></i>E/I</span><span><i style="background:#d4a82a"></i>S/N</span><span><i style="background:#18a088"></i>T/F</span><span><i style="background:#6050c0"></i>J/P</span><span><i style="background:#2a8a5a"></i>A/T</span></div>';
   return svg+legend;
 }
 
@@ -310,6 +328,6 @@ function defaultEnneaViz(){
   return svg+legend;
 }
 function defaultMbtiViz(){
-  // 4축 50:50
-  return mbtiBigSVG({E:50,I:50,S:50,N:50,T:50,F:50,J:50,P:50},'____');
+  // 4축 50:50 + A/T 50:50
+  return mbtiBigSVG({E:50,I:50,S:50,N:50,T:50,F:50,J:50,P:50},'____',{a:50,t:50,variant:'A'});
 }

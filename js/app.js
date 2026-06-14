@@ -417,9 +417,14 @@ function renderMBTI(){
   if(!S.mbti)return;
   const m=S.mbti,sel=S.selectedMBTI,ax=m.axes;
   const dbM=getDBMbti(sel);
-  // 세부 A/T + 최고 축 포인트
-  const variant=ax.E>=50&&ax.S>=50&&ax.T>=50&&ax.J>=50?'A':'T'; // 단순: 우세 많으면 확신형
+  // A/T 판정: 4축의 우세 강도 평균 → 높을수록 A(확신형), 낮을수록 T(격동형)
   const axList=[['E',ax.E,'I',ax.I],['S',ax.S,'N',ax.N],['T',ax.T,'F',ax.F],['J',ax.J,'P',ax.P]];
+  const confidences=axList.map(([a,av,b,bv])=>Math.max(av,bv)); // 각 축 우세쪽 %
+  const avgConf=Math.round(confidences.reduce((s,v)=>s+v,0)/confidences.length); // 50~100
+  // 50~100 → A 비율 0~100%로 환산
+  const aPctAT=Math.round((avgConf-50)/50*100);
+  const tPctAT=100-aPctAT;
+  const variant=aPctAT>=50?'A':'T';
   let topAxis='',topVal=0,topLabel='';
   axList.forEach(([a,av,b,bv])=>{const on=sel.includes(a)?a:b,v=sel.includes(a)?av:bv;if(v>topVal){topVal=v;topAxis=on;topLabel=on;}});
   let h='<div class="unified-frame uf-fixed" style="border-color:var(--stat-lead)">';
@@ -427,10 +432,10 @@ function renderMBTI(){
     <div class="kw-main" style="color:var(--stat-lead)">${MBTI_KEYWORD[sel]||sel}</div>
     <div class="kw-sub">${sel}-${variant} · ${dbM?.별칭||MBTI_DESC[sel]?.split('—')[0]||''} · 추천 ${m.recommended.slice(0,4).join(', ')}</div>
     <div class="kw-points">
-      <span class="kw-point"><b>유형:</b> ${sel}</span>
-      <span class="kw-point"><b>세부:</b> ${variant==='A'?'A (확신형)':'T (격동형)'}</span>
+      <span class="kw-point"><b>유형:</b> ${sel}-${variant}</span>
+      <span class="kw-point"><b>세부:</b> ${variant==='A'?'A 확신형':'T 격동형'} (A${aPctAT}/T${tPctAT})</span>
       <span class="kw-point"><b>최고 지표:</b> ${topLabel} ${topVal}%</span>
-    </div></div><div class="uf-head-viz">${mbtiBigSVG(ax,sel)}</div></div>`;
+    </div></div><div class="uf-head-viz">${mbtiBigSVG(ax,sel,{a:aPctAT,t:tPctAT,variant})}</div></div>`;
   h+='<div class="uf-body-scroll">';
   h+=`<div class="uf-sec"><div class="uf-body">${dbM?.성향||MBTI_DESC[sel]||''}</div></div>`;
   if(dbM?.강점)h+=`<div class="uf-sec"><div class="uf-label">💪 강점</div><div class="uf-body">${dbM.강점}</div></div>`;
