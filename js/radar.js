@@ -54,27 +54,26 @@ function sajuVizSVG(oh, centerTop, centerBot, size=VIZ_SIZE){
 // ═══ ② 점성: 사주 오행 도넛과 동일 구조의 12칸 도넛 ═══
 function astroChartSVG(h, size=VIZ_SIZE){
   const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
+  const SIGN_SHORT={aries:'양',taurus:'소',gemini:'쌍',cancer:'게',leo:'사자',virgo:'처녀',libra:'천칭',scorpio:'전갈',sagittarius:'궁수',capricorn:'염소',aquarius:'물병',pisces:'물고기'};
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
   const cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
-  // sajuVizSVG와 완전 동일한 arc 로직 — 12등분
   let ang=-Math.PI/2;
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   signs.forEach((s)=>{
-    const a2=ang+2*Math.PI/12; // 30도씩
+    const a2=ang+2*Math.PI/12;
     const x1=cx+rOut*Math.cos(ang),y1=cy+rOut*Math.sin(ang);
     const x2=cx+rOut*Math.cos(a2),y2=cy+rOut*Math.sin(a2);
     const xi2=cx+rIn*Math.cos(a2),yi2=cy+rIn*Math.sin(a2);
     const xi1=cx+rIn*Math.cos(ang),yi1=cy+rIn*Math.sin(ang);
-    const large=0; // 30도는 항상 < 180도
-    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 ${large} 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.88"/>`;
+    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 0 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.88"/>`;
     const mid=(ang+a2)/2,lr=(rOut+rIn)/2;
-    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">${SIGN_EMOJI[s]}</text>`;
+    const label=SIGN_SHORT[s];const fs=label.length>2?9:label.length>1?11:13;
+    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="${fs}" font-weight="800" font-family="Noto Sans KR">${label}</text>`;
     ang=a2;
   });
-  // 중앙: 상승궁 아이콘 + 텍스트
   const ascKey=h.Ascendant.Sign.key;
   const ascName=(typeof SIGN_KR!=='undefined'?SIGN_KR[ascKey]||'':'').replace('자리','');
-  svg+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#2a2520" font-size="16" font-weight="900" font-family="Noto Sans KR">${SIGN_EMOJI[ascKey]} ${ascName}</text>`;
+  svg+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#2a2520" font-size="16" font-weight="900" font-family="Noto Sans KR">${ascName}</text>`;
   svg+=`<text x="${cx}" y="${cy+14}" text-anchor="middle" fill="#8a6508" font-size="12" font-weight="800" font-family="Noto Sans KR">상승궁</text>`;
   svg+='</svg>';
   let legend='<div class="viz-legend"><span><i style="background:#c83030"></i>불(화)</span><span><i style="background:#d4a82a"></i>흙(지)</span><span><i style="background:#40c0a0"></i>바람(풍)</span><span><i style="background:#3060a0"></i>물(수)</span></div>';
@@ -240,6 +239,7 @@ function defaultSajuViz(){
 }
 function defaultAstroViz(){
   const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
+  const SIGN_SHORT={aries:'양',taurus:'소',gemini:'쌍',cancer:'게',leo:'사자',virgo:'처녀',libra:'천칭',scorpio:'전갈',sagittarius:'궁수',capricorn:'염소',aquarius:'물병',pisces:'물고기'};
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
   const size=VIZ_SIZE,cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
   let ang=-Math.PI/2;
@@ -252,7 +252,8 @@ function defaultAstroViz(){
     const xi1=cx+rIn*Math.cos(ang),yi1=cy+rIn*Math.sin(ang);
     svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 0 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.78"/>`;
     const mid=(ang+a2)/2,lr=(rOut+rIn)/2;
-    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">${SIGN_EMOJI[s]}</text>`;
+    const label=SIGN_SHORT[s];const fs=label.length>2?9:label.length>1?11:13;
+    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="${fs}" font-weight="800" font-family="Noto Sans KR">${label}</text>`;
     ang=a2;
   });
   svg+=`<text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#9a9488" font-size="13" font-weight="800" font-family="Noto Sans KR">점성</text>`;
