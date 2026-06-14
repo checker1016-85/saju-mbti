@@ -60,10 +60,7 @@ function astroChartSVG(h, size=VIZ_SIZE){
   const ascDeg=h.Ascendant.ChartPosition.Ecliptic.DecimalDegrees;
   const toAngle=(eclDeg)=>Math.PI-((eclDeg-ascDeg)*Math.PI/180); // ASC=좌측, 반시계
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  // 외곽 원형 테두리 (원형감 강조)
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZod}" fill="none" stroke="#c0baa8" stroke-width="1.2"/>`;
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="none" stroke="#d4cfc4" stroke-width="0.8"/>`;
-  // 조디악 링
+  // 조디악 링 — 색 채움만 (테두리 stroke 없이), 경계는 원형 circle이 담당
   signs.forEach((s,i)=>{
     const d1=i*30,d2=(i+1)*30;
     const a1=toAngle(d1),a2=toAngle(d2);
@@ -71,10 +68,15 @@ function astroChartSVG(h, size=VIZ_SIZE){
     const x2=cx+rZod*Math.cos(a2),y2=cy-rZod*Math.sin(a2);
     const xi2=cx+rZodIn*Math.cos(a2),yi2=cy-rZodIn*Math.sin(a2);
     const xi1=cx+rZodIn*Math.cos(a1),yi1=cy-rZodIn*Math.sin(a1);
-    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rZod} ${rZod} 0 0 0 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rZodIn} ${rZodIn} 0 0 1 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.3" stroke="#d4cfc4" stroke-width=".5"/>`;
+    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rZod} ${rZod} 0 0 0 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rZodIn} ${rZodIn} 0 0 1 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.28" stroke="none"/>`;
+    // 별자리 경계 방사선 (얇게)
+    svg+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${xi1.toFixed(1)}" y2="${yi1.toFixed(1)}" stroke="#fff" stroke-width="0.8"/>`;
     const mid=toAngle((d1+d2)/2),lr=(rZod+rZodIn)/2;
     svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy-lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" font-size="11">${SIGN_EMOJI[s]}</text>`;
   });
+  // 매끈한 원형 경계 (조디악 링 위에 덮어 깔끔하게)
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZod}" fill="none" stroke="#c0baa8" stroke-width="1.2"/>`;
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="none" stroke="#c0baa8" stroke-width="1"/>`;
   // 하우스 칸 (whole-sign: 30도씩)
   for(let i=0;i<12;i++){
     const a=toAngle(ascDeg- (ascDeg%30) + i*30 - ascDeg + ascDeg); // 단순 30도 분할
@@ -288,11 +290,14 @@ function defaultAstroViz(){
     const x2=cx+rZod*Math.cos(a2),y2=cy-rZod*Math.sin(a2);
     const xi2=cx+rZodIn*Math.cos(a2),yi2=cy-rZodIn*Math.sin(a2);
     const xi1=cx+rZodIn*Math.cos(a1),yi1=cy-rZodIn*Math.sin(a1);
-    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rZod} ${rZod} 0 0 0 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rZodIn} ${rZodIn} 0 0 1 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.25" stroke="#d4cfc4" stroke-width=".5"/>`;
+    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rZod} ${rZod} 0 0 0 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rZodIn} ${rZodIn} 0 0 1 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.22" stroke="none"/>`;
+    svg+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${xi1.toFixed(1)}" y2="${yi1.toFixed(1)}" stroke="#fff" stroke-width="0.8"/>`;
     const mid=Math.PI-((i+0.5)*30*Math.PI/180),lr=(rZod+rZodIn)/2;
     svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy-lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" font-size="11" opacity="0.6">${SIGN_EMOJI[s]}</text>`;
   });
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="#fff" stroke="#d4cfc4" stroke-width=".6"/>`;
+  // 매끈한 원형 경계
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZod}" fill="none" stroke="#c0baa8" stroke-width="1.2"/>`;
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="#fff" stroke="#c0baa8" stroke-width="1"/>`;
   svg+=`<line x1="${cx-rZod}" y1="${cy}" x2="${cx+rZod}" y2="${cy}" stroke="#d4cfc4" stroke-width="1"/>`;
   svg+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#9a9488" font-family="Noto Sans KR">조회 대기</text>`;
   svg+='</svg>';
