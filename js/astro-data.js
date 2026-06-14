@@ -11,6 +11,13 @@ const SIGN_EMOJI = {
   aries:'♈', taurus:'♉', gemini:'♊', cancer:'♋', leo:'♌', virgo:'♍',
   libra:'♎', scorpio:'♏', sagittarius:'♐', capricorn:'♑', aquarius:'♒', pisces:'♓'
 };
+// 상승궁 키워드 타이틀 (사주 '묵직한 고독연구형'처럼)
+const SIGN_KEYWORD = {
+  aries:'돌진하는 선봉장형', taurus:'우직한 안정추구형', gemini:'재기발랄 만능소통형',
+  cancer:'섬세한 보호본능형', leo:'당당한 무대주인공형', virgo:'완벽주의 분석가형',
+  libra:'우아한 균형조율형', scorpio:'깊고 강렬한 통찰형', sagittarius:'자유로운 탐험가형',
+  capricorn:'묵묵한 성취관리형', aquarius:'독창적 혁신가형', pisces:'몽환적 공감예술형'
+};
 const BODY_KR = {
   sun:'태양 ☉', moon:'달 ☽', mercury:'수성 ☿', venus:'금성 ♀', mars:'화성 ♂',
   jupiter:'목성 ♃', saturn:'토성 ♄', uranus:'천왕성 ♅', neptune:'해왕성 ♆',

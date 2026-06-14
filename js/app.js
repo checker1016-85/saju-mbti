@@ -1,5 +1,5 @@
 // ═══ STATE ═══
-const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null,mbti:null,ennea:null,selectedMBTI:null,selectedEnnea:null,astroAscSign:''};
+const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null,mbti:null,ennea:null,selectedMBTI:null,selectedEnnea:null,astroAscSign:'',astroAscKey:''};
 let tempJob=null,tempJobCat=null,tempMBTI=null,tempEnnea=null,timeMode='ganji';
 
 // ═══ INIT ═══
@@ -113,7 +113,7 @@ window.doCalc=function(){
     const ah=calcAstro(+document.getElementById('inYear').value,+document.getElementById('inMonth').value,+document.getElementById('inDay').value,aHour,aMin,geo.lat,geo.lng);
     renderAstro(ah);
     // 상승궁 저장 (종합 프로필용)
-    if(ah&&ah.Ascendant)S.astroAscSign=(typeof SIGN_KR!=='undefined'?SIGN_KR[ah.Ascendant.Sign.key]||'':'').replace('자리','');
+    if(ah&&ah.Ascendant){S.astroAscKey=ah.Ascendant.Sign.key;S.astroAscSign=(typeof SIGN_KR!=='undefined'?SIGN_KR[ah.Ascendant.Sign.key]||'':'').replace('자리','');}
   }
   toast('✅ 분석 완료');
 };
@@ -310,16 +310,34 @@ function renderMyungri(){
   });
   cardH+='</div></div>';
 
+  // 대운/공망/신살 요약 (헤드 우측용)
+  const kl={hour:'시',day:'일',month:'월',year:'년'};
+  let metaRight='';
+  if(r.daeun?.list?.length){const age=r.currentAge||0;const cur=r.daeun.list.find(d=>age>=d.startAge&&age<=d.endAge)||r.daeun.list[0];metaRight+=`<div class="wm-row"><span class="wm-k">🔮 대운</span><span class="wm-v">${cur.ganzhi}(${cur.stemTenGod||''}) ${cur.startAge}~${cur.endAge}세</span></div>`;}
+  if(r.gongmang){const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):'';if(g)metaRight+=`<div class="wm-row"><span class="wm-k">⭕ 공망</span><span class="wm-v">${g}</span></div>`;}
+  if(r.sals){const all=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;if(s.twelveSal)all.push(s.twelveSal);if(s.specialSals?.length)all.push(...s.specialSals);});const u=[...new Set(all)];if(u.length)metaRight+=`<div class="wm-row"><span class="wm-k">⚡ 신살</span><span class="wm-v">${u.join(' · ')}</span></div>`;}
+  if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${kl[k]}${r.stages12.bong[k]}`:'').filter(Boolean).join(' ');if(s)metaRight+=`<div class="wm-row"><span class="wm-k">🔄 운성</span><span class="wm-v">${s}</span></div>`;}
+  metaRight+=`<div class="wm-row"><span class="wm-k">⚖️ 격국</span><span class="wm-v">${geukguk||'—'} · ${strength}(${score})</span></div>`;
+  metaRight+=`<div class="wm-row"><span class="wm-k">💧 용신</span><span class="wm-v">${ys||'—'}</span></div>`;
+
   let h='<div class="unified-frame uf-fixed">';
-  h+=`<div class="uf-head-split"><div class="uf-head-left">
+  // ── 상단: 원국 카드(좌) + 대운·공망·신살(우) ──
+  h+=`<div class="wongu-split">
+    <div class="wongu-left">${cardH}</div>
+    <div class="wongu-right">${metaRight}</div>
+  </div>`;
+  // ── 키워드 타이틀 ──
+  h+=`<div class="uf-kw-band">
     <div class="kw-main">${STEM_ADJ[ds]||''} ${typeName}</div>
     <div class="kw-sub">${ilju}일주 · ${geukguk||'—'} · ${strength}(${score}) · ${topGroup?topGroup.name:''} 우세</div>
+  </div>`;
+  // ── 본문: 오행도넛(우) + 해석(스크롤) ──
+  h+=`<div class="uf-head-split"><div class="uf-head-left">
     <div class="kw-points">
       <span class="kw-point"><b>본능 일주:</b> ${ilju} (${HANJA_KR[ds]} ${HANJA_KR[db]})</span>
       <span class="kw-point"><b>사회 월주:</b> ${HANJA_KR[mb]} (${season})</span>
-      <span class="kw-point"><b>일간 오행:</b> ${dayElem} · ${geukguk}</span>
+      <span class="kw-point"><b>십성 분포:</b> ${tgGroups.map(g=>g.name+' '+g.keys.reduce((s,k)=>s+(tg[k]||0),0)).join(' · ')}</span>
     </div>
-    ${sajuMetaInline(r)}
     </div><div class="uf-head-viz">${sajuVizSVG(oh,centerTop,centerBot)}</div></div>`;
   h+='<div class="uf-body-scroll">';
   // ── 해석 (일주/월주) ──
@@ -330,16 +348,7 @@ function renderMyungri(){
   h+=`<div class="uf-sec"><div class="uf-label">🎭 사회적 월주 ${HANJA_KR[mb]} (${season})</div>
     <div class="uf-body"><b>계절적:</b> ${season} 기운을 타고나, 이 시기의 에너지가 삶의 리듬을 형성한다.</div>
     <div class="uf-body"><b>사회적 페르소나:</b> ${MONTH_TEXT[mb]||''}</div></div>`;
-  // ── 원국 데이터 칸 (구분선 후, 다른 프레임과 차별화되는 추가 정보) ──
-  h+='<div class="uf-divider"></div>';
-  h+=`<div class="uf-sec uf-wongu-sec"><div class="uf-label">🀄 사주 원국 (4주)</div>${cardH}
-    <div class="uf-body"><b>격국:</b> ${geukguk||'—'} · <b>강약:</b> ${strength}(${score}) · <b>용신:</b> ${ys||'—'}</div>
-    <div class="uf-body"><b>십성 분포:</b> ${tgGroups.map(g=>g.name+' '+g.keys.reduce((s,k)=>s+(tg[k]||0),0)).join(' · ')}</div></div>`;
-  const kl={hour:'시',day:'일',month:'월',year:'년'};
-  if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${kl[k]} ${r.stages12.bong[k]}`:'').filter(Boolean).join(' · ');if(s)h+=`<div class="uf-sec"><div class="uf-label">🔄 12운성</div><div class="uf-body">${s}</div></div>`;}
-  if(r.daeun?.list?.length){const age=r.currentAge||0;const cur=r.daeun.list.find(d=>age>=d.startAge&&age<=d.endAge)||r.daeun.list[0];h+=`<div class="uf-sec"><div class="uf-label">🔮 대운</div><div class="uf-body">${r.daeun.startAge}세 시작 · 현재 <b>${cur.ganzhi}</b>(${cur.stemTenGod||''}) ${cur.startAge}~${cur.endAge}세</div></div>`;}
-  if(r.gongmang){const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):'';if(g)h+=`<div class="uf-sec"><div class="uf-label">⭕ 공망</div><div class="uf-body">${g}</div></div>`;}
-  if(r.sals){const all=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;if(s.twelveSal)all.push(s.twelveSal);if(s.specialSals?.length)all.push(...s.specialSals);});const u=[...new Set(all)];if(u.length)h+=`<div class="uf-sec"><div class="uf-label">⚡ 신살</div><div class="uf-body">${u.join(' · ')}</div></div>`;}
+  // ── 관계 (지지/천간) ──
   if(r.branchRelations){const parts=[];['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)parts.push(`<b>${t}</b> ${d.join(', ')}`);}});if(parts.length)h+=`<div class="uf-sec"><div class="uf-label">🔗 지지 관계</div><div class="uf-body">${parts.join(' · ')}</div></div>`;}
   if(r.stemRelations?.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=`<div class="uf-sec"><div class="uf-label">🔗 천간 관계</div><div class="uf-body">${s}</div></div>`;}
   h+='</div></div>';
@@ -415,8 +424,8 @@ function renderMBTI(){
   axList.forEach(([a,av,b,bv])=>{const on=sel.includes(a)?a:b,v=sel.includes(a)?av:bv;if(v>topVal){topVal=v;topAxis=on;topLabel=on;}});
   let h='<div class="unified-frame uf-fixed" style="border-color:var(--stat-lead)">';
   h+=`<div class="uf-head-split"><div class="uf-head-left">
-    <div class="kw-main" style="color:var(--stat-lead)">${sel}-${variant}</div>
-    <div class="kw-sub">${dbM?.별칭||MBTI_DESC[sel]?.split('—')[0]||''} · 추천 ${m.recommended.slice(0,4).join(', ')}</div>
+    <div class="kw-main" style="color:var(--stat-lead)">${MBTI_KEYWORD[sel]||sel}</div>
+    <div class="kw-sub">${sel}-${variant} · ${dbM?.별칭||MBTI_DESC[sel]?.split('—')[0]||''} · 추천 ${m.recommended.slice(0,4).join(', ')}</div>
     <div class="kw-points">
       <span class="kw-point"><b>유형:</b> ${sel}</span>
       <span class="kw-point"><b>세부:</b> ${variant==='A'?'A (확신형)':'T (격동형)'}</span>
@@ -444,21 +453,23 @@ function buildSummaryHTML(){
   const enCenter=ENNEA_CENTER[main]||'';
   const enName=ENNEA_NAMES[main]||'';
   const mbtiCode=S.selectedMBTI;
-  const mbtiShort=(MBTI_DESC[mbtiCode]||'').split('—')[0].trim();
-  // 점성 상승궁 (있으면)
+  const mbtiKw=(typeof MBTI_KEYWORD!=='undefined'&&MBTI_KEYWORD[mbtiCode])||(MBTI_DESC[mbtiCode]||'').split('—')[0].trim();
+  // 점성 상승궁 키워드
   const ascSign=S.astroAscSign||'';
-  // 한 문장 요약: "묵직한 고독연구형이자, 전갈의 통찰을 지닌, 충성스러운 사고형, 현실주의 관리자"
+  const ascKey=S.astroAscKey||'';
+  const ascKw=(typeof SIGN_KEYWORD!=='undefined'&&SIGN_KEYWORD[ascKey])||'';
+  // 한 문장 요약
   let phrase=`${stemAdj} ${typeName}`;
-  if(ascSign)phrase+=`, ${ascSign}의 기운을 품은`;
+  if(ascKw)phrase+=`, ${ascKw.replace(/형$/,'')}`;
   phrase+=`, ${enName}의 ${enCenter}형`;
-  phrase+=`, ${mbtiShort}`;
+  phrase+=`, ${mbtiKw}`;
   let h=`<div class="summary-card">
     <div class="summary-phrase">${phrase}</div>
     <div class="summary-keywords">
       <span class="sk-tag sk-saju">☯️ '${ilju}일주' ${stemAdj} ${typeName}</span>
-      ${ascSign?`<span class="sk-tag sk-astro">🌌 '${ascSign}상승'</span>`:''}
+      ${ascKw?`<span class="sk-tag sk-astro">🌌 '${ascSign}상승' ${ascKw}</span>`:''}
       <span class="sk-tag sk-ennea">🔷 '${main}번' ${enCenter}: ${enName}형</span>
-      <span class="sk-tag sk-mbti">🧠 '${mbtiCode}' ${mbtiShort}</span>
+      <span class="sk-tag sk-mbti">🧠 '${mbtiCode}' ${mbtiKw}</span>
     </div>
   </div>`;
   return h;
