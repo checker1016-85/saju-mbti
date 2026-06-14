@@ -51,74 +51,33 @@ function sajuVizSVG(oh, centerTop, centerBot, size=VIZ_SIZE){
   return svg+legend;
 }
 
-// ═══ ② 점성: 차트형 휠 (12하우스 + ASC/MC 축 + ☉☽ 마커) + 중앙 상승궁 ═══
+// ═══ ② 점성: 사주 오행 도넛과 동일 구조의 12칸 도넛 ═══
 function astroChartSVG(h, size=VIZ_SIZE){
-  const cx=size/2,cy=size/2,rZod=size/2-6,rZodIn=size/2-26,rHouse=size/2-26,rHouseIn=size/2-58;
   const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
-  // ASC 도수 기준 회전: ASC가 9시 방향(왼쪽)에 오도록
-  const ascDeg=h.Ascendant.ChartPosition.Ecliptic.DecimalDegrees;
-  const toAngle=(eclDeg)=>Math.PI-((eclDeg-ascDeg)*Math.PI/180); // ASC=좌측, 반시계
+  const cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
+  // sajuVizSVG와 완전 동일한 arc 로직 — 12등분
+  let ang=-Math.PI/2;
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  // 조디악 링 — 사주 오행 도넛과 동일 스타일 (진한 색 채움 + 흰 아이콘)
-  signs.forEach((s,i)=>{
-    const d1=i*30,d2=(i+1)*30;
-    const a1=toAngle(d1),a2=toAngle(d2);
-    const X=(r,a)=>cx+r*Math.cos(a), Y=(r,a)=>cy-r*Math.sin(a);
-    const p1=[X(rZod,a1),Y(rZod,a1)],p2=[X(rZod,a2),Y(rZod,a2)];
-    const p3=[X(rZodIn,a2),Y(rZodIn,a2)],p4=[X(rZodIn,a1),Y(rZodIn,a1)];
-    svg+=`<path d="M${p1[0].toFixed(2)} ${p1[1].toFixed(2)} `
-       +`A${rZod} ${rZod} 0 0 0 ${p2[0].toFixed(2)} ${p2[1].toFixed(2)} `
-       +`L${p3[0].toFixed(2)} ${p3[1].toFixed(2)} `
-       +`A${rZodIn} ${rZodIn} 0 0 1 ${p4[0].toFixed(2)} ${p4[1].toFixed(2)} Z" `
-       +`fill="${ELEM_SC[s]}" opacity="0.85" stroke="#fff" stroke-width="1"/>`;
-    const mid=toAngle((d1+d2)/2),rMid=(rZod+rZodIn)/2;
-    svg+=`<text x="${X(rMid,mid).toFixed(1)}" y="${(Y(rMid,mid)+4).toFixed(1)}" text-anchor="middle" font-size="12" fill="#fff">${SIGN_EMOJI[s]}</text>`;
+  signs.forEach((s)=>{
+    const a2=ang+2*Math.PI/12; // 30도씩
+    const x1=cx+rOut*Math.cos(ang),y1=cy+rOut*Math.sin(ang);
+    const x2=cx+rOut*Math.cos(a2),y2=cy+rOut*Math.sin(a2);
+    const xi2=cx+rIn*Math.cos(a2),yi2=cy+rIn*Math.sin(a2);
+    const xi1=cx+rIn*Math.cos(ang),yi1=cy+rIn*Math.sin(ang);
+    const large=0; // 30도는 항상 < 180도
+    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 ${large} 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.88"/>`;
+    const mid=(ang+a2)/2,lr=(rOut+rIn)/2;
+    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">${SIGN_EMOJI[s]}</text>`;
+    ang=a2;
   });
-  // 매끈한 원형 경계
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZod}" fill="none" stroke="#b8b09c" stroke-width="1.2"/>`;
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="none" stroke="#b8b09c" stroke-width="1"/>`;
-  // 하우스 칸 (whole-sign: 30도씩)
-  for(let i=0;i<12;i++){
-    const a=toAngle(ascDeg- (ascDeg%30) + i*30 - ascDeg + ascDeg); // 단순 30도 분할
-    const aa=toAngle(i*30+(ascDeg-(ascDeg%30)));
-    svg+=`<line x1="${(cx+rHouseIn*Math.cos(aa)).toFixed(1)}" y1="${(cy-rHouseIn*Math.sin(aa)).toFixed(1)}" x2="${(cx+rHouse*Math.cos(aa)).toFixed(1)}" y2="${(cy-rHouse*Math.sin(aa)).toFixed(1)}" stroke="#d4cfc4" stroke-width=".6"/>`;
-  }
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rHouseIn}" fill="#fff" stroke="#d4cfc4" stroke-width=".6"/>`;
-  // ASC-DC 축 (수평)
-  svg+=`<line x1="${cx-rZod}" y1="${cy}" x2="${cx+rZod}" y2="${cy}" stroke="#8a6508" stroke-width="1.4"/>`;
-  svg+=`<text x="6" y="${cy-4}" font-size="10" font-weight="800" fill="#8a6508" font-family="Space Grotesk">ASC</text>`;
-  // MC 축
-  const mcDeg=h.Midheaven.ChartPosition.Ecliptic.DecimalDegrees;
-  const mcA=toAngle(mcDeg);
-  svg+=`<line x1="${cx}" y1="${cy}" x2="${(cx+rZod*Math.cos(mcA)).toFixed(1)}" y2="${(cy-rZod*Math.sin(mcA)).toFixed(1)}" stroke="#5040a0" stroke-width="1.2" stroke-dasharray="3,2"/>`;
-  svg+=`<text x="${(cx+(rZod-14)*Math.cos(mcA)).toFixed(1)}" y="${(cy-(rZod-14)*Math.sin(mcA)).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#5040a0" font-family="Space Grotesk">MC</text>`;
-  // 애스펙트 선 (행성 간 연결) — 원형감 유지 위해 최소화
-  if(h.Aspects&&h.Aspects.all){
-    const ASPECT_C={conjunction:'#bbb',opposition:'#c83030',trine:'#2e8b40',square:'#d06020',sextile:'#3060a0'};
-    const arP=rHouseIn-3;
-    const pdeg=(k)=>h.CelestialBodies[k]?h.CelestialBodies[k].ChartPosition.Ecliptic.DecimalDegrees:null;
-    // 주요 애스펙트(대립·삼각·사각)만, 합·육각 제외해 깔끔하게
-    h.Aspects.all.filter(a=>['opposition','trine','square'].includes(a.aspectKey)).slice(0,14).forEach(asp=>{
-      const d1=pdeg(asp.point1Key),d2=pdeg(asp.point2Key);
-      if(d1==null||d2==null)return;
-      const a1=toAngle(d1),a2=toAngle(d2);
-      const c=ASPECT_C[asp.aspectKey]||'#ccc';
-      svg+=`<line x1="${(cx+arP*Math.cos(a1)).toFixed(1)}" y1="${(cy-arP*Math.sin(a1)).toFixed(1)}" x2="${(cx+arP*Math.cos(a2)).toFixed(1)}" y2="${(cy-arP*Math.sin(a2)).toFixed(1)}" stroke="${c}" stroke-width="0.6" opacity="0.3"/>`;
-    });
-  }
-  // ☉ ☽ 마커
-  [['sun','☉','#d4a017'],['moon','☽','#3050a0']].forEach(([b,sym,col])=>{
-    const deg=h.CelestialBodies[b].ChartPosition.Ecliptic.DecimalDegrees;
-    const a=toAngle(deg),mr=(rHouse+rHouseIn)/2;
-    svg+=`<circle cx="${(cx+mr*Math.cos(a)).toFixed(1)}" cy="${(cy-mr*Math.sin(a)).toFixed(1)}" r="9" fill="${col}"/>`;
-    svg+=`<text x="${(cx+mr*Math.cos(a)).toFixed(1)}" y="${(cy-mr*Math.sin(a)+4).toFixed(1)}" text-anchor="middle" font-size="11" fill="#fff" font-weight="800">${sym}</text>`;
-  });
-  // 중앙 상승궁 아이콘만
+  // 중앙: 상승궁 아이콘 + 텍스트
   const ascKey=h.Ascendant.Sign.key;
-  svg+=`<text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="22">${SIGN_EMOJI[ascKey]}</text>`;
+  const ascName=(typeof SIGN_KR!=='undefined'?SIGN_KR[ascKey]||'':'').replace('자리','');
+  svg+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#2a2520" font-size="16" font-weight="900" font-family="Noto Sans KR">${SIGN_EMOJI[ascKey]} ${ascName}</text>`;
+  svg+=`<text x="${cx}" y="${cy+14}" text-anchor="middle" fill="#8a6508" font-size="12" font-weight="800" font-family="Noto Sans KR">상승궁</text>`;
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#5040a0"></i>MC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#3050a0"></i>☽</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#c83030"></i>불(화)</span><span><i style="background:#d4a82a"></i>흙(지)</span><span><i style="background:#40c0a0"></i>바람(풍)</span><span><i style="background:#3060a0"></i>물(수)</span></div>';
   return svg+legend;
 }
 
@@ -280,31 +239,26 @@ function defaultSajuViz(){
   return sajuVizSVG({목:2,화:2,토:2,금:2,수:2},'오행','균형');
 }
 function defaultAstroViz(){
-  // 12별자리 휠 골격만 (마커 없이) — 간이 차트
-  const size=VIZ_SIZE,cx=size/2,cy=size/2,rZod=size/2-6,rZodIn=size/2-26;
   const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
+  const size=VIZ_SIZE,cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
+  let ang=-Math.PI/2;
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  signs.forEach((s,i)=>{
-    const a1=Math.PI-(i*30*Math.PI/180),a2=Math.PI-((i+1)*30*Math.PI/180);
-    const X=(r,a)=>cx+r*Math.cos(a), Y=(r,a)=>cy-r*Math.sin(a);
-    const p1=[X(rZod,a1),Y(rZod,a1)],p2=[X(rZod,a2),Y(rZod,a2)];
-    const p3=[X(rZodIn,a2),Y(rZodIn,a2)],p4=[X(rZodIn,a1),Y(rZodIn,a1)];
-    svg+=`<path d="M${p1[0].toFixed(2)} ${p1[1].toFixed(2)} `
-       +`A${rZod} ${rZod} 0 0 0 ${p2[0].toFixed(2)} ${p2[1].toFixed(2)} `
-       +`L${p3[0].toFixed(2)} ${p3[1].toFixed(2)} `
-       +`A${rZodIn} ${rZodIn} 0 0 1 ${p4[0].toFixed(2)} ${p4[1].toFixed(2)} Z" `
-       +`fill="${ELEM_SC[s]}" opacity="0.8" stroke="#fff" stroke-width="1"/>`;
-    const mid=Math.PI-((i+0.5)*30*Math.PI/180),rMid=(rZod+rZodIn)/2;
-    svg+=`<text x="${X(rMid,mid).toFixed(1)}" y="${(Y(rMid,mid)+4).toFixed(1)}" text-anchor="middle" font-size="12" fill="#fff">${SIGN_EMOJI[s]}</text>`;
+  signs.forEach((s)=>{
+    const a2=ang+2*Math.PI/12;
+    const x1=cx+rOut*Math.cos(ang),y1=cy+rOut*Math.sin(ang);
+    const x2=cx+rOut*Math.cos(a2),y2=cy+rOut*Math.sin(a2);
+    const xi2=cx+rIn*Math.cos(a2),yi2=cy+rIn*Math.sin(a2);
+    const xi1=cx+rIn*Math.cos(ang),yi1=cy+rIn*Math.sin(ang);
+    svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 0 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.78"/>`;
+    const mid=(ang+a2)/2,lr=(rOut+rIn)/2;
+    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">${SIGN_EMOJI[s]}</text>`;
+    ang=a2;
   });
-  // 매끈한 원형 경계
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZod}" fill="none" stroke="#b8b09c" stroke-width="1.2"/>`;
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${rZodIn}" fill="#fff" stroke="#b8b09c" stroke-width="1"/>`;
-  svg+=`<line x1="${cx-rZod}" y1="${cy}" x2="${cx+rZod}" y2="${cy}" stroke="#d4cfc4" stroke-width="1"/>`;
-  svg+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#9a9488" font-family="Noto Sans KR">조회 대기</text>`;
+  svg+=`<text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#9a9488" font-size="13" font-weight="800" font-family="Noto Sans KR">점성</text>`;
+  svg+=`<text x="${cx}" y="${cy+14}" text-anchor="middle" fill="#9a9488" font-size="11" font-family="Noto Sans KR">조회 대기</text>`;
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#5040a0"></i>MC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#3050a0"></i>☽</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#c83030"></i>불(화)</span><span><i style="background:#d4a82a"></i>흙(지)</span><span><i style="background:#40c0a0"></i>바람(풍)</span><span><i style="background:#3060a0"></i>물(수)</span></div>';
   return svg+legend;
 }
 function defaultEnneaViz(){
