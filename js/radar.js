@@ -54,7 +54,6 @@ function sajuVizSVG(oh, centerTop, centerBot, size=VIZ_SIZE){
 // ═══ ② 점성: 사주 오행 도넛과 동일 구조의 12칸 도넛 ═══
 function astroChartSVG(h, size=VIZ_SIZE){
   const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
-  const SIGN_SHORT={aries:'양',taurus:'소',gemini:'쌍',cancer:'게',leo:'사자',virgo:'처녀',libra:'천칭',scorpio:'전갈',sagittarius:'궁수',capricorn:'염소',aquarius:'물병',pisces:'물고기'};
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
   const cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
   let ang=-Math.PI/2;
@@ -67,8 +66,7 @@ function astroChartSVG(h, size=VIZ_SIZE){
     const xi1=cx+rIn*Math.cos(ang),yi1=cy+rIn*Math.sin(ang);
     svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 0 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.88"/>`;
     const mid=(ang+a2)/2,lr=(rOut+rIn)/2;
-    const label=SIGN_SHORT[s];const fs=label.length>2?9:label.length>1?11:13;
-    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="${fs}" font-weight="800" font-family="Noto Sans KR">${label}</text>`;
+    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+5).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="14" font-weight="800" font-family="serif">${SIGN_EMOJI[s]}\uFE0E</text>`;
     ang=a2;
   });
   const ascKey=h.Ascendant.Sign.key;
@@ -239,7 +237,6 @@ function defaultSajuViz(){
 }
 function defaultAstroViz(){
   const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
-  const SIGN_SHORT={aries:'양',taurus:'소',gemini:'쌍',cancer:'게',leo:'사자',virgo:'처녀',libra:'천칭',scorpio:'전갈',sagittarius:'궁수',capricorn:'염소',aquarius:'물병',pisces:'물고기'};
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
   const size=VIZ_SIZE,cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
   let ang=-Math.PI/2;
@@ -252,8 +249,7 @@ function defaultAstroViz(){
     const xi1=cx+rIn*Math.cos(ang),yi1=cy+rIn*Math.sin(ang);
     svg+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 0 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${ELEM_SC[s]}" opacity="0.78"/>`;
     const mid=(ang+a2)/2,lr=(rOut+rIn)/2;
-    const label=SIGN_SHORT[s];const fs=label.length>2?9:label.length>1?11:13;
-    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="${fs}" font-weight="800" font-family="Noto Sans KR">${label}</text>`;
+    svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+5).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="14" font-weight="800" font-family="serif">${SIGN_EMOJI[s]}\uFE0E</text>`;
     ang=a2;
   });
   svg+=`<text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#9a9488" font-size="13" font-weight="800" font-family="Noto Sans KR">점성</text>`;
