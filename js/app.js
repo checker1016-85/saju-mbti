@@ -299,7 +299,7 @@ function renderMyungri(){
   const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
   const kl={hour:'시',day:'일',month:'월',year:'년'};
 
-  // ── 원국 카드 (크게, 한자 옆 한글 가로배치) ──
+  // ── 원국 카드 (한자 위, 한글 아래 세로배치) ──
   let cardH='<div class="wongu-card wongu-big"><div class="pillar-row">';
   keys.forEach((k,i)=>{
     const p=pd?.[k];const gc=p?OC[ELEM_MAP[p.stem]]||'':'',jc=p?OC[ELEM_MAP[p.branch]]||'':'';
@@ -307,8 +307,8 @@ function renderMyungri(){
     const ganTg=r.tenGods?.[k]?.stem||'';const jiTg=r.tenGods?.[k]?.branch||'';
     cardH+=`<div class="pillar"><div class="lbl">${labels[i]}</div>`
        +`<div class="tg-top">${ganTg}</div>`
-       +`<div class="hanrow"><span class="gan ${gc}">${p?.stem||'·'}</span><span class="gan-kr">${gKr}</span></div>`
-       +`<div class="hanrow"><span class="ji ${jc}">${p?.branch||'·'}</span><span class="ji-kr">${jKr}</span></div>`
+       +`<div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div>`
+       +`<div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div>`
        +`<div class="tg-bot">${jiTg}</div></div>`;
   });
   cardH+='</div></div>';
@@ -337,9 +337,14 @@ function renderMyungri(){
   let stageH='';
   if(r.stages12?.bong){keys.forEach(k=>{const v=r.stages12.bong[k];if(v)stageH+=`<span class="chip">${kl[k]} ${v}</span>`;});}
 
+  // 지지관계 / 천간관계 (chip 표시용)
+  let branchRelH='';
+  if(r.branchRelations){['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)branchRelH+=`<span class="chip"><b>${t}</b> ${d.join(', ')}</span>`;}});}
+  let stemRelH='';
+  if(r.stemRelations?.length){stemRelH=r.stemRelations.map(x=>`<span class="chip">${x.desc||x.type}</span>`).join('');}
+
   // ═══ 프레임: 점성과 동일 구조 ═══
   let h='<div class="unified-frame uf-fixed">';
-  // ── 상단: kw-main + 오행도넛 (점성과 동일) ──
   h+=`<div class="uf-head-split"><div class="uf-head-left">`;
   h+=`<div class="kw-main">${STEM_ADJ[ds]||''} ${typeName}</div>`;
   h+=`<div class="kw-sub">${ilju}일주 · ${geukguk||'—'} · ${strength}(${score}) · ${topGroup?topGroup.name:''} 우세</div>`;
@@ -352,7 +357,7 @@ function renderMyungri(){
   h+=`</div><div class="uf-head-viz">${sajuVizSVG(oh,centerTop,centerBot)}</div></div>`;
   // ── 본문 스크롤 ──
   h+='<div class="uf-body-scroll">';
-  // 원국 카드 + 대운/공망/신살/12운성
+  // 원국 카드 + 대운/공망/신살/12운성/관계 — sticky 고정 (높이 절반)
   h+=`<div class="uf-sec uf-sec-wongu"><div class="uf-label">🀄 사주 원국</div>
     <div class="wongu-full">
       <div class="wongu-full-left">${cardH}</div>
@@ -362,6 +367,8 @@ function renderMyungri(){
         <div class="wf-group"><div class="wf-title">⚡ 신살</div><div class="chip-wrap">${salH||'—'}</div></div>
         <div class="wf-group"><div class="wf-title">🔄 12운성</div><div class="chip-wrap">${stageH||'—'}</div></div>
         <div class="wf-group"><div class="wf-title">📊 십성 분포</div><div class="wf-val">${tgGroups.map(g=>g.name+' '+g.keys.reduce((s,k)=>s+(tg[k]||0),0)).join(' · ')}</div></div>
+        ${branchRelH?`<div class="wf-group"><div class="wf-title">🔗 지지 관계</div><div class="chip-wrap">${branchRelH}</div></div>`:''}
+        ${stemRelH?`<div class="wf-group"><div class="wf-title">🔗 천간 관계</div><div class="chip-wrap">${stemRelH}</div></div>`:''}
       </div>
     </div></div>`;
   // 해석 (일주/월주)
@@ -372,9 +379,6 @@ function renderMyungri(){
   h+=`<div class="uf-sec"><div class="uf-label">🎭 사회적 월주 ${HANJA_KR[mb]} (${season})</div>
     <div class="uf-body"><b>계절적:</b> ${season} 기운을 타고나, 이 시기의 에너지가 삶의 리듬을 형성한다.</div>
     <div class="uf-body"><b>사회적 페르소나:</b> ${MONTH_TEXT[mb]||''}</div></div>`;
-  // 관계
-  if(r.branchRelations){const parts=[];['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)parts.push(`<b>${t}</b> ${d.join(', ')}`);}});if(parts.length)h+=`<div class="uf-sec"><div class="uf-label">🔗 지지 관계</div><div class="uf-body">${parts.join(' · ')}</div></div>`;}
-  if(r.stemRelations?.length){const s=r.stemRelations.map(x=>x.desc||x.type).join(', ');h+=`<div class="uf-sec"><div class="uf-label">🔗 천간 관계</div><div class="uf-body">${s}</div></div>`;}
   h+='</div></div>';
   document.getElementById('myungriArea').innerHTML=h;
 }
