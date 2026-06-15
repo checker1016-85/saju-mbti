@@ -75,29 +75,3 @@ function renderAstro(h) {
   html += '</div></div>';
   if(el) el.innerHTML = html;
 }
-
-// 12별자리 휠 SVG
-function astroWheelSVG(h, size = 150) {
-  const cx = size/2, cy = size/2, rOut = size/2 - 4, rIn = size/2 - 22;
-  const signs = ['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
-  const colors = ['#e05050','#d4a82a','#40c0a0','#5080d0','#e05050','#d4a82a','#40c0a0','#5080d0','#e05050','#d4a82a','#40c0a0','#5080d0'];
-  const ascKey = h.Ascendant.Sign.key;
-  const sunKey = h.CelestialBodies.sun.Sign.key;
-  const moonKey = h.CelestialBodies.moon.Sign.key;
-  let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  signs.forEach((s, i) => {
-    const a1 = -Math.PI/2 + 2*Math.PI*i/12, a2 = -Math.PI/2 + 2*Math.PI*(i+1)/12;
-    const x1 = cx+rOut*Math.cos(a1), y1 = cy+rOut*Math.sin(a1);
-    const x2 = cx+rOut*Math.cos(a2), y2 = cy+rOut*Math.sin(a2);
-    const xi2 = cx+rIn*Math.cos(a2), yi2 = cy+rIn*Math.sin(a2);
-    const xi1 = cx+rIn*Math.cos(a1), yi1 = cy+rIn*Math.sin(a1);
-    const hl = (s===ascKey||s===sunKey||s===moonKey);
-    svg += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${rOut} ${rOut} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${xi2.toFixed(1)} ${yi2.toFixed(1)} A${rIn} ${rIn} 0 0 0 ${xi1.toFixed(1)} ${yi1.toFixed(1)} Z" fill="${colors[i]}" opacity="${hl?0.9:0.25}"/>`;
-    const mid = (a1+a2)/2, lr = (rOut+rIn)/2;
-    svg += `<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" fill="${hl?'#fff':'#9a9488'}" font-size="11">${SIGN_EMOJI[s]}</text>`;
-  });
-  svg += `<text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#6a6358" font-size="8" font-family="Noto Sans KR">상승</text>`;
-  svg += `<text x="${cx}" y="${cy+10}" text-anchor="middle" fill="#7060c0" font-size="11" font-weight="700" font-family="Noto Sans KR">${SIGN_EMOJI[ascKey]}</text>`;
-  svg += '</svg>';
-  return svg;
-}

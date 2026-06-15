@@ -33,7 +33,7 @@ function emptyMyungriFrame(){
   const wf=k=>`<div class="wf-group"><div class="wf-title">${k}</div><div class="wf-val" style="color:var(--text3)">조회 대기</div></div>`;
   return `<div class="unified-frame uf-fixed" style="border-color:var(--gold)">
     <div class="uf-head-split"><div class="uf-head-left"><div class="kw-main" style="color:var(--gold)">명리</div><div class="kw-sub">조회 대기 중</div></div><div class="uf-head-viz">${defaultSajuViz()}</div></div>
-    <div class="wongu-fixed"><div class="wongu-full-left">${cardH}</div><div class="wongu-full-right">${wf('🔮 대운')}${wf('📊 십성 분포')}${wf('⚡ 십이신살')}${wf('🔄 십이운성')}${wf('🔗 천간 관계')}${wf('🔗 지지 관계')}${wf('🕳️ 공망')}</div></div>
+    <div class="wongu-fixed"><div class="wongu-full-left">${cardH}</div><div class="wongu-full-right">${wf('🔮 대운')}${wf('📊 십성 분포')}${wf('⚡ 십이신살')}${wf('🔄 십이운성')}${wf('🔗 천간 관계')}${wf('🔗 지지 관계')}${wf("<span class='gm-dot'>●</span> 공망")}</div></div>
     <div class="uf-body-scroll"><div class="uf-sec"><div class="uf-label">📌 본능 일주</div><div class="uf-body" style="color:var(--text3)">조회를 입력하세요</div></div><div class="uf-sec"><div class="uf-label">🎭 사회적 월주</div><div class="uf-body" style="color:var(--text3)">조회를 입력하세요</div></div></div></div>`;
 }
 function emptyFrame(title,viz,rows,color){
@@ -172,7 +172,6 @@ function calcMBTIFull(tg){
   const recommended=[];ei.forEach(e=>sn.forEach(s=>tf.forEach(t=>jp.forEach(p=>recommended.push(e+s+t+p)))));
   return {axes,primary,recommended};
 }
-function calcMBTI(tg){return calcMBTIFull(tg).primary;}
 
 // ═══ 에니어그램 ═══
 function calcEnneagram(tg){
@@ -200,24 +199,6 @@ function renderSajuCard(){
   document.getElementById('sajuCardArea').innerHTML=h;
 }
 // 시각화 좌측 하단용 메타 (공망·대운·신살·12운성 등)
-function sajuMetaInline(r){
-  const keys=['hour','day','month','year'],kl={hour:'시',day:'일',month:'월',year:'년'};
-  let rows='';
-  const add=(label,val)=>{if(val)rows+=`<div class="ke-row"><span class="ke-label">${label}</span><span class="ke-val">${val}</span></div>`;};
-  // 대운
-  if(r.daeun?.list&&r.daeun.list.length){const age=r.currentAge||0;const cur=r.daeun.list.find(d=>age>=d.startAge&&age<=d.endAge)||r.daeun.list[0];add('대운',`${cur.ganzhi}(${cur.stemTenGod||''}) ${cur.startAge}~${cur.endAge}세`);}
-  // 공망
-  if(r.gongmang){const g=r.gongmang.branchesKo?r.gongmang.branchesKo.join(', '):'';add('공망',g);}
-  // 12운성
-  if(r.stages12?.bong){const s=keys.map(k=>r.stages12.bong[k]?`${kl[k]} ${r.stages12.bong[k]}`:'').filter(Boolean).join(' · ');add('12운성',s);}
-  // 신살
-  if(r.sals){const all=[];keys.forEach(k=>{const s=r.sals[k];if(!s)return;if(s.twelveSal)all.push(s.twelveSal);if(s.specialSals)all.push(...s.specialSals);});const u=[...new Set(all)];if(u.length)add('신살',u.join(' · '));}
-  // 지지 관계
-  if(r.branchRelations){const parts=[];['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)parts.push(d.join(', '));}});if(parts.length)add('지지',parts.join(' · '));}
-  // 용신
-  const ys=Array.isArray(r.advanced?.yongsin)?r.advanced.yongsin.join(', '):(r.advanced?.yongsin||'');add('용신',ys);
-  return `<div class="kw-extra">${rows||'<div class="ke-row"><span class="ke-val">—</span></div>'}</div>`;
-}
 
 function renderSajuMeta(){
   const r=S.saju;
@@ -402,7 +383,7 @@ function renderMyungri(){
       <div class="wf-group"><div class="wf-title">🔄 십이운성</div><div class="chip-wrap">${stageH||'<span class="chip">—</span>'}</div></div>
       <div class="wf-group"><div class="wf-title">🔗 천간 관계</div><div class="chip-wrap">${stemRelH||'<span class="chip">—</span>'}</div></div>
       <div class="wf-group"><div class="wf-title">🔗 지지 관계</div><div class="chip-wrap">${branchRelH||'<span class="chip">—</span>'}</div></div>
-      <div class="wf-group"><div class="wf-title">🕳️ 공망</div><div class="chip-wrap gm-wrap">${gongmangH}</div></div>
+      <div class="wf-group"><div class="wf-title"><span class='gm-dot'>●</span> 공망</div><div class="chip-wrap gm-wrap">${gongmangH}</div></div>
     </div>
   </div>`;
   // ── 하단 해석 (다른 카테고리와 동일한 스크롤 영역) ──

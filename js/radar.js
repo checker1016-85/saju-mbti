@@ -225,44 +225,6 @@ function mbtiBigSVG(axes, selected, at, size=VIZ_SIZE){
   return svg+legend;
 }
 
-// ═══ ⑤ 십성 분포: 5그룹 가로 바 ═══
-function tenGodBarSVG(tg, size=VIZ_SIZE){
-  const groups=[
-    {label:'비겁',keys:['비견','겁재'],color:'#d06020'},
-    {label:'식상',keys:['식신','상관'],color:'#d44060'},
-    {label:'재성',keys:['편재','정재'],color:'#d4a017'},
-    {label:'관성',keys:['편관','정관'],color:'#6050c0'},
-    {label:'인성',keys:['편인','정인'],color:'#18a088'}
-  ];
-  const vals=groups.map(g=>{let s=0;g.keys.forEach(k=>s+=(tg[k]||0));return s;});
-  const max=Math.max(...vals,1);
-  const rowH=32,topPad=16,barX=48,barW=size-barX-16;
-  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-  svg+=`<text x="${size/2}" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#6a6358" font-family="Noto Sans KR">십성 분포</text>`;
-  groups.forEach((g,i)=>{
-    const y=topPad+i*rowH+16;
-    const w=barW*vals[i]/max;
-    svg+=`<text x="${barX-6}" y="${y+5}" text-anchor="end" font-size="11" font-weight="800" fill="${g.color}" font-family="Noto Sans KR">${g.label}</text>`;
-    svg+=`<rect x="${barX}" y="${y-7}" width="${barW}" height="16" rx="8" fill="#e6e2d8"/>`;
-    if(vals[i]>0)svg+=`<rect x="${barX}" y="${y-7}" width="${w.toFixed(1)}" height="16" rx="8" fill="${g.color}" opacity="0.85"/>`;
-    svg+=`<text x="${barX+w+6}" y="${y+4}" font-size="12" font-weight="900" fill="${g.color}" font-family="Space Grotesk">${vals[i]}</text>`;
-    // 세부 (비견1 겁재0)
-    const detail=g.keys.map(k=>`${k}${tg[k]||0}`).join(' ');
-    svg+=`<text x="${barX}" y="${y+14}" font-size="8" fill="#9a9488" font-family="Noto Sans KR">${detail}</text>`;
-  });
-  svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#d06020"></i>비겁</span><span><i style="background:#d44060"></i>식상</span><span><i style="background:#d4a017"></i>재성</span><span><i style="background:#6050c0"></i>관성</span><span><i style="background:#18a088"></i>인성</span></div>';
-  return svg+legend;
-}
-function defaultTenGodViz(){
-  return tenGodBarSVG({비견:1,겁재:1,식신:1,상관:1,편재:1,정재:1,편관:1,정관:1,편인:1,정인:0});
-}
-
-// ═══ 빈 시각화 (조회 전) ═══
-function emptyViz(label){
-  return `<div class="empty-viz"><span style="font-size:24px">◌</span><span>${label}</span><span style="font-size:10px">조회를 입력하세요</span></div>`;
-}
-
 // ═══ 기본형(중립) 시각화 — 조회 전 표시 ═══
 function defaultSajuViz(){
   // 오행 골고루 (각 2~3)
