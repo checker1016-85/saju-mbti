@@ -55,9 +55,11 @@ function sajuVizSVG(oh, centerTop, centerBot, size=VIZ_SIZE){
 function astroChartSVG(h, size=VIZ_SIZE){
   const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
-  const cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
+  const cx=size/2,cy=size/2,rOut=size/2-18,rIn=size/2-42;
   let ang=-Math.PI/2;
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  // 별자리 → 슬라이스 인덱스 매핑 (그리는 순서대로)
+  const signIdx={};signs.forEach((s,i)=>signIdx[s]=i);
   signs.forEach((s)=>{
     const a2=ang+2*Math.PI/12;
     const x1=cx+rOut*Math.cos(ang),y1=cy+rOut*Math.sin(ang);
@@ -69,12 +71,36 @@ function astroChartSVG(h, size=VIZ_SIZE){
     svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+5).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="14" font-weight="800" font-family="serif">${SIGN_EMOJI[s]}\uFE0E</text>`;
     ang=a2;
   });
-  const ascKey=h.Ascendant.Sign.key;
-  const ascName=(typeof SIGN_KR!=='undefined'?SIGN_KR[ascKey]||'':'').replace('자리','');
+  // ── 마커 헬퍼: 별자리 슬라이스 중심각 계산 ──
+  const angFor=(signKey)=>{const i=signIdx[signKey];if(i==null)return null;return -Math.PI/2+2*Math.PI*(i+0.5)/12;};
+  // 도넛 바깥 외곽에 ASC/☉/☽/MC 배지
+  const markers=[];
+  const ascKey=h.Ascendant?.Sign?.key;
+  if(ascKey)markers.push({sign:ascKey,sym:'ASC',color:'#8a6508',bg:'#fff7e0'});
+  const sunKey=h.CelestialBodies?.sun?.Sign?.key;
+  if(sunKey)markers.push({sign:sunKey,sym:'☉',color:'#fff',bg:'#d4a017'});
+  const moonKey=h.CelestialBodies?.moon?.Sign?.key;
+  if(moonKey)markers.push({sign:moonKey,sym:'☽',color:'#fff',bg:'#3050a0'});
+  const mcKey=h.Midheaven?.Sign?.key;
+  if(mcKey)markers.push({sign:mcKey,sym:'MC',color:'#fff',bg:'#5040a0'});
+  // 같은 별자리에 여러 마커가 오면 약간씩 어긋나게
+  const seenSign={};
+  markers.forEach(m=>{
+    const a=angFor(m.sign);if(a==null)return;
+    const off=(seenSign[m.sign]||0);seenSign[m.sign]=off+1;
+    const ox=Math.cos(a)*(off*6),oy=Math.sin(a)*(off*6);
+    const mr=rOut+9; // 도넛 바깥
+    const bx=cx+mr*Math.cos(a)+ox, by=cy+mr*Math.sin(a)+oy;
+    const w=m.sym.length>1?22:16,hh=14;
+    svg+=`<rect x="${(bx-w/2).toFixed(1)}" y="${(by-hh/2).toFixed(1)}" width="${w}" height="${hh}" rx="${hh/2}" fill="${m.bg}" stroke="${m.color==='#fff'?m.bg:m.color}" stroke-width="1"/>`;
+    svg+=`<text x="${bx.toFixed(1)}" y="${(by+4).toFixed(1)}" text-anchor="middle" font-size="${m.sym.length>1?9:11}" font-weight="800" fill="${m.color}" font-family="Space Grotesk">${m.sym}</text>`;
+  });
+  // 중앙 상승궁 텍스트
+  const ascName=ascKey&&typeof SIGN_KR!=='undefined'?(SIGN_KR[ascKey]||'').replace('자리',''):'';
   svg+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#2a2520" font-size="16" font-weight="900" font-family="Noto Sans KR">${ascName}</text>`;
   svg+=`<text x="${cx}" y="${cy+14}" text-anchor="middle" fill="#8a6508" font-size="12" font-weight="800" font-family="Noto Sans KR">상승궁</text>`;
   svg+='</svg>';
-  let legend='<div class="viz-legend"><span><i style="background:#c83030"></i>불(화)</span><span><i style="background:#d4a82a"></i>흙(지)</span><span><i style="background:#40c0a0"></i>바람(풍)</span><span><i style="background:#3060a0"></i>물(수)</span></div>';
+  let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#3050a0"></i>☽</span><span><i style="background:#5040a0"></i>MC</span></div>';
   return svg+legend;
 }
 
@@ -150,7 +176,7 @@ function mbtiBigSVG(axes, selected, at, size=VIZ_SIZE){
   const rowH=(boxH-16)/4, topPad=boxY+8;
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   // ── 둥근 사각형 박스 (옅은 선) ──
-  svg+=`<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="12" fill="#fbfaf7" stroke="#d4cfc4" stroke-width="1"/>`;
+  svg+=`<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="12" fill="#fff" fill-opacity="0.2" stroke="#d4cfc4" stroke-width="1"/>`;
   pairs.forEach(([a,b,aKr,bKr],i)=>{
     const y=topPad+i*rowH+rowH/2;
     const aOn=selected.includes(a),bOn=!aOn,c=PC[a];

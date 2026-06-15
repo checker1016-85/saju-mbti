@@ -243,9 +243,14 @@ input:focus,select:focus{border-color:var(--gold)}
 
 /* ═══ v11: 고정높이 프레임 + 시각화 확대 ═══ */
 .uf-fixed{height:480px;display:flex;flex-direction:column;overflow:hidden}
-/* 원국 풀 레이아웃 (body-scroll 내 좌우 분할) */
-.wongu-full{display:flex;gap:14px;align-items:flex-start}
-.wongu-full-left{flex:0 0 auto;width:240px}
+/* 명리는 원국 고정 영역(약 280px) + 해석 스크롤이 함께 들어가서 더 큼 */
+#myungriArea .unified-frame{height:760px}
+/* 명리 body-scroll 내 원국 섹션 sticky 고정 */
+#myungriArea .uf-sec-wongu{position:sticky;top:0;background:var(--surface);z-index:5;border-bottom:2px solid var(--gold);padding:14px}
+/* 원국 풀 레이아웃 (body-scroll 내 좌우 분할, 동일 높이) */
+.wongu-full{display:flex;gap:14px;align-items:stretch;min-height:240px}
+.wongu-full-left{flex:0 0 auto;width:340px;display:flex}
+.wongu-full-left .wongu-card{flex:1;display:flex;flex-direction:column;justify-content:center}
 .wongu-full-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
 .wf-group{font-size:11px}
 .wf-group .wf-title{font-weight:800;color:var(--gold-dim);margin-bottom:3px}
@@ -294,15 +299,15 @@ input:focus,select:focus{border-color:var(--gold)}
 .wongu-card .pillar .lbl{font-size:8px;margin-bottom:2px}
 .wongu-card .pillar .gan-kr,.wongu-card .pillar .ji-kr{font-size:7px}
 .wongu-card .pillar .tg-top,.wongu-card .pillar .tg-bot{font-size:7px}
-/* 큰 원국 카드 (body-scroll 내) */
-.wongu-big{padding:10px}
-.wongu-big .pillar-row{gap:6px}
-.wongu-big .pillar{min-height:100px;padding:6px 4px;border-radius:8px}
-.wongu-big .pillar .gan{font-size:22px;line-height:26px}
-.wongu-big .pillar .ji{font-size:22px;line-height:26px}
-.wongu-big .pillar .lbl{font-size:9px;margin-bottom:3px}
-.wongu-big .pillar .gan-kr,.wongu-big .pillar .ji-kr{font-size:9px}
-.wongu-big .pillar .tg-top,.wongu-big .pillar .tg-bot{font-size:9px}
+/* 큰 원국 카드 (body-scroll 내) — 한자 옆 한글 가로배치 */
+.wongu-big{padding:12px}
+.wongu-big .pillar-row{gap:8px}
+.wongu-big .pillar{min-height:130px;padding:8px 4px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.wongu-big .pillar .lbl{font-size:10px;margin-bottom:4px}
+.wongu-big .pillar .tg-top,.wongu-big .pillar .tg-bot{font-size:10px;min-height:13px}
+.wongu-big .pillar .hanrow{display:flex;align-items:baseline;justify-content:center;gap:3px}
+.wongu-big .pillar .gan,.wongu-big .pillar .ji{font-size:24px;line-height:28px;font-weight:900}
+.wongu-big .pillar .gan-kr,.wongu-big .pillar .ji-kr{font-size:11px;color:var(--text3);line-height:1}
 
 /* 시각화 헤더 좌측 하단 스크롤 정보 */
 .kw-extra{margin-top:auto;max-height:90px;overflow-y:auto;border-top:1px dashed var(--border);padding-top:6px}

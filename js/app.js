@@ -299,13 +299,17 @@ function renderMyungri(){
   const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
   const kl={hour:'시',day:'일',month:'월',year:'년'};
 
-  // ── 원국 카드 (크게) ──
+  // ── 원국 카드 (크게, 한자 옆 한글 가로배치) ──
   let cardH='<div class="wongu-card wongu-big"><div class="pillar-row">';
   keys.forEach((k,i)=>{
     const p=pd?.[k];const gc=p?OC[ELEM_MAP[p.stem]]||'':'',jc=p?OC[ELEM_MAP[p.branch]]||'':'';
     const gKr=p?HANJA_KR[p.stem]||'':'',jKr=p?HANJA_KR[p.branch]||'':'';
     const ganTg=r.tenGods?.[k]?.stem||'';const jiTg=r.tenGods?.[k]?.branch||'';
-    cardH+=`<div class="pillar"><div class="lbl">${labels[i]}</div><div class="tg-top">${ganTg}</div><div class="gan ${gc}">${p?.stem||'·'}</div><div class="gan-kr">${gKr}</div><div class="ji ${jc}">${p?.branch||'·'}</div><div class="ji-kr">${jKr}</div><div class="tg-bot">${jiTg}</div></div>`;
+    cardH+=`<div class="pillar"><div class="lbl">${labels[i]}</div>`
+       +`<div class="tg-top">${ganTg}</div>`
+       +`<div class="hanrow"><span class="gan ${gc}">${p?.stem||'·'}</span><span class="gan-kr">${gKr}</span></div>`
+       +`<div class="hanrow"><span class="ji ${jc}">${p?.branch||'·'}</span><span class="ji-kr">${jKr}</span></div>`
+       +`<div class="tg-bot">${jiTg}</div></div>`;
   });
   cardH+='</div></div>';
 
@@ -349,7 +353,7 @@ function renderMyungri(){
   // ── 본문 스크롤 ──
   h+='<div class="uf-body-scroll">';
   // 원국 카드 + 대운/공망/신살/12운성
-  h+=`<div class="uf-sec"><div class="uf-label">🀄 사주 원국</div>
+  h+=`<div class="uf-sec uf-sec-wongu"><div class="uf-label">🀄 사주 원국</div>
     <div class="wongu-full">
       <div class="wongu-full-left">${cardH}</div>
       <div class="wongu-full-right">
@@ -479,10 +483,10 @@ function buildSummaryHTML(){
   const enName=ENNEA_NAMES[main]||'';
   const mbtiCode=S.selectedMBTI;
   const mbtiKw=(typeof MBTI_KEYWORD!=='undefined'&&MBTI_KEYWORD[mbtiCode])||(MBTI_DESC[mbtiCode]||'').split('—')[0].trim();
-  // 점성 상승궁 키워드
+  // 점성 상승궁 키워드 (없으면 별자리 이름으로 폴백)
   const ascSign=S.astroAscSign||'';
   const ascKey=S.astroAscKey||'';
-  const ascKw=(typeof SIGN_KEYWORD!=='undefined'&&SIGN_KEYWORD[ascKey])||'';
+  const ascKw=(typeof SIGN_KEYWORD!=='undefined'&&SIGN_KEYWORD[ascKey])||(ascSign?ascSign+' 상승형':'');
   // 한 문장 요약
   let phrase=`${stemAdj} ${typeName}`;
   if(ascKw)phrase+=`, ${ascKw.replace(/형$/,'')}`;
@@ -492,7 +496,7 @@ function buildSummaryHTML(){
     <div class="summary-phrase">${phrase}</div>
     <div class="summary-keywords">
       <span class="sk-tag sk-saju">☯️ '${ilju}일주' ${stemAdj} ${typeName}</span>
-      ${ascKw?`<span class="sk-tag sk-astro">🌌 '${ascSign}상승' ${ascKw}</span>`:''}
+      ${ascSign?`<span class="sk-tag sk-astro">🌌 '${ascSign}상승' ${ascKw}</span>`:''}
       <span class="sk-tag sk-ennea">🔷 '${main}번' ${enCenter}: ${enName}형</span>
       <span class="sk-tag sk-mbti">🧠 '${mbtiCode}' ${mbtiKw}</span>
     </div>
