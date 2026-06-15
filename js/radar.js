@@ -71,34 +71,40 @@ function astroChartSVG(h, size=VIZ_SIZE){
     svg+=`<text x="${(cx+lr*Math.cos(mid)).toFixed(1)}" y="${(cy+lr*Math.sin(mid)+5).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="14" font-weight="800" font-family="serif">${SIGN_EMOJI[s]}\uFE0E</text>`;
     ang=a2;
   });
-  // ── 마커 헬퍼: 별자리 슬라이스 중심각 계산 ──
+  // ── 마커: 도넛 안쪽 빈 공간에 배치 ──
   const angFor=(signKey)=>{const i=signIdx[signKey];if(i==null)return null;return -Math.PI/2+2*Math.PI*(i+0.5)/12;};
-  // 도넛 바깥 외곽에 ASC/☉/☽/MC 배지
   const markers=[];
   const ascKey=h.Ascendant?.Sign?.key;
-  if(ascKey)markers.push({sign:ascKey,sym:'ASC',color:'#8a6508',bg:'#fff7e0'});
+  if(ascKey)markers.push({sign:ascKey,sym:'ASC',color:'#8a6508',bg:'#fff7e0',stroke:'#8a6508'});
   const sunKey=h.CelestialBodies?.sun?.Sign?.key;
-  if(sunKey)markers.push({sign:sunKey,sym:'☉',color:'#fff',bg:'#d4a017'});
+  if(sunKey)markers.push({sign:sunKey,sym:'☉',color:'#fff',bg:'#d4a017',stroke:'#d4a017'});
   const moonKey=h.CelestialBodies?.moon?.Sign?.key;
-  if(moonKey)markers.push({sign:moonKey,sym:'☽',color:'#fff',bg:'#3050a0'});
+  if(moonKey)markers.push({sign:moonKey,sym:'☽',color:'#fff',bg:'#3050a0',stroke:'#3050a0'});
   const mcKey=h.Midheaven?.Sign?.key;
-  if(mcKey)markers.push({sign:mcKey,sym:'MC',color:'#fff',bg:'#5040a0'});
-  // 같은 별자리에 여러 마커가 오면 약간씩 어긋나게
+  if(mcKey)markers.push({sign:mcKey,sym:'MC',color:'#fff',bg:'#5040a0',stroke:'#5040a0'});
+  const markerR=rIn-16;
   const seenSign={};
-  markers.forEach(m=>{
-    const a=angFor(m.sign);if(a==null)return;
+  const positions=markers.map(m=>{
+    const a=angFor(m.sign);if(a==null)return null;
     const off=(seenSign[m.sign]||0);seenSign[m.sign]=off+1;
-    const ox=Math.cos(a)*(off*6),oy=Math.sin(a)*(off*6);
-    const mr=rOut+9; // 도넛 바깥
-    const bx=cx+mr*Math.cos(a)+ox, by=cy+mr*Math.sin(a)+oy;
+    const ox=Math.cos(a)*(off*7),oy=Math.sin(a)*(off*7);
+    return {x:cx+markerR*Math.cos(a)+ox, y:cy+markerR*Math.sin(a)+oy, m};
+  }).filter(Boolean);
+  // 마커끼리 옅은 점선 연결
+  for(let i=0;i<positions.length;i++)for(let j=i+1;j<positions.length;j++){
+    const p=positions[i],q=positions[j];
+    svg+=`<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="#888" stroke-width="0.7" opacity="0.35" stroke-dasharray="2,2"/>`;
+  }
+  // 마커 배지
+  positions.forEach(({x,y,m})=>{
     const w=m.sym.length>1?22:16,hh=14;
-    svg+=`<rect x="${(bx-w/2).toFixed(1)}" y="${(by-hh/2).toFixed(1)}" width="${w}" height="${hh}" rx="${hh/2}" fill="${m.bg}" stroke="${m.color==='#fff'?m.bg:m.color}" stroke-width="1"/>`;
-    svg+=`<text x="${bx.toFixed(1)}" y="${(by+4).toFixed(1)}" text-anchor="middle" font-size="${m.sym.length>1?9:11}" font-weight="800" fill="${m.color}" font-family="Space Grotesk">${m.sym}</text>`;
+    svg+=`<rect x="${(x-w/2).toFixed(1)}" y="${(y-hh/2).toFixed(1)}" width="${w}" height="${hh}" rx="${hh/2}" fill="${m.bg}" stroke="${m.stroke}" stroke-width="1"/>`;
+    svg+=`<text x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="middle" font-size="${m.sym.length>1?9:11}" font-weight="800" fill="${m.color}" font-family="Space Grotesk">${m.sym}</text>`;
   });
-  // 중앙 상승궁 텍스트
+  // 중앙 상승궁 텍스트 (마커와 안 겹치게 위로)
   const ascName=ascKey&&typeof SIGN_KR!=='undefined'?(SIGN_KR[ascKey]||'').replace('자리',''):'';
-  svg+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#2a2520" font-size="16" font-weight="900" font-family="Noto Sans KR">${ascName}</text>`;
-  svg+=`<text x="${cx}" y="${cy+14}" text-anchor="middle" fill="#8a6508" font-size="12" font-weight="800" font-family="Noto Sans KR">상승궁</text>`;
+  svg+=`<text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#2a2520" font-size="13" font-weight="900" font-family="Noto Sans KR">${ascName}</text>`;
+  svg+=`<text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8a6508" font-size="9" font-weight="800" font-family="Noto Sans KR">상승궁</text>`;
   svg+='</svg>';
   let legend='<div class="viz-legend"><span><i style="background:#8a6508"></i>ASC</span><span><i style="background:#d4a017"></i>☉</span><span><i style="background:#3050a0"></i>☽</span><span><i style="background:#5040a0"></i>MC</span></div>';
   return svg+legend;

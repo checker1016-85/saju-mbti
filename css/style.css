@@ -243,19 +243,21 @@ input:focus,select:focus{border-color:var(--gold)}
 
 /* ═══ v11: 고정높이 프레임 + 시각화 확대 ═══ */
 .uf-fixed{height:480px;display:flex;flex-direction:column;overflow:hidden}
-/* 명리는 원국 고정 영역(약 280px) + 해석 스크롤이 함께 들어가서 더 큼 */
-#myungriArea .unified-frame{height:760px}
-/* 명리 body-scroll 내 원국 섹션 sticky 고정 */
-#myungriArea .uf-sec-wongu{position:sticky;top:0;background:var(--surface);z-index:5;border-bottom:2px solid var(--gold);padding:14px}
-/* 원국 풀 레이아웃 (body-scroll 내 좌우 분할, 동일 높이) */
-.wongu-full{display:flex;gap:14px;align-items:stretch;min-height:240px}
-.wongu-full-left{flex:0 0 auto;width:340px;display:flex}
+/* 명리: 헤더(230) + 원국 고정영역(150) + 해석 스크롤(480·타 카테고리 동일) */
+#myungriArea .unified-frame{height:auto}
+/* 원국 고정 영역 — 좌(카드):우(정보) 반반, 세로폭 축소, 우측 내부 스크롤 */
+.wongu-fixed{display:flex;gap:12px;flex-shrink:0;height:150px;padding:10px 14px;background:linear-gradient(135deg,var(--surface2),var(--surface3));border-top:1px solid var(--border);border-bottom:2px solid var(--gold)}
+.wongu-full-left{flex:1 1 50%;min-width:0;display:flex}
 .wongu-full-left .wongu-card{flex:1;display:flex;flex-direction:column;justify-content:center}
-.wongu-full-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.wongu-full-right{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;gap:7px;overflow-y:auto;padding-right:4px}
+.wongu-full-right::-webkit-scrollbar{width:4px}
+.wongu-full-right::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .wf-group{font-size:11px}
 .wf-group .wf-title{font-weight:800;color:var(--gold-dim);margin-bottom:3px}
 .wf-group .wf-val{color:var(--text);line-height:1.5}
-@media(max-width:680px){.wongu-full{flex-direction:column}.wongu-full-left{width:100%}}
+/* 명리 하단 해석 = 다른 카테고리 본문 스크롤과 동일 (480px) */
+#myungriArea .uf-body-scroll{height:480px}
+@media(max-width:680px){.wongu-fixed{flex-direction:column;height:auto}.wongu-full-left,.wongu-full-right{flex:1 1 auto}}
 .uf-fixed .uf-head-split{flex-shrink:0;min-height:230px;align-items:stretch}
 .uf-head-split .uf-head-left{display:flex;flex-direction:column;justify-content:flex-start}
 .uf-head-split .uf-head-viz{align-self:flex-end}
@@ -300,14 +302,14 @@ input:focus,select:focus{border-color:var(--gold)}
 .wongu-card .pillar .gan-kr,.wongu-card .pillar .ji-kr{font-size:7px}
 .wongu-card .pillar .tg-top,.wongu-card .pillar .tg-bot{font-size:7px}
 /* 큰 원국 카드 (body-scroll 내) — 한자 옆 한글 가로배치 */
-.wongu-big{padding:12px}
-.wongu-big .pillar-row{gap:8px}
-.wongu-big .pillar{min-height:130px;padding:8px 4px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
-.wongu-big .pillar .lbl{font-size:10px;margin-bottom:4px}
-.wongu-big .pillar .tg-top,.wongu-big .pillar .tg-bot{font-size:10px;min-height:13px}
-.wongu-big .pillar .hanrow{display:flex;align-items:baseline;justify-content:center;gap:3px}
-.wongu-big .pillar .gan,.wongu-big .pillar .ji{font-size:24px;line-height:28px;font-weight:900}
-.wongu-big .pillar .gan-kr,.wongu-big .pillar .ji-kr{font-size:11px;color:var(--text3);line-height:1}
+/* 큰 원국 카드 — 한자 위/한글 아래 세로배치, 영역 채움 */
+.wongu-big{padding:6px;width:100%}
+.wongu-big .pillar-row{gap:4px}
+.wongu-big .pillar{min-height:auto;padding:4px 2px;border-radius:6px;text-align:center}
+.wongu-big .pillar .lbl{font-size:8px;margin-bottom:1px}
+.wongu-big .pillar .tg-top,.wongu-big .pillar .tg-bot{font-size:8px;min-height:10px}
+.wongu-big .pillar .gan,.wongu-big .pillar .ji{font-size:20px;line-height:22px;font-weight:900;display:block}
+.wongu-big .pillar .gan-kr,.wongu-big .pillar .ji-kr{font-size:8px;color:var(--text3);line-height:1.1;display:block}
 
 /* 시각화 헤더 좌측 하단 스크롤 정보 */
 .kw-extra{margin-top:auto;max-height:90px;overflow-y:auto;border-top:1px dashed var(--border);padding-top:6px}
