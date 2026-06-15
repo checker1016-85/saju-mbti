@@ -248,7 +248,9 @@ input:focus,select:focus{border-color:var(--gold)}
 /* 원국 고정 영역 — 좌(카드):우(정보) 반반, 세로폭 축소, 우측 내부 스크롤 */
 .wongu-fixed{display:flex;gap:12px;flex-shrink:0;height:150px;padding:10px 14px;background:linear-gradient(135deg,var(--surface2),var(--surface3));border-top:1px solid var(--border);border-bottom:2px solid var(--gold)}
 .wongu-full-left{flex:1 1 50%;min-width:0;display:flex}
-.wongu-full-left .wongu-card{flex:1;display:flex;flex-direction:column;justify-content:center}
+.wongu-full-left .wongu-card{flex:1;display:flex;flex-direction:column;justify-content:stretch}
+.wongu-full-left .wongu-card .pillar-row{flex:1}
+.wongu-full-left .wongu-card .pillar{display:flex;flex-direction:column;justify-content:center}
 .wongu-full-right{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;gap:7px;overflow-y:auto;padding-right:4px}
 .wongu-full-right::-webkit-scrollbar{width:4px}
 .wongu-full-right::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
