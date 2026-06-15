@@ -246,7 +246,9 @@ input:focus,select:focus{border-color:var(--gold)}
 /* 명리: 헤더(230) + 원국 고정영역(150) + 해석 스크롤(480·타 카테고리 동일) */
 #myungriArea .unified-frame{height:auto}
 /* 원국 고정 영역 — 좌(카드):우(정보) 반반, 세로폭 축소, 우측 내부 스크롤 */
-.wongu-fixed{display:flex;gap:12px;flex-shrink:0;height:150px;padding:10px 14px;background:linear-gradient(135deg,var(--surface2),var(--surface3));border-top:1px solid var(--border);border-bottom:2px solid var(--gold)}
+.wongu-fixed{display:flex;gap:12px;flex-shrink:0;height:160px;padding:10px 14px;background:linear-gradient(135deg,var(--surface2),var(--surface3));border-top:1px solid var(--border);border-bottom:2px solid var(--gold)}
+.gm-wrap{align-items:center}
+.gm-label{font-size:9px;font-weight:800;color:var(--gold-dim);margin-right:2px}
 .wongu-full-left{flex:1 1 50%;min-width:0;display:flex}
 .wongu-full-left .wongu-card{flex:1;display:flex;flex-direction:column;justify-content:stretch}
 .wongu-full-left .wongu-card .pillar-row{flex:1}

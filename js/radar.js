@@ -87,8 +87,9 @@ function astroChartSVG(h, size=VIZ_SIZE){
   const positions=markers.map(m=>{
     const a=angFor(m.sign);if(a==null)return null;
     const off=(seenSign[m.sign]||0);seenSign[m.sign]=off+1;
-    const ox=Math.cos(a)*(off*7),oy=Math.sin(a)*(off*7);
-    return {x:cx+markerR*Math.cos(a)+ox, y:cy+markerR*Math.sin(a)+oy, m};
+    // 같은 별자리 마커는 반지름 방향으로 안쪽으로 더 들여 배치 (선 따라 위아래)
+    const rr=markerR-off*16;
+    return {x:cx+rr*Math.cos(a), y:cy+rr*Math.sin(a), m};
   }).filter(Boolean);
   // 마커끼리 옅은 점선 연결
   for(let i=0;i<positions.length;i++)for(let j=i+1;j<positions.length;j++){

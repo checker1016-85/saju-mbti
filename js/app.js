@@ -33,7 +33,7 @@ function emptyMyungriFrame(){
   const wf=k=>`<div class="wf-group"><div class="wf-title">${k}</div><div class="wf-val" style="color:var(--text3)">조회 대기</div></div>`;
   return `<div class="unified-frame uf-fixed" style="border-color:var(--gold)">
     <div class="uf-head-split"><div class="uf-head-left"><div class="kw-main" style="color:var(--gold)">명리</div><div class="kw-sub">조회 대기 중</div></div><div class="uf-head-viz">${defaultSajuViz()}</div></div>
-    <div class="wongu-fixed"><div class="wongu-full-left">${cardH}</div><div class="wongu-full-right">${wf('🔮 대운')}${wf('📊 십성 분포')}${wf('⚡ 신살')}${wf('🔄 12운성')}${wf('🔗 지지 관계')}${wf('🔗 천간 관계')}${wf('⭕ 공망 (일주 기준)')}</div></div>
+    <div class="wongu-fixed"><div class="wongu-full-left">${cardH}</div><div class="wongu-full-right">${wf('🔮 대운')}${wf('📊 십성 분포')}${wf('⚡ 십이신살')}${wf('🔄 십이운성')}${wf('🔗 천간 관계')}${wf('🔗 지지 관계')}${wf('⭕ 공망')}</div></div>
     <div class="uf-body-scroll"><div class="uf-sec"><div class="uf-label">📌 본능 일주</div><div class="uf-body" style="color:var(--text3)">조회를 입력하세요</div></div><div class="uf-sec"><div class="uf-label">🎭 사회적 월주</div><div class="uf-body" style="color:var(--text3)">조회를 입력하세요</div></div></div></div>`;
 }
 function emptyFrame(title,viz,rows,color){
@@ -339,17 +339,37 @@ function renderMyungri(){
   // ── 12운성 (기둥별) ──
   let stageH='';
   if(r.stages12?.bong){keys.forEach(k=>{const v=r.stages12.bong[k];if(v)stageH+=`<span class="chip">${kl[k]} ${v}</span>`;});}
-  // ── 지지/천간 관계 (chip) ──
+  // ── 천간 관계 (합/충 + 천간끼리 십성 관계) ──
+  let stemRelH='';
+  if(r.stemRelations?.length){stemRelH+=r.stemRelations.map(x=>`<span class="chip hl">${x.desc||x.type}</span>`).join('');}
+  // 천간 십성 (일간 제외 각 기둥 천간의 십성)
+  keys.forEach(k=>{const tgs=r.tenGods?.[k]?.stem;if(tgs&&tgs!=='(일간)'){const st=r.pillarDetails?.[k]?.stem||'';stemRelH+=`<span class="chip">${kl[k]}干 ${st} ${tgs}</span>`;}});
+  // ── 지지 관계 ──
   let branchRelH='';
   if(r.branchRelations){['육합','삼합','반합','방합','충','형','파','해','원진','귀문'].forEach(t=>{const v=r.branchRelations[t];if(v&&typeof v==='object'){const d=[...new Set(Object.values(v).filter(Boolean))];if(d.length)branchRelH+=`<span class="chip"><b>${t}</b> ${d.join(', ')}</span>`;}});}
-  let stemRelH='';
-  if(r.stemRelations?.length){stemRelH=r.stemRelations.map(x=>`<span class="chip">${x.desc||x.type}</span>`).join('');}
-  // ── 공망 (한자+한글, 일주 기준) ──
-  let gongmangH='';
-  if(r.gongmang?.branches){
-    const br=r.gongmang.branches||[],brk=r.gongmang.branchesKo||[];
-    gongmangH=br.map((b,i)=>`<span class="chip">${b}(${brk[i]||''})</span>`).join('');
-  }
+  // ── 공망 (년주 기준 + 일주 기준 둘 다) ──
+  const BR_ARR=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const STEM_ARR=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const calcGongmang=(gz)=>{if(!gz||gz.length<2)return[];const s=STEM_ARR.indexOf(gz[0]),b=BR_ARR.indexOf(gz[1]);if(s<0||b<0)return[];return[BR_ARR[(b+(10-s))%12],BR_ARR[(b+(11-s))%12]];};
+  const yearGm=calcGongmang(r.pillars?.year);
+  const dayGm=r.gongmang?.branches||calcGongmang(r.pillars?.day);
+  const gmChip=(arr)=>arr.map(b=>`<span class="chip">${b}(${HANJA_KR[b]||''})</span>`).join('');
+  let gongmangH=`<span class="gm-label">년주</span>${gmChip(yearGm)||'<span class="chip">—</span>'}<span class="gm-label">일주</span>${gmChip(dayGm)||'<span class="chip">—</span>'}`;
+  // ── 십성 분포: 그룹(오행) + 세분화 ──
+  const TG_ELEM={'비견':null,'겁재':null,'식신':null,'상관':null,'편재':null,'정재':null,'편관':null,'정관':null,'편인':null,'정인':null};
+  // 일간 오행 기준 각 십성의 오행 산출
+  const ELEM_CYCLE={목:'화',화:'토',토:'금',금:'수',수:'목'}; // 생
+  const ELEM_CTRL={목:'토',화:'금',토:'수',금:'목',수:'화'}; // 극
+  const de=dayElem;
+  const sameE=de, outE=ELEM_CYCLE[de], wealthE=ELEM_CTRL[de], officerE=Object.keys(ELEM_CTRL).find(k=>ELEM_CTRL[k]===de), resourceE=Object.keys(ELEM_CYCLE).find(k=>ELEM_CYCLE[k]===de);
+  const tgGroupElem={비겁:sameE,식상:outE,재성:wealthE,관성:officerE,인성:resourceE};
+  // 분포 텍스트 (그룹+오행)
+  const distGroupH=tgGroups.map(g=>{const cnt=g.keys.reduce((s,k)=>s+(tg[k]||0),0);return `${g.name}(${tgGroupElem[g.name]||''}) ${cnt}`;}).join(' · ');
+  // 세분화 (편인/정인 등 10종, 0 제외)
+  const distDetailH=Object.keys(tg).filter(k=>tg[k]>0).map(k=>{
+    const grp=tgGroups.find(g=>g.keys.includes(k));const el=grp?tgGroupElem[grp.name]:'';
+    return `<span class="chip">${k}(${el}) ${tg[k]}</span>`;
+  }).join('');
 
   // ═══ 프레임: 점성과 동일 구조 ═══
   let h='<div class="unified-frame uf-fixed">';
@@ -368,12 +388,12 @@ function renderMyungri(){
     <div class="wongu-full-left">${cardH}</div>
     <div class="wongu-full-right">
       <div class="wf-group"><div class="wf-title">🔮 대운 (${r.daeun?.startAge||''}세~)</div><div class="chip-wrap">${daeunH||'—'}</div></div>
-      <div class="wf-group"><div class="wf-title">📊 십성 분포</div><div class="wf-val">${tgGroups.map(g=>g.name+' '+g.keys.reduce((s,k)=>s+(tg[k]||0),0)).join(' · ')}</div></div>
-      <div class="wf-group"><div class="wf-title">⚡ 신살</div><div class="chip-wrap">${salH||'—'}</div></div>
-      <div class="wf-group"><div class="wf-title">🔄 12운성</div><div class="chip-wrap">${stageH||'—'}</div></div>
-      <div class="wf-group"><div class="wf-title">🔗 지지 관계</div><div class="chip-wrap">${branchRelH||'<span class="chip">—</span>'}</div></div>
+      <div class="wf-group"><div class="wf-title">📊 십성 분포</div><div class="wf-val">${distGroupH}</div><div class="chip-wrap">${distDetailH||'<span class="chip">—</span>'}</div></div>
+      <div class="wf-group"><div class="wf-title">⚡ 십이신살</div><div class="chip-wrap">${salH||'<span class="chip">—</span>'}</div></div>
+      <div class="wf-group"><div class="wf-title">🔄 십이운성</div><div class="chip-wrap">${stageH||'<span class="chip">—</span>'}</div></div>
       <div class="wf-group"><div class="wf-title">🔗 천간 관계</div><div class="chip-wrap">${stemRelH||'<span class="chip">—</span>'}</div></div>
-      <div class="wf-group"><div class="wf-title">⭕ 공망 (일주 기준)</div><div class="chip-wrap">${gongmangH||'<span class="chip">—</span>'}</div></div>
+      <div class="wf-group"><div class="wf-title">🔗 지지 관계</div><div class="chip-wrap">${branchRelH||'<span class="chip">—</span>'}</div></div>
+      <div class="wf-group"><div class="wf-title">⭕ 공망</div><div class="chip-wrap gm-wrap">${gongmangH}</div></div>
     </div>
   </div>`;
   // ── 하단 해석 (다른 카테고리와 동일한 스크롤 영역) ──
