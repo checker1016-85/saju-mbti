@@ -33,7 +33,7 @@ function emptyMyungriFrame(){
   const wf=k=>`<div class="wf-group"><div class="wf-title">${k}</div><div class="wf-val" style="color:var(--text3)">조회 대기</div></div>`;
   return `<div class="unified-frame uf-fixed" style="border-color:var(--gold)">
     <div class="uf-head-split"><div class="uf-head-left"><div class="kw-main" style="color:var(--gold)">명리</div><div class="kw-sub">조회 대기 중</div></div><div class="uf-head-viz">${defaultSajuViz()}</div></div>
-    <div class="wongu-fixed"><div class="wongu-full-left">${cardH}</div><div class="wongu-full-right">${wf('🔮 대운')}${wf('📊 십성 분포')}${wf('⚡ 십이신살')}${wf('🔄 십이운성')}${wf('🔗 천간 관계')}${wf('🔗 지지 관계')}${wf('⭕ 공망')}</div></div>
+    <div class="wongu-fixed"><div class="wongu-full-left">${cardH}</div><div class="wongu-full-right">${wf('🔮 대운')}${wf('📊 십성 분포')}${wf('⚡ 십이신살')}${wf('🔄 십이운성')}${wf('🔗 천간 관계')}${wf('🔗 지지 관계')}${wf('🕳️ 공망')}</div></div>
     <div class="uf-body-scroll"><div class="uf-sec"><div class="uf-label">📌 본능 일주</div><div class="uf-body" style="color:var(--text3)">조회를 입력하세요</div></div><div class="uf-sec"><div class="uf-label">🎭 사회적 월주</div><div class="uf-body" style="color:var(--text3)">조회를 입력하세요</div></div></div></div>`;
 }
 function emptyFrame(title,viz,rows,color){
@@ -355,20 +355,29 @@ function renderMyungri(){
   const dayGm=r.gongmang?.branches||calcGongmang(r.pillars?.day);
   const gmChip=(arr)=>arr.map(b=>`<span class="chip">${b}(${HANJA_KR[b]||''})</span>`).join('');
   let gongmangH=`<span class="gm-label">년주</span>${gmChip(yearGm)||'<span class="chip">—</span>'}<span class="gm-label">일주</span>${gmChip(dayGm)||'<span class="chip">—</span>'}`;
-  // ── 십성 분포: 그룹(오행) + 세분화 ──
-  const TG_ELEM={'비견':null,'겁재':null,'식신':null,'상관':null,'편재':null,'정재':null,'편관':null,'정관':null,'편인':null,'정인':null};
-  // 일간 오행 기준 각 십성의 오행 산출
+  // ── 십성 분포: 그룹(오행) + 10종 전체 (음양오행) ──
   const ELEM_CYCLE={목:'화',화:'토',토:'금',금:'수',수:'목'}; // 생
   const ELEM_CTRL={목:'토',화:'금',토:'수',금:'목',수:'화'}; // 극
   const de=dayElem;
   const sameE=de, outE=ELEM_CYCLE[de], wealthE=ELEM_CTRL[de], officerE=Object.keys(ELEM_CTRL).find(k=>ELEM_CTRL[k]===de), resourceE=Object.keys(ELEM_CYCLE).find(k=>ELEM_CYCLE[k]===de);
   const tgGroupElem={비겁:sameE,식상:outE,재성:wealthE,관성:officerE,인성:resourceE};
-  // 분포 텍스트 (그룹+오행)
+  // 일간 음양 (戊=양). 십성별 음양: 편/비견/식신류 = 일간과 같은 음양, 정/겁재/상관류 = 반대
+  const dayYY=({甲:'양',丙:'양',戊:'양',庚:'양',壬:'양',乙:'음',丁:'음',己:'음',辛:'음',癸:'음'})[ds]||'양';
+  const opp=dayYY==='양'?'음':'양';
+  // 각 십성: [그룹, 오행, 음양]  (편/정 규칙: 비견=같음, 겁재=반대 / 편재=같음, 정재=반대 etc)
+  const TG10=[
+    {name:'비견',el:sameE,yy:dayYY},{name:'겁재',el:sameE,yy:opp},
+    {name:'식신',el:outE,yy:dayYY},{name:'상관',el:outE,yy:opp},
+    {name:'편재',el:wealthE,yy:dayYY},{name:'정재',el:wealthE,yy:opp},
+    {name:'편관',el:officerE,yy:dayYY},{name:'정관',el:officerE,yy:opp},
+    {name:'편인',el:resourceE,yy:dayYY},{name:'정인',el:resourceE,yy:opp}
+  ];
+  // 그룹 요약
   const distGroupH=tgGroups.map(g=>{const cnt=g.keys.reduce((s,k)=>s+(tg[k]||0),0);return `${g.name}(${tgGroupElem[g.name]||''}) ${cnt}`;}).join(' · ');
-  // 세분화 (편인/정인 등 10종, 0 제외)
-  const distDetailH=Object.keys(tg).filter(k=>tg[k]>0).map(k=>{
-    const grp=tgGroups.find(g=>g.keys.includes(k));const el=grp?tgGroupElem[grp.name]:'';
-    return `<span class="chip">${k}(${el}) ${tg[k]}</span>`;
+  // 10종 전체 (0 포함, 음양오행 표시: 예 "비견(양토) 3")
+  const distDetailH=TG10.map(t=>{
+    const cnt=tg[t.name]||0;
+    return `<span class="chip${cnt>0?'':' chip-zero'}">${t.name}(${t.yy}${t.el}) ${cnt}</span>`;
   }).join('');
 
   // ═══ 프레임: 점성과 동일 구조 ═══
@@ -393,7 +402,7 @@ function renderMyungri(){
       <div class="wf-group"><div class="wf-title">🔄 십이운성</div><div class="chip-wrap">${stageH||'<span class="chip">—</span>'}</div></div>
       <div class="wf-group"><div class="wf-title">🔗 천간 관계</div><div class="chip-wrap">${stemRelH||'<span class="chip">—</span>'}</div></div>
       <div class="wf-group"><div class="wf-title">🔗 지지 관계</div><div class="chip-wrap">${branchRelH||'<span class="chip">—</span>'}</div></div>
-      <div class="wf-group"><div class="wf-title">⭕ 공망</div><div class="chip-wrap gm-wrap">${gongmangH}</div></div>
+      <div class="wf-group"><div class="wf-title">🕳️ 공망</div><div class="chip-wrap gm-wrap">${gongmangH}</div></div>
     </div>
   </div>`;
   // ── 하단 해석 (다른 카테고리와 동일한 스크롤 영역) ──
