@@ -243,22 +243,19 @@ input:focus,select:focus{border-color:var(--gold)}
 
 /* ═══ v11: 고정높이 프레임 + 시각화 확대 ═══ */
 .uf-fixed{height:480px;display:flex;flex-direction:column;overflow:hidden}
-/* 명리 프레임도 다른 카테고리와 동일한 480px (해석 영역은 동일 높이 유지)
-   원국 sticky 고정 영역만 추가됨 → 프레임 자체는 +210px 정도만 늘림 */
-#myungriArea .unified-frame{height:690px}
-/* 명리 body-scroll 내 원국 섹션 — 고정 높이 (이전 대비 절반), sticky */
-#myungriArea .uf-sec-wongu{position:sticky;top:0;background:var(--surface);z-index:5;border-bottom:2px solid var(--gold);padding:12px;height:210px;box-sizing:border-box;overflow:hidden}
-/* 원국 풀 레이아웃 (좌:카드 / 우:정보 - 내부 스크롤) */
-.wongu-full{display:flex;gap:14px;align-items:stretch;height:calc(100% - 22px)}
-.wongu-full-left{flex:0 0 auto;width:300px;display:flex}
+/* 명리는 원국 고정 영역(약 280px) + 해석 스크롤이 함께 들어가서 더 큼 */
+#myungriArea .unified-frame{height:760px}
+/* 명리 body-scroll 내 원국 섹션 sticky 고정 */
+#myungriArea .uf-sec-wongu{position:sticky;top:0;background:var(--surface);z-index:5;border-bottom:2px solid var(--gold);padding:14px}
+/* 원국 풀 레이아웃 (body-scroll 내 좌우 분할, 동일 높이) */
+.wongu-full{display:flex;gap:14px;align-items:stretch;min-height:240px}
+.wongu-full-left{flex:0 0 auto;width:340px;display:flex}
 .wongu-full-left .wongu-card{flex:1;display:flex;flex-direction:column;justify-content:center}
-.wongu-full-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;overflow-y:auto;padding-right:4px}
-.wongu-full-right::-webkit-scrollbar{width:4px}
-.wongu-full-right::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.wongu-full-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
 .wf-group{font-size:11px}
 .wf-group .wf-title{font-weight:800;color:var(--gold-dim);margin-bottom:3px}
 .wf-group .wf-val{color:var(--text);line-height:1.5}
-@media(max-width:680px){.wongu-full{flex-direction:column;height:auto}.wongu-full-left{width:100%}}
+@media(max-width:680px){.wongu-full{flex-direction:column}.wongu-full-left{width:100%}}
 .uf-fixed .uf-head-split{flex-shrink:0;min-height:230px;align-items:stretch}
 .uf-head-split .uf-head-left{display:flex;flex-direction:column;justify-content:flex-start}
 .uf-head-split .uf-head-viz{align-self:flex-end}
@@ -302,14 +299,15 @@ input:focus,select:focus{border-color:var(--gold)}
 .wongu-card .pillar .lbl{font-size:8px;margin-bottom:2px}
 .wongu-card .pillar .gan-kr,.wongu-card .pillar .ji-kr{font-size:7px}
 .wongu-card .pillar .tg-top,.wongu-card .pillar .tg-bot{font-size:7px}
-/* 큰 원국 카드 (sticky 영역 내) — 한자 위, 한글 아래 세로배치 */
-.wongu-big{padding:8px}
-.wongu-big .pillar-row{gap:5px}
-.wongu-big .pillar{min-height:auto;padding:5px 3px;border-radius:7px;text-align:center}
-.wongu-big .pillar .lbl{font-size:9px;margin-bottom:2px}
-.wongu-big .pillar .tg-top,.wongu-big .pillar .tg-bot{font-size:9px;min-height:11px}
-.wongu-big .pillar .gan,.wongu-big .pillar .ji{font-size:22px;line-height:24px;font-weight:900;display:block}
-.wongu-big .pillar .gan-kr,.wongu-big .pillar .ji-kr{font-size:9px;color:var(--text3);line-height:1.2;display:block}
+/* 큰 원국 카드 (body-scroll 내) — 한자 옆 한글 가로배치 */
+.wongu-big{padding:12px}
+.wongu-big .pillar-row{gap:8px}
+.wongu-big .pillar{min-height:130px;padding:8px 4px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.wongu-big .pillar .lbl{font-size:10px;margin-bottom:4px}
+.wongu-big .pillar .tg-top,.wongu-big .pillar .tg-bot{font-size:10px;min-height:13px}
+.wongu-big .pillar .hanrow{display:flex;align-items:baseline;justify-content:center;gap:3px}
+.wongu-big .pillar .gan,.wongu-big .pillar .ji{font-size:24px;line-height:28px;font-weight:900}
+.wongu-big .pillar .gan-kr,.wongu-big .pillar .ji-kr{font-size:11px;color:var(--text3);line-height:1}
 
 /* 시각화 헤더 좌측 하단 스크롤 정보 */
 .kw-extra{margin-top:auto;max-height:90px;overflow-y:auto;border-top:1px dashed var(--border);padding-top:6px}
