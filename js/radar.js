@@ -3,7 +3,7 @@ const VIZ_SIZE=200;
 
 // 방사형 (성향 프로필용) — 반시계 방향, 라벨에 퍼센트 포함
 function radarSVG(axes, color, size = 200) {
-  const cx=size/2,cy=size/2,r=size/2-36,n=axes.length;
+  const cx=size/2,cy=size/2,r=size/2-44,n=axes.length;
   const ang=(i)=>-Math.PI/2-2*Math.PI*i/n; // 반시계
   const pt=(i,v)=>[(cx+r*(v/100)*Math.cos(ang(i))).toFixed(1),(cy+r*(v/100)*Math.sin(ang(i))).toFixed(1)];
   let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
@@ -12,11 +12,17 @@ function radarSVG(axes, color, size = 200) {
   let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
   svg+=`<polygon points="${dpts}" fill="${color}25" stroke="${color}" stroke-width="2"/>`;
   axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);svg+=`<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;});
-  // 라벨: 텍스트(퍼센트) — 잘림 방지 여백 확보
+  // 라벨: 1줄 텍스트 + 2줄 (퍼센트), 위치별 정렬로 잘림 방지
   axes.forEach((a,i)=>{
-    const[lx,ly]=pt(i,128);
-    const labelText=a.label.replace('\n',' ')+'('+a.value+'%)';
-    svg+=`<text x="${lx}" y="${(+ly)+3}" text-anchor="middle" fill="#5a5348" font-size="9" font-weight="700" font-family="Noto Sans KR">${labelText}</text>`;
+    const aa=ang(i);
+    const cos=Math.cos(aa), sin=Math.sin(aa);
+    const lx=cx+(r+12)*cos, ly=cy+(r+12)*sin;
+    // 좌우 위치에 따라 정렬 (오른쪽=start, 왼쪽=end, 수직=middle)
+    let anchor='middle';
+    if(cos>0.25)anchor='start';else if(cos<-0.25)anchor='end';
+    const name=a.label.replace('\n',' ');
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" fill="#5a5348" font-size="9" font-weight="700" font-family="Noto Sans KR">${name}</text>`;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+9).toFixed(1)}" text-anchor="${anchor}" fill="${color}" font-size="8.5" font-weight="800" font-family="Space Grotesk">(${a.value}%)</text>`;
   });
   svg+='</svg>';return svg;
 }

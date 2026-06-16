@@ -523,7 +523,7 @@ function buildSummaryHTML(){
   return h;
 }
 function renderSummary(){
-  document.getElementById('summaryArea').innerHTML=buildSummaryHTML();
+  const el=document.getElementById('summaryArea');if(el)el.innerHTML=buildSummaryHTML();
 }
 
 // ═══ RIGHT: 종합 프로필(상단) + 스탯 + 레이더 ═══
