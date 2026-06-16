@@ -114,18 +114,17 @@ window.doCalc=function(){
   S.saju=r;S.tg=countTG(r);S.stats=calcStats(r,S.tg);S.radar=calcRadar(S.tg,r);
   S.mbti=calcMBTIFull(S.tg);S.selectedMBTI=S.mbti.primary;
   S.ennea=calcEnneagram(S.tg);S.selectedEnnea=S.ennea.primary;
-  renderSajuCard();renderSajuMeta();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();
-  document.getElementById('enneaSelBtn').style.display='';
-  document.getElementById('mbtiSelBtn').style.display='';
-  // 점성 계산 (출생지 좌표 필요, 시간모름이면 정오 기준)
+  // 점성 계산 먼저 (종합 프로필에 상승궁 칩 포함되도록)
   if(typeof calcAstro==='function'&&typeof COUNTRIES!=='undefined'){
     const geo=getGeo();
     const aHour=noTime?12:hour, aMin=noTime?0:minute;
     const ah=calcAstro(+document.getElementById('inYear').value,+document.getElementById('inMonth').value,+document.getElementById('inDay').value,aHour,aMin,geo.lat,geo.lng);
-    renderAstro(ah);
-    // 상승궁 저장 (종합 프로필용)
     if(ah&&ah.Ascendant){S.astroAscKey=ah.Ascendant.Sign.key;S.astroAscSign=(typeof SIGN_KR!=='undefined'?SIGN_KR[ah.Ascendant.Sign.key]||'':'').replace('자리','');}
+    renderAstro(ah);
   }
+  renderSajuCard();renderSajuMeta();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();
+  document.getElementById('enneaSelBtn').style.display='';
+  document.getElementById('mbtiSelBtn').style.display='';
   toast('✅ 분석 완료');
 };
 
