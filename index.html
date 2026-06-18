@@ -12,7 +12,13 @@
 
 <!-- ═══ 단락 1: 생년월일 입력 (2칼럼 가로, 세로 구분선) ═══ -->
 <section class="block">
-  <div class="block-title">📋 1. 생년월일 입력</div>
+  <div class="block-title" style="display:flex;align-items:center;justify-content:space-between">
+    <span>📋 1. 생년월일 입력</span>
+    <span style="display:flex;gap:5px">
+      <button class="btn btn-sub" onclick="saveProfile()" style="font-size:11px;padding:4px 10px">💾 저장</button>
+      <button class="btn btn-sub" onclick="openLoadModal()" style="font-size:11px;padding:4px 10px">📂 불러오기</button>
+    </span>
+  </div>
   <div class="birth-grid">
     <div class="birth-col birth-col-left">
       <div class="row">
@@ -67,11 +73,7 @@
           <div class="geo-coord-label">대한민국(서울) 기준 · 직접 수정 가능</div>
         </div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-gold" onclick="doCalc()" style="flex:1">만세력·점성차트 조회</button>
-        <button class="btn btn-sub" onclick="saveProfile()" style="flex:0 0 auto;font-size:12px">💾 저장</button>
-        <button class="btn btn-sub" onclick="openLoadModal()" style="flex:0 0 auto;font-size:12px">📂 불러오기</button>
-      </div>
+      <button class="btn btn-gold" onclick="doCalc()">만세력·점성차트 조회</button>
     </div>
   </div>
 </section>
