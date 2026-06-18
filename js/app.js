@@ -110,7 +110,24 @@ window.doCalc=function(){
   if(!noTime){hour=timeMode==='ganji'?+document.getElementById('inGanji').value:+document.getElementById('inHour').value;}
   const minute=(!noTime&&timeMode==='direct')?+document.getElementById('inMin').value:0;
   const cal=document.querySelector('input[name="cal"]:checked').value;
-  const r=window._ssaju({year:+document.getElementById('inYear').value,month:+document.getElementById('inMonth').value,day:+document.getElementById('inDay').value,hour,minute,gender:document.getElementById('inGender').value,calendar:cal==='lunar'||cal==='leap'?'lunar':'solar'});
+  const inY=+document.getElementById('inYear').value,inM=+document.getElementById('inMonth').value,inD=+document.getElementById('inDay').value;
+
+  // ═══ 진태양시(眞太陽時) 보정 — 표준경선 vs 출생지 경도 ═══
+  let adjY=inY,adjM=inM,adjD=inD,adjH=hour,adjMin=minute;
+  if(!noTime){
+    const geo=getGeo();
+    const country=document.getElementById('inCountry').value;
+    const stdM={'대한민국':135,'일본':135,'중국':120}[country]||(Math.round(geo.lng/15)*15);
+    const corrMin=Math.round((stdM-geo.lng)*4); // 보정 분 (한국 서울≈32분)
+    if(corrMin!==0){
+      const dt=new Date(inY,inM-1,inD,hour,minute-corrMin);
+      adjH=dt.getHours(); adjMin=dt.getMinutes();
+      // 양력이면 일자도 보정 (자정 넘어갈 때)
+      if(cal==='solar'){adjY=dt.getFullYear();adjM=dt.getMonth()+1;adjD=dt.getDate();}
+    }
+  }
+
+  const r=window._ssaju({year:adjY,month:adjM,day:adjD,hour:adjH,minute:adjMin,gender:document.getElementById('inGender').value,calendar:cal==='lunar'||cal==='leap'?'lunar':'solar'});
   S.saju=r;S.tg=countTG(r);S.stats=calcStats(r,S.tg);S.radar=calcRadar(S.tg,r);
   S.mbti=calcMBTIFull(S.tg);S.selectedMBTI=S.mbti.primary;
   S.ennea=calcEnneagram(S.tg);S.selectedEnnea=S.ennea.primary;
