@@ -321,3 +321,24 @@ input:focus,select:focus{border-color:var(--gold)}
 .kw-extra::-webkit-scrollbar{width:3px}
 .kw-extra::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .kw-extra .chip{font-size:9px;padding:2px 7px;margin:1px}
+
+/* ═══ 모바일 반응형: 4프레임 (사주/점성/에니어/MBTI) ═══ */
+@media(max-width:680px){
+  /* 헤더: 좌정보 위 → 시각화 아래 */
+  .uf-head-split{flex-direction:column!important;min-height:auto!important;align-items:stretch!important}
+  .uf-head-left{order:1}
+  .uf-head-viz{order:2;width:100%!important;align-self:center!important;margin-top:10px;align-items:center!important}
+  .uf-head-viz svg{width:180px!important;height:180px!important}
+  /* 프레임 고정높이 해제 */
+  .uf-fixed{height:auto!important;max-height:none!important}
+  .uf-fixed .uf-head-split{min-height:auto!important}
+  /* 본문 스크롤 영역 축소 */
+  .uf-body-scroll{max-height:360px!important}
+  #myungriArea .uf-body-scroll{height:360px!important}
+  /* 레이더 1열 */
+  .radar-grid6{grid-template-columns:1fr!important}
+  /* 종합프로필 */
+  .summary-phrase{font-size:15px!important}
+  .summary-keywords{gap:4px!important}
+  .sk-tag{font-size:10px!important;padding:4px 8px!important}
+}
