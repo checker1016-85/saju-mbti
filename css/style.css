@@ -261,7 +261,11 @@ input:focus,select:focus{border-color:var(--gold)}
 .wf-group .wf-val{color:var(--text);line-height:1.5}
 /* 명리 하단 해석 = 다른 카테고리 본문 스크롤과 동일 (480px) */
 #myungriArea .uf-body-scroll{height:480px}
-@media(max-width:680px){.wongu-fixed{flex-direction:column;height:auto}.wongu-full-left,.wongu-full-right{flex:1 1 auto}}
+@media(max-width:680px){
+  .wongu-fixed{flex-direction:column;height:auto;max-height:370px}
+  .wongu-full-left{flex:0 0 auto}
+  .wongu-full-right{flex:0 0 200px;max-height:200px;overflow-y:auto;margin-top:10px;border-top:1px solid var(--border);padding-top:8px}
+}
 .uf-fixed .uf-head-split{flex-shrink:0;min-height:230px;align-items:stretch}
 .uf-head-split .uf-head-left{display:flex;flex-direction:column;justify-content:flex-start}
 .uf-head-split .uf-head-viz{align-self:flex-end}
