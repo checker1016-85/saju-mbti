@@ -459,7 +459,6 @@ function renderEnnea(){
 function renderMBTI(){
   if(!S.mbti)return;
   const m=S.mbti,sel=S.selectedMBTI,ax=m.axes;
-  const dbM=getDBMbti(sel);
   // A/T 판정: 4축의 우세 강도 평균 → 높을수록 A(확신형), 낮을수록 T(격동형)
   const axList=[['E',ax.E,'I',ax.I],['S',ax.S,'N',ax.N],['T',ax.T,'F',ax.F],['J',ax.J,'P',ax.P]];
   const confidences=axList.map(([a,av,b,bv])=>Math.max(av,bv)); // 각 축 우세쪽 %
@@ -468,6 +467,7 @@ function renderMBTI(){
   const aPctAT=Math.round((avgConf-50)/50*100);
   const tPctAT=100-aPctAT;
   const variant=aPctAT>=50?'A':'T';
+  const dbM=getDBMbti(sel+'-'+variant)||getDBMbti(sel);
   let topAxis='',topVal=0,topLabel='';
   axList.forEach(([a,av,b,bv])=>{const on=sel.includes(a)?a:b,v=sel.includes(a)?av:bv;if(v>topVal){topVal=v;topAxis=on;topLabel=on;}});
   let h='<div class="unified-frame uf-fixed" style="border-color:var(--stat-lead)">';

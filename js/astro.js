@@ -69,9 +69,9 @@ function renderAstro(h) {
   html += `</div><div class="uf-head-viz">${astroChartSVG(h)}</div></div>`;
   html += '<div class="uf-body-scroll">';
   html += `<div class="uf-sec"><div class="uf-label">${SIGN_EMOJI[ascKey]} 상승궁 (ASC) — ${SIGN_KR[ascKey]} ${ascDeg}</div><div class="uf-body">${ASC_DESC[ascKey] || ''}</div></div>`;
-  html += `<div class="uf-sec"><div class="uf-label">☉ 태양 — ${SIGN_KR[sunKey]}</div><div class="uf-body"><b>본질·자아:</b> ${SIGN_DESC[sunKey] || ''}</div></div>`;
-  html += `<div class="uf-sec"><div class="uf-label">☽ 달 — ${SIGN_KR[moonKey]}</div><div class="uf-body"><b>감정·내면:</b> ${SIGN_DESC[moonKey] || ''}</div></div>`;
-  if (mcKey) html += `<div class="uf-sec"><div class="uf-label">⬆️ MC 천정 — ${SIGN_KR[mcKey]}</div><div class="uf-body"><b>직업·사회적 정점:</b> ${SIGN_DESC[mcKey] || ''}</div></div>`;
+  html += `<div class="uf-sec"><div class="uf-label">☉ 태양 — ${SIGN_KR[sunKey]}</div><div class="uf-body"><b>메인 기질:</b> ${(typeof SUN_DESC!=='undefined'&&SUN_DESC[sunKey])||SIGN_DESC[sunKey]||''}</div></div>`;
+  html += `<div class="uf-sec"><div class="uf-label">☽ 달 — ${SIGN_KR[moonKey]}</div><div class="uf-body"><b>서브 기질:</b> ${(typeof MOON_DESC!=='undefined'&&MOON_DESC[moonKey])||SIGN_DESC[moonKey]||''}</div></div>`;
+  if (mcKey) html += `<div class="uf-sec"><div class="uf-label">⬆️ MC 천정 — ${SIGN_KR[mcKey]}</div><div class="uf-body"><b>사회적 페르소나:</b> ${(typeof MC_DESC!=='undefined'&&MC_DESC[mcKey])||SIGN_DESC[mcKey]||''}</div></div>`;
   html += '</div></div>';
   if(el) el.innerHTML = html;
 }
