@@ -142,6 +142,38 @@ function calcStats(r,tg){
   return st;
 }
 
+// ═══ 8종 개인화 스탯 (사주+점성+에니어+MBTI 종합) ═══
+function calc8Stats(tg,mbti,ennea,r){
+  const cl=v=>Math.max(55,Math.min(99,Math.round(v)));
+  const tv=(names)=>{let s=0;names.forEach(n=>s+=(tg[n]||0));return s;};
+  const ax=mbti?.axes||{E:50,I:50,S:50,N:50,T:50,F:50,J:50,P:50};
+  const en=ennea?.scores||{};
+  const str=r?.advanced?.dayStrength?.score||50;
+  const pool=[
+    {key:'독립심',icon:'🏔️',score:tv(['비견','겁재'])*13+ax.I*.25+(en[8]||0)*2.5+(en[5]||0)*1.5+str*.15,color:'#c04010'},
+    {key:'리더십',icon:'👑',score:tv(['편관','정관'])*13+ax.E*.2+ax.J*.15+(en[8]||0)*2.5+(en[3]||0)*2,color:'#6050c0'},
+    {key:'창의력',icon:'🎨',score:tv(['식신','상관'])*13+ax.N*.25+(en[4]||0)*2.5+(en[7]||0)*2,color:'#18a088'},
+    {key:'분석력',icon:'🔬',score:tv(['편인','정인'])*13+ax.T*.2+ax.N*.1+(en[5]||0)*3+(en[1]||0)*1.5,color:'#4472c4'},
+    {key:'책임감',icon:'🛡️',score:tv(['정관','정인'])*13+ax.J*.25+(en[1]||0)*3+(en[6]||0)*2,color:'#7b5ea7'},
+    {key:'표현력',icon:'🎤',score:tv(['식신','상관'])*12+ax.E*.25+(en[7]||0)*2.5+(en[4]||0)*2,color:'#d44060'},
+    {key:'관계운',icon:'🤝',score:tv(['정재','식신'])*12+ax.F*.25+(en[2]||0)*3+(en[9]||0)*1.5,color:'#d4a017'},
+    {key:'인내심',icon:'🪨',score:tv(['비견','정재'])*11+ax.S*.15+ax.J*.15+(en[9]||0)*3+(en[6]||0)*2+str*.1,color:'#8b7355'},
+    {key:'직관력',icon:'🔮',score:tv(['편인','상관'])*13+ax.N*.25+(en[4]||0)*2+(en[5]||0)*2,color:'#5040a0'},
+    {key:'결단력',icon:'⚡',score:tv(['편관','겁재'])*13+ax.T*.15+ax.J*.15+(en[8]||0)*3,color:'#c04010'},
+    {key:'멘탈',icon:'🧠',score:tv(['비견','편인'])*11+tv(['정인'])*8+(en[5]||0)*2+(en[1]||0)*2+str*.2,color:'#4472c4'},
+    {key:'승부욕',icon:'🔥',score:tv(['겁재','편관'])*13+ax.T*.15+(en[3]||0)*3+(en[8]||0)*2,color:'#d44060'},
+    {key:'투자감각',icon:'💎',score:tv(['편재'])*16+tv(['정재'])*7+ax.S*.15+ax.T*.1+(en[3]||0)*2,color:'#d4a017'},
+    {key:'기회포착',icon:'🎯',score:tv(['편재','식신'])*12+ax.N*.15+ax.P*.15+(en[7]||0)*3,color:'#18a088'},
+    {key:'사업감각',icon:'💼',score:tv(['편재','편관'])*12+ax.E*.15+ax.T*.15+(en[3]||0)*2.5+(en[8]||0)*2,color:'#8b7355'},
+    {key:'사교력',icon:'🌟',score:tv(['식신','정재'])*12+ax.E*.25+ax.F*.15+(en[2]||0)*3+(en[7]||0)*2,color:'#6050c0'},
+  ];
+  const mx=Math.max(...pool.map(p=>p.score)),mn=Math.min(...pool.map(p=>p.score));
+  const range=mx-mn+0.01;
+  pool.forEach(p=>{p.score=cl(55+(p.score-mn)/range*44);});
+  pool.sort((a,b)=>b.score-a.score);
+  return pool.slice(0,8);
+}
+
 function calcRadar(tg,r){
   const str=r.advanced?.dayStrength?.score||50;const clamp=(v)=>Math.max(5,Math.min(100,v));
   return {
@@ -506,11 +538,10 @@ function buildSummaryHTML(){
   const ascSign=S.astroAscSign||'';
   const ascKey=S.astroAscKey||'';
   const ascKw=(typeof SIGN_KEYWORD!=='undefined'&&SIGN_KEYWORD[ascKey])||(ascSign?ascSign+' 상승형':'');
-  // 한 문장 요약
+  // 한 문장 요약 (콤마 나열이 아닌 자연스러운 문장)
   let phrase=`${stemAdj} ${typeName}`;
-  if(ascKw)phrase+=`, ${ascKw.replace(/형$/,'')}`;
-  phrase+=`, ${enName}의 ${enCenter}형`;
-  phrase+=`, ${mbtiKw}`;
+  if(ascKw)phrase+=`의 ${ascKw.replace(/형$/,'')}을 가진`;
+  phrase+=` ${enName}로, ${mbtiKw.replace(/형$/,'')}의 기질`;
   let h=`<div class="summary-card">
     <div class="summary-phrase">${phrase}</div>
     <div class="summary-keywords">
@@ -532,11 +563,24 @@ function renderRight(){
   let h='';
   // ① 종합 프로필 (성향 프로필 최상단)
   h+=buildSummaryHTML();
-  // ② 스탯 5개
-  const SM=[{key:'재물력',icon:'💰',color:'var(--stat-money)'},{key:'놀기력',icon:'🎉',color:'var(--stat-play)'},{key:'리더력',icon:'👑',color:'var(--stat-lead)'},{key:'학습력',icon:'🧠',color:'var(--stat-study)'},{key:'독립력',icon:'⚔️',color:'var(--stat-solo)'}];
+  // ② 8종 개인화 스탯
+  const personal8=calc8Stats(S.tg,S.mbti,S.ennea,S.saju);
   h+='<div class="right-card">';
-  SM.forEach(s=>{const v=st[s.key];h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:14px;width:20px;text-align:center">${s.icon}</span><span style="width:42px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span><div style="flex:1;height:20px;background:var(--surface3);border-radius:10px;overflow:hidden"><div style="height:100%;width:${v}%;background:${s.color};border-radius:10px;position:relative"><span style="position:absolute;right:6px;top:2px;font-size:10px;font-weight:800;color:#fff">${v}</span></div></div></div>`;});
-  h+=`<div style="text-align:center;padding:8px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-top:4px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:28px;font-weight:700;color:var(--gold-dim)">${st.종합}</span></div>`;
+  personal8.forEach((s,i)=>{
+    const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
+    h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+      <span style="font-size:14px;width:20px;text-align:center">${s.icon}</span>
+      <span style="width:50px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span>
+      <div style="flex:1;height:22px;background:var(--surface3);border-radius:11px;overflow:hidden">
+        <div style="height:100%;width:${s.score}%;background:${s.color};border-radius:11px;position:relative;transition:width .6s ease">
+          <span style="position:absolute;right:6px;top:3px;font-size:10px;font-weight:800;color:#fff">${s.score}</span>
+        </div>
+      </div>
+      ${pctLabel?`<span style="font-size:9px;padding:1px 5px;background:${s.color}18;color:${s.color};border-radius:8px;white-space:nowrap;font-weight:600">${pctLabel}</span>`:''}
+    </div>`;
+  });
+  const avg8=Math.round(personal8.reduce((s,p)=>s+p.score,0)/8);
+  h+=`<div style="text-align:center;padding:8px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-top:4px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:28px;font-weight:700;color:var(--gold-dim)">${avg8}</span></div>`;
   h+='</div>';
   // ③ 레이더 6종
   h+='<div class="radar-grid6">';
