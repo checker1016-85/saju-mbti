@@ -194,12 +194,12 @@ function calc8Stats(tg,mbti,ennea,r){
 function calcRadar(tg,r){
   const str=r.advanced?.dayStrength?.score||50;const clamp=(v)=>Math.max(5,Math.min(100,v));
   return {
-    '체력·멘탈':{color:'#d44060',axes:[{label:'체력',value:clamp(tgVal(tg,['비견','겁재'])*16+str*.3)},{label:'멘탈력',value:clamp(tgVal(tg,['편인','정인'])*16+str*.2)},{label:'회복력',value:clamp(tgVal(tg,['식신','상관'])*14+tgVal(tg,['정인'])*8)},{label:'인내력',value:clamp(tgVal(tg,['편관','정관'])*12+tgVal(tg,['정재'])*10)},{label:'스트레스\n내성',value:clamp(str*.5+tgVal(tg,['비견'])*12)}]},
-    '사회성':{color:'#6050c0',axes:[{label:'리더십',value:clamp(tgVal(tg,['편관','정관'])*16)},{label:'소통력',value:clamp(tgVal(tg,['식신','상관'])*16)},{label:'협업력',value:clamp(tgVal(tg,['비견'])*18+tgVal(tg,['정관'])*8)},{label:'매력',value:clamp(tgVal(tg,['편재','정재'])*12+tgVal(tg,['상관'])*8)},{label:'공감력',value:clamp(tgVal(tg,['정인'])*14+tgVal(tg,['식신'])*10)}]},
-    '재능·두뇌':{color:'#18a088',axes:[{label:'창의력',value:clamp(tgVal(tg,['상관'])*18+tgVal(tg,['식신'])*10)},{label:'분석력',value:clamp(tgVal(tg,['정인'])*16+tgVal(tg,['편인'])*10)},{label:'실행력',value:clamp(tgVal(tg,['비견','겁재'])*12+tgVal(tg,['편관'])*10)},{label:'전략력',value:clamp(tgVal(tg,['정관'])*12+tgVal(tg,['정인'])*12)},{label:'직관력',value:clamp(tgVal(tg,['편인'])*16+tgVal(tg,['상관'])*10)}]},
-    '재물·야망':{color:'#d4a017',axes:[{label:'수익감각',value:clamp(tgVal(tg,['정재'])*18+tgVal(tg,['편재'])*8)},{label:'투자감각',value:clamp(tgVal(tg,['편재'])*18+tgVal(tg,['정재'])*6)},{label:'야망',value:clamp(tgVal(tg,['편관'])*16+tgVal(tg,['겁재'])*8)},{label:'안정추구',value:clamp(tgVal(tg,['정관'])*14+tgVal(tg,['정재'])*12)},{label:'모험도',value:clamp(tgVal(tg,['겁재'])*14+tgVal(tg,['편재'])*12)}]},
-    '관계·연애':{color:'#d44060',axes:[{label:'애정표현',value:clamp(tgVal(tg,['정재','편재'])*14+tgVal(tg,['상관'])*8)},{label:'헌신도',value:clamp(tgVal(tg,['정재'])*16+tgVal(tg,['정인'])*8)},{label:'매력',value:clamp(tgVal(tg,['상관'])*14+tgVal(tg,['편재'])*10)},{label:'안정성',value:clamp(tgVal(tg,['정관','정재'])*12)},{label:'자유추구',value:clamp(tgVal(tg,['겁재','상관'])*12)}]},
-    '직업·사회':{color:'#18a088',axes:[{label:'조직력',value:clamp(tgVal(tg,['정관'])*16+tgVal(tg,['정재'])*8)},{label:'전문성',value:clamp(tgVal(tg,['정인','편인'])*14)},{label:'추진력',value:clamp(tgVal(tg,['편관','겁재'])*14)},{label:'창업기질',value:clamp(tgVal(tg,['편재','상관'])*14)},{label:'협상력',value:clamp(tgVal(tg,['정재','식신'])*13)}]}
+    '체력·멘탈':{color:'#529E89',axes:[{label:'체력',value:clamp(tgVal(tg,['비견','겁재'])*16+str*.3)},{label:'멘탈력',value:clamp(tgVal(tg,['편인','정인'])*16+str*.2)},{label:'회복력',value:clamp(tgVal(tg,['식신','상관'])*14+tgVal(tg,['정인'])*8)},{label:'인내력',value:clamp(tgVal(tg,['편관','정관'])*12+tgVal(tg,['정재'])*10)},{label:'스트레스\n내성',value:clamp(str*.5+tgVal(tg,['비견'])*12)}]},
+    '사회성':{color:'#529E89',axes:[{label:'리더십',value:clamp(tgVal(tg,['편관','정관'])*16)},{label:'소통력',value:clamp(tgVal(tg,['식신','상관'])*16)},{label:'협업력',value:clamp(tgVal(tg,['비견'])*18+tgVal(tg,['정관'])*8)},{label:'매력',value:clamp(tgVal(tg,['편재','정재'])*12+tgVal(tg,['상관'])*8)},{label:'공감력',value:clamp(tgVal(tg,['정인'])*14+tgVal(tg,['식신'])*10)}]},
+    '재능·두뇌':{color:'#529E89',axes:[{label:'창의력',value:clamp(tgVal(tg,['상관'])*18+tgVal(tg,['식신'])*10)},{label:'분석력',value:clamp(tgVal(tg,['정인'])*16+tgVal(tg,['편인'])*10)},{label:'실행력',value:clamp(tgVal(tg,['비견','겁재'])*12+tgVal(tg,['편관'])*10)},{label:'전략력',value:clamp(tgVal(tg,['정관'])*12+tgVal(tg,['정인'])*12)},{label:'직관력',value:clamp(tgVal(tg,['편인'])*16+tgVal(tg,['상관'])*10)}]},
+    '재물·야망':{color:'#529E89',axes:[{label:'수익감각',value:clamp(tgVal(tg,['정재'])*18+tgVal(tg,['편재'])*8)},{label:'투자감각',value:clamp(tgVal(tg,['편재'])*18+tgVal(tg,['정재'])*6)},{label:'야망',value:clamp(tgVal(tg,['편관'])*16+tgVal(tg,['겁재'])*8)},{label:'안정추구',value:clamp(tgVal(tg,['정관'])*14+tgVal(tg,['정재'])*12)},{label:'모험도',value:clamp(tgVal(tg,['겁재'])*14+tgVal(tg,['편재'])*12)}]},
+    '관계·연애':{color:'#529E89',axes:[{label:'애정표현',value:clamp(tgVal(tg,['정재','편재'])*14+tgVal(tg,['상관'])*8)},{label:'헌신도',value:clamp(tgVal(tg,['정재'])*16+tgVal(tg,['정인'])*8)},{label:'매력',value:clamp(tgVal(tg,['상관'])*14+tgVal(tg,['편재'])*10)},{label:'안정성',value:clamp(tgVal(tg,['정관','정재'])*12)},{label:'자유추구',value:clamp(tgVal(tg,['겁재','상관'])*12)}]},
+    '직업·사회':{color:'#529E89',axes:[{label:'조직력',value:clamp(tgVal(tg,['정관'])*16+tgVal(tg,['정재'])*8)},{label:'전문성',value:clamp(tgVal(tg,['정인','편인'])*14)},{label:'추진력',value:clamp(tgVal(tg,['편관','겁재'])*14)},{label:'창업기질',value:clamp(tgVal(tg,['편재','상관'])*14)},{label:'협상력',value:clamp(tgVal(tg,['정재','식신'])*13)}]}
   };
 }
 
@@ -580,15 +580,14 @@ function renderRight(){
   let h='';
   // ① 종합 프로필 (성향 프로필 최상단)
   h+=buildSummaryHTML();
-  // ② 8종 개인화 스탯 (2열, 통일 색상, 2/3 크기)
+  // ② 8종 개인화 스탯 (2열, 통일 색상, 아이콘 없음)
   const personal8=calc8Stats(S.tg,S.mbti,S.ennea,S.saju);
-  const gaugeColor='#b8860b';
+  const gaugeColor='#476AC6';
   h+='<div class="right-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">';
   personal8.forEach((s,i)=>{
     const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
     h+=`<div style="display:flex;align-items:center;gap:4px">
-      <span style="font-size:12px;width:16px;text-align:center">${s.icon}</span>
-      <span style="width:38px;font-size:9px;color:var(--text2);font-weight:700">${s.key}</span>
+      <span style="width:42px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span>
       <div style="flex:1;height:16px;background:var(--surface3);border-radius:8px;overflow:hidden">
         <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:8px;position:relative;transition:width .6s ease">
           <span style="position:absolute;right:4px;top:1px;font-size:9px;font-weight:800;color:#fff">${s.score}</span>
@@ -605,7 +604,7 @@ function renderRight(){
   h+='<div class="radar-grid6">';
   for(const[title,data]of Object.entries(S.radar)){
     const avg=Math.round(data.axes.reduce((s,a)=>s+a.value,0)/data.axes.length);
-    h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,200)}</div>`;
+    h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,260)}</div>`;
   }
   h+='</div>';
   document.getElementById('rightResult').innerHTML=h;
