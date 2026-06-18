@@ -12,12 +12,11 @@
 
 <!-- ═══ 단락 1: 생년월일 입력 (2칼럼 가로, 세로 구분선) ═══ -->
 <section class="block">
-  <div class="block-title" style="display:flex;align-items:center;justify-content:space-between">
-    <span>📋 1. 생년월일 입력</span>
-    <span style="display:flex;gap:5px">
-      <button class="btn btn-sub" onclick="saveProfile()" style="font-size:11px;padding:4px 10px">💾 저장</button>
-      <button class="btn btn-sub" onclick="openLoadModal()" style="font-size:11px;padding:4px 10px">📂 불러오기</button>
-    </span>
+  <div class="block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="flex:1">📋 1. 생년월일 입력</span>
+    <span id="loadedName" style="font-size:11px;color:var(--gold-dim);font-weight:700;display:none"></span>
+    <button class="btn btn-sub" onclick="openLoadModal()" style="font-size:12px;padding:6px 18px">📂 불러오기</button>
+    <button class="btn btn-sub" onclick="saveProfile()" style="font-size:12px;padding:6px 18px">💾 저장하기</button>
   </div>
   <div class="birth-grid">
     <div class="birth-col birth-col-left">

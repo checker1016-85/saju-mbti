@@ -580,24 +580,26 @@ function renderRight(){
   let h='';
   // ① 종합 프로필 (성향 프로필 최상단)
   h+=buildSummaryHTML();
-  // ② 8종 개인화 스탯
+  // ② 8종 개인화 스탯 (2열, 통일 색상, 2/3 크기)
   const personal8=calc8Stats(S.tg,S.mbti,S.ennea,S.saju);
-  h+='<div class="right-card">';
+  const gaugeColor='#b8860b';
+  h+='<div class="right-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">';
   personal8.forEach((s,i)=>{
     const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
-    h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-      <span style="font-size:14px;width:20px;text-align:center">${s.icon}</span>
-      <span style="width:50px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span>
-      <div style="flex:1;height:22px;background:var(--surface3);border-radius:11px;overflow:hidden">
-        <div style="height:100%;width:${s.score}%;background:${s.color};border-radius:11px;position:relative;transition:width .6s ease">
-          <span style="position:absolute;right:6px;top:3px;font-size:10px;font-weight:800;color:#fff">${s.score}</span>
+    h+=`<div style="display:flex;align-items:center;gap:4px">
+      <span style="font-size:12px;width:16px;text-align:center">${s.icon}</span>
+      <span style="width:38px;font-size:9px;color:var(--text2);font-weight:700">${s.key}</span>
+      <div style="flex:1;height:16px;background:var(--surface3);border-radius:8px;overflow:hidden">
+        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:8px;position:relative;transition:width .6s ease">
+          <span style="position:absolute;right:4px;top:1px;font-size:9px;font-weight:800;color:#fff">${s.score}</span>
         </div>
       </div>
-      ${pctLabel?`<span style="font-size:9px;padding:1px 5px;background:${s.color}18;color:${s.color};border-radius:8px;white-space:nowrap;font-weight:600">${pctLabel}</span>`:''}
+      ${pctLabel?`<span style="font-size:8px;padding:1px 4px;background:${gaugeColor}18;color:${gaugeColor};border-radius:6px;white-space:nowrap;font-weight:600">${pctLabel}</span>`:''}
     </div>`;
   });
+  h+='</div>';
   const avg8=Math.round(personal8.reduce((s,p)=>s+p.score,0)/8);
-  h+=`<div style="text-align:center;padding:8px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-top:4px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:28px;font-weight:700;color:var(--gold-dim)">${avg8}</span></div>`;
+  h+=`<div style="text-align:center;padding:6px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-top:6px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:24px;font-weight:700;color:var(--gold-dim)">${avg8}</span></div>`;
   h+='</div>';
   // ③ 레이더 6종
   h+='<div class="radar-grid6">';
@@ -703,19 +705,18 @@ window.saveProfile=function(){
 window.openLoadModal=function(){
   const profiles=getProfiles();
   const el=document.getElementById('profileList');
-  if(profiles.length===0){el.innerHTML='<div style="text-align:center;color:var(--text2);padding:30px">저장된 프로필이 없습니다.<br><br>조회 버튼 옆 💾 저장으로 추가하세요.</div>';
+  if(profiles.length===0){el.innerHTML='<div style="text-align:center;color:var(--text2);padding:30px">저장된 프로필이 없습니다.<br><br>💾 저장하기로 추가하세요.</div>';
   }else{
     el.innerHTML=profiles.map((p,i)=>{
       const d=`${p.year}.${String(p.month).padStart(2,'0')}.${String(p.day).padStart(2,'0')}`;
-      const t=p.noTime?'시간모름':p.timeMode==='ganji'?`간지 ${p.ganji}시`:`${String(p.hour).padStart(2,'0')}:${String(p.min||0).padStart(2,'0')}`;
       const g=p.gender==='남'?'♂':'♀';
-      const loc=p.geoMode==='coord'?`${p.lat},${p.lng}`:(p.city||p.region||p.country||'');
-      return `<div class="profile-item" style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:var(--surface);cursor:pointer" onclick="loadProfile(${i})">
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:var(--surface)">
         <div style="flex:1;min-width:0">
-          <div style="font-weight:800;font-size:14px;color:var(--gold-dim);margin-bottom:2px">${p.name} <span style="font-size:11px;font-weight:400;color:var(--text2)">${g}</span></div>
-          <div style="font-size:11px;color:var(--text2)">${d} · ${t} · ${p.cal==='solar'?'양력':p.cal==='lunar'?'음력':'윤달'} · ${loc}</div>
+          <span style="font-weight:800;font-size:14px;color:var(--gold-dim)">${p.name}</span>
+          <span style="font-size:11px;color:var(--text2);margin-left:6px">${g} ${d}</span>
         </div>
-        <button class="btn btn-sub" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="event.stopPropagation();deleteProfile(${i})">✕</button>
+        <button title="선택" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px" onclick="loadProfile(${i})">✅</button>
+        <button title="삭제" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px" onclick="deleteProfile(${i})">🗑️</button>
       </div>`;
     }).join('');
   }
@@ -758,6 +759,8 @@ window.loadProfile=function(idx){
     },100);
   }
   closeLoadModal();
+  const nameEl=document.getElementById('loadedName');
+  if(nameEl){nameEl.textContent='👤 '+p.name;nameEl.style.display='';}
   toast(`✅ "${p.name}" 불러옴`);
 };
 
