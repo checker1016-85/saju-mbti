@@ -18,14 +18,46 @@ async function loadAstroLib() {
   return _astroLib;
 }
 
-// 점성 계산
+// 점성 계산 — 수동 UTC 변환 (CDN에서 tz-lookup 미작동 대응)
 function calcAstro(year, month, day, hour, minute, lat, lng) {
   if (!_astroLib) return null;
   const { Origin, Horoscope } = _astroLib;
   try {
-    const origin = new Origin({ year, month: month - 1, date: day, hour, minute, latitude: lat, longitude: lng });
-    const h = new Horoscope({ origin, houseSystem: 'whole-sign', zodiac: 'tropical', aspectTypes: ['major'], language: 'en' });
-    return h;
+    // 1차: 라이브러리 기본 (tz-lookup이 작동하면 정상)
+    const origin1 = new Origin({ year, month: month - 1, date: day, hour, minute, latitude: lat, longitude: lng });
+    const h1 = new Horoscope({ origin: origin1, houseSystem: 'whole-sign', zodiac: 'tropical', aspectTypes: ['major'], language: 'en' });
+
+    // tz-lookup 작동 여부 검증: UTC 시간이 로컬과 동일하면 타임존 미인식
+    const localTotal = hour * 60 + minute;
+    const utcStr = origin1.utcTime || '';
+    // origin.utcTime이 없거나 로컬시간과 동일하면 수동 보정
+    let needFix = false;
+    if (origin1.utcTime && typeof origin1.utcTime === 'object' && origin1.utcTime.hour !== undefined) {
+      const utcH = origin1.utcTime.hour || 0;
+      if (utcH === hour && Math.abs(lng) > 15) needFix = true; // 경도 15° 이상인데 UTC=로컬 → 보정 필요
+    } else {
+      // utcTime 프로퍼티 접근 불가 → 안전하게 수동 보정
+      needFix = (Math.abs(lng) > 15);
+    }
+
+    if (needFix) {
+      // 수동 UTC 변환: 경도 기반 타임존 추정
+      const utcOffset = Math.round(lng / 15); // 한국 127°E → +8.5 → 9
+      const utcDate = new Date(Date.UTC(year, month - 1, day, hour - utcOffset, minute));
+      const uY = utcDate.getUTCFullYear(), uM = utcDate.getUTCMonth(), uD = utcDate.getUTCDate();
+      const uH = utcDate.getUTCHours(), uMin = utcDate.getUTCMinutes();
+      // UTC 시간 + 경도 0°로 전달하되, 실제 lat/lng은 유지
+      // → Origin이 tz-lookup 실패해도 이미 UTC이므로 이중변환 없음
+      const origin2 = new Origin({ year: uY, month: uM, date: uD, hour: uH, minute: uMin, latitude: lat, longitude: 0.0 });
+      // longitude를 0으로 넣으면 하우스 계산에 영향 → 수동으로 lng 복원
+      // 대안: UTC+실제좌표. tz-lookup이 실패하면 UTC=로컬 처리 → 이미 UTC이니 정확
+      const origin3 = new Origin({ year: uY, month: uM, date: uD, hour: uH, minute: uMin, latitude: lat, longitude: lng });
+      const h2 = new Horoscope({ origin: origin3, houseSystem: 'whole-sign', zodiac: 'tropical', aspectTypes: ['major'], language: 'en' });
+      console.log(`🔧 점성 수동 UTC 보정: ${hour}:${minute} KST → ${uH}:${uMin} UTC (offset ${utcOffset}h)`);
+      return h2;
+    }
+
+    return h1;
   } catch (e) {
     console.warn('점성 계산 오류:', e);
     return null;
