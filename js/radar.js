@@ -21,8 +21,8 @@ function radarSVG(axes, color, size = 200) {
     let anchor='middle';
     if(cos>0.25)anchor='start';else if(cos<-0.25)anchor='end';
     const name=a.label.replace('\n',' ');
-    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" fill="#5a5348" font-size="11" font-weight="700" font-family="Noto Sans KR">${name}</text>`;
-    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+10).toFixed(1)}" text-anchor="${anchor}" fill="${color}" font-size="10.5" font-weight="800" font-family="Space Grotesk">(${a.value}%)</text>`;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" fill="#5a5348" font-size="13" font-weight="700" font-family="Noto Sans KR">${name}</text>`;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+11).toFixed(1)}" text-anchor="${anchor}" fill="${color}" font-size="12.5" font-weight="800" font-family="Space Grotesk">(${a.value}%)</text>`;
   });
   svg+='</svg>';return svg;
 }

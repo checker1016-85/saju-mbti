@@ -587,13 +587,13 @@ function renderRight(){
   personal8.forEach((s,i)=>{
     const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
     h+=`<div style="display:flex;align-items:center;gap:4px">
-      <span style="width:42px;font-size:10px;color:var(--text2);font-weight:700">${s.key}</span>
+      <span style="width:42px;font-size:11px;color:var(--text2);font-weight:700">${s.key}</span>
       <div style="flex:1;height:16px;background:var(--surface3);border-radius:8px;overflow:hidden">
         <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:8px;position:relative;transition:width .6s ease">
-          <span style="position:absolute;right:4px;top:1px;font-size:9px;font-weight:800;color:#fff">${s.score}</span>
+          <span style="position:absolute;right:4px;top:1px;font-size:10px;font-weight:800;color:#fff">${s.score}</span>
         </div>
       </div>
-      ${pctLabel?`<span style="font-size:8px;padding:1px 4px;background:${gaugeColor}18;color:${gaugeColor};border-radius:6px;white-space:nowrap;font-weight:600">${pctLabel}</span>`:''}
+      ${pctLabel?`<span style="font-size:9px;padding:1px 4px;background:${gaugeColor}18;color:${gaugeColor};border-radius:6px;white-space:nowrap;font-weight:600">${pctLabel}</span>`:''}
     </div>`;
   });
   h+='</div>';
@@ -604,7 +604,7 @@ function renderRight(){
   h+='<div class="radar-grid6">';
   for(const[title,data]of Object.entries(S.radar)){
     const avg=Math.round(data.axes.reduce((s,a)=>s+a.value,0)/data.axes.length);
-    h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,260)}</div>`;
+    h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,320)}</div>`;
   }
   h+='</div>';
   document.getElementById('rightResult').innerHTML=h;
