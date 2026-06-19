@@ -3,26 +3,28 @@ const VIZ_SIZE=200;
 
 // 방사형 (성향 프로필용) — 반시계 방향, 라벨에 퍼센트 포함
 function radarSVG(axes, color, size = 200) {
-  const cx=size/2,cy=size/2,r=size/2-44,n=axes.length;
-  const ang=(i)=>-Math.PI/2-2*Math.PI*i/n; // 반시계
+  const pad=50; // 라벨 공간 (잘림 방지)
+  const cx=size/2,cy=size/2,r=size/2-pad,n=axes.length;
+  const ang=(i)=>-Math.PI/2-2*Math.PI*i/n;
   const pt=(i,v)=>[(cx+r*(v/100)*Math.cos(ang(i))).toFixed(1),(cy+r*(v/100)*Math.sin(ang(i))).toFixed(1)];
-  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  // viewBox를 pad만큼 확장하여 라벨 잘림 방지
+  const ex=24;
+  let svg=`<svg width="${size}" height="${size}" viewBox="${-ex} ${-ex} ${size+ex*2} ${size+ex*2}" xmlns="http://www.w3.org/2000/svg">`;
   [25,50,75,100].forEach(lv=>{let pts='';for(let i=0;i<n;i++){const[x,y]=pt(i,lv);pts+=`${x},${y} `;}svg+=`<polygon points="${pts}" fill="none" stroke="#d4cfc4" stroke-width=".5"/>`;});
   for(let i=0;i<n;i++){const[x,y]=pt(i,100);svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d4cfc4" stroke-width=".5"/>`;}
   let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
   svg+=`<polygon points="${dpts}" fill="${color}25" stroke="${color}" stroke-width="2"/>`;
   axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);svg+=`<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;});
-  // 라벨: 1줄 텍스트 + 2줄 (퍼센트), 위치별 정렬로 잘림 방지
   axes.forEach((a,i)=>{
     const aa=ang(i);
     const cos=Math.cos(aa), sin=Math.sin(aa);
-    const lx=cx+(r+12)*cos, ly=cy+(r+12)*sin;
-    // 좌우 위치에 따라 정렬 (오른쪽=start, 왼쪽=end, 수직=middle)
+    const lx=cx+(r+16)*cos, ly=cy+(r+16)*sin;
     let anchor='middle';
     if(cos>0.25)anchor='start';else if(cos<-0.25)anchor='end';
     const name=a.label.replace('\n',' ');
-    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" fill="#5a5348" font-size="13" font-weight="700" font-family="Noto Sans KR">${name}</text>`;
-    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+11).toFixed(1)}" text-anchor="${anchor}" fill="${color}" font-size="12.5" font-weight="800" font-family="Space Grotesk">(${a.value}%)</text>`;
+    const pct=typeof a.value==='number'?a.value.toFixed(1):a.value;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" fill="#5a5348" font-size="15" font-weight="700" font-family="Noto Sans KR">${name}</text>`;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+13).toFixed(1)}" text-anchor="${anchor}" fill="${color}" font-size="14.5" font-weight="800" font-family="Space Grotesk">(${pct}%)</text>`;
   });
   svg+='</svg>';return svg;
 }

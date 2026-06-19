@@ -192,7 +192,7 @@ function calc8Stats(tg,mbti,ennea,r){
 }
 
 function calcRadar(tg,r){
-  const str=r.advanced?.dayStrength?.score||50;const clamp=(v)=>Math.max(5,Math.min(100,v));
+  const str=r.advanced?.dayStrength?.score||50;const clamp=(v)=>Math.round(Math.max(5,Math.min(100,v))*10)/10;
   return {
     '체력·멘탈':{color:'#529E89',axes:[{label:'체력',value:clamp(tgVal(tg,['비견','겁재'])*16+str*.3)},{label:'멘탈력',value:clamp(tgVal(tg,['편인','정인'])*16+str*.2)},{label:'회복력',value:clamp(tgVal(tg,['식신','상관'])*14+tgVal(tg,['정인'])*8)},{label:'인내력',value:clamp(tgVal(tg,['편관','정관'])*12+tgVal(tg,['정재'])*10)},{label:'스트레스\n내성',value:clamp(str*.5+tgVal(tg,['비견'])*12)}]},
     '사회성':{color:'#529E89',axes:[{label:'리더십',value:clamp(tgVal(tg,['편관','정관'])*16)},{label:'소통력',value:clamp(tgVal(tg,['식신','상관'])*16)},{label:'협업력',value:clamp(tgVal(tg,['비견'])*18+tgVal(tg,['정관'])*8)},{label:'매력',value:clamp(tgVal(tg,['편재','정재'])*12+tgVal(tg,['상관'])*8)},{label:'공감력',value:clamp(tgVal(tg,['정인'])*14+tgVal(tg,['식신'])*10)}]},
@@ -565,12 +565,6 @@ function buildSummaryHTML(){
   phrase+=` ${enName}로, ${mbtiKw.replace(/형$/,'')}의 기질`;
   let h=`<div class="summary-card">
     <div class="summary-phrase">${phrase}</div>
-    <div class="summary-keywords">
-      <span class="sk-tag sk-saju">☯️ '${ilju}일주' ${stemAdj} ${typeName}</span>
-      ${ascSign?`<span class="sk-tag sk-astro">🌌 '${ascSign}상승' ${ascKw}</span>`:''}
-      <span class="sk-tag sk-ennea">🔷 '${main}번' ${enCenter}: ${enName}형</span>
-      <span class="sk-tag sk-mbti">🧠 '${mbtiCode}' ${mbtiKw}</span>
-    </div>
   </div>`;
   return h;
 }
@@ -587,7 +581,7 @@ function renderRight(){
   // ② 8종 개인화 스탯 (2열, 통일 색상, 아이콘 없음)
   const personal8=calc8Stats(S.tg,S.mbti,S.ennea,S.saju);
   const gaugeColor='#476AC6';
-  h+='<div class="right-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">';
+  h+='<div class="right-card" style="max-width:66%;margin:0 auto"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">';
   personal8.forEach((s,i)=>{
     const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
     h+=`<div style="display:flex;align-items:center;gap:4px">
