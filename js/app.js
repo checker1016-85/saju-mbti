@@ -334,7 +334,11 @@ function renderMyungri(){
     {name:'인성',keys:['편인','정인']}
   ];
   const topGroup=tgGroups.map(g=>({name:g.name,val:g.keys.reduce((s,k)=>s+(tg[k]||0),0)})).sort((a,b)=>b.val-a.val)[0];
-  const centerTop=dayElem+' '+(topGroup?topGroup.name:'');
+  // 십성 그룹별 오행: 비겁=일간, 식상=생, 재성=극, 관성=극아, 인성=생아
+  const EC0={목:'화',화:'토',토:'금',금:'수',수:'목'};
+  const EK0={목:'토',화:'금',토:'수',금:'목',수:'화'};
+  const grpElem={비겁:dayElem,식상:EC0[dayElem],재성:EK0[dayElem],관성:Object.keys(EK0).find(k=>EK0[k]===dayElem),인성:Object.keys(EC0).find(k=>EC0[k]===dayElem)};
+  const centerTop=(topGroup?grpElem[topGroup.name]||'':'')+' '+(topGroup?topGroup.name:'');
   const centerBot=geukguk;
   const keys=['hour','day','month','year'],labels=['시주','일주','월주','년주'];
   const kl={hour:'시',day:'일',month:'월',year:'년'};
