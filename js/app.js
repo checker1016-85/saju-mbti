@@ -104,7 +104,7 @@ function loadDB(){fetch(GAS_URL+'?action=getDB').then(r=>r.json()).then(j=>{if(j
 
 // ═══ CALC ═══
 window.doCalc=function(){
-  if(!window._ssaju){toast('⏳ 라이브러리 로딩 중...');return;}
+  if(!window._lunarLib){toast('⏳ 라이브러리 로딩 중...');return;}
   const noTime=document.getElementById('chkNoTime').checked;
   let hour=12;
   if(!noTime){hour=timeMode==='ganji'?+document.getElementById('inGanji').value:+document.getElementById('inHour').value;}
@@ -127,7 +127,7 @@ window.doCalc=function(){
     }
   }
 
-  const r=window._ssaju({year:adjY,month:adjM,day:adjD,hour:adjH,minute:adjMin,gender:document.getElementById('inGender').value,calendar:cal==='lunar'||cal==='leap'?'lunar':'solar'});
+  const r=calculateSajuLunar({year:adjY,month:adjM,day:adjD,hour:adjH,minute:adjMin,gender:document.getElementById('inGender').value,calendar:cal==='lunar'||cal==='leap'?'lunar':'solar'});
   S.saju=r;S.tg=countTG(r);S.stats=calcStats(r,S.tg);S.radar=calcRadar(S.tg,r);
   S.mbti=calcMBTIFull(S.tg);S.selectedMBTI=S.mbti.primary;
   S.ennea=calcEnneagram(S.tg);S.selectedEnnea=S.ennea.primary;
