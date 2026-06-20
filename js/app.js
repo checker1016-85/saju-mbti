@@ -581,16 +581,16 @@ function renderRight(){
   // ② 8종 개인화 스탯 (2열, 통일 색상, 아이콘 없음)
   const personal8=calc8Stats(S.tg,S.mbti,S.ennea,S.saju);
   const gaugeColor='#476AC6';
-  h+='<div class="right-card" style="max-width:66%;margin:0 auto"><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">';
+  h+='<div class="right-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px">';
   personal8.forEach((s,i)=>{
     const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
     h+=`<div style="display:flex;align-items:center;gap:4px">
       <span style="width:42px;font-size:11px;color:var(--text2);font-weight:700">${s.key}</span>
-      <div style="flex:1;height:16px;background:var(--surface3);border-radius:8px;overflow:hidden">
-        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:8px;position:relative;transition:width .6s ease">
-          <span style="position:absolute;right:4px;top:1px;font-size:10px;font-weight:800;color:#fff">${s.score}</span>
+      <div style="flex:1;height:10px;background:var(--surface3);border-radius:5px;overflow:hidden">
+        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:5px;position:relative;transition:width .6s ease">
         </div>
       </div>
+      <span style="font-size:11px;font-weight:800;color:${gaugeColor};min-width:22px;text-align:right">${s.score}</span>
       ${pctLabel?`<span style="font-size:9px;padding:1px 4px;background:${gaugeColor}18;color:${gaugeColor};border-radius:6px;white-space:nowrap;font-weight:600">${pctLabel}</span>`:''}
     </div>`;
   });
