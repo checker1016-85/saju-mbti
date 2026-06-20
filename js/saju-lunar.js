@@ -181,28 +181,137 @@ function calcStemRelations(stems) {
   return result;
 }
 
-// ═══ 신살 계산 (12신살 기본) ═══
+// ═══ 개별 십성 판정 (일간 vs 대상 천간) ═══
+function calcTenGod(dayStem, targetStem) {
+  if (dayStem === targetStem) return '비견';
+  const dE = STEM_ELEM[dayStem], tE = STEM_ELEM[targetStem];
+  const dY = STEM_YY[dayStem], tY = STEM_YY[targetStem];
+  const same = (dY === tY);
+  const CY = {'목':'화','화':'토','토':'금','금':'수','수':'목'};
+  const CT = {'목':'토','화':'금','토':'수','금':'목','수':'화'};
+  if (dE === tE) return same ? '비견' : '겁재';
+  if (CY[dE] === tE) return same ? '식신' : '상관';
+  if (CT[dE] === tE) return same ? '편재' : '정재';
+  if (CT[tE] === dE) return same ? '편관' : '정관';
+  if (CY[tE] === dE) return same ? '편인' : '정인';
+  return '';
+}
+
+// ═══ 신살 계산 (확장) ═══
 function calcTwelveSal(dayStem, dayBranch, branches) {
   const labels = ['year','month','day','hour'];
   const result = {};
-  const dbi = BR_LIST.indexOf(dayBranch);
 
-  // 도화살: 일지 기준 → 寅午戌→卯, 巳酉丑→午, 申子辰→酉, 亥卯未→子
+  // 도화살
   const doHwaMap = {'寅':'卯','午':'卯','戌':'卯','巳':'午','酉':'午','丑':'午','申':'酉','子':'酉','辰':'酉','亥':'子','卯':'子','未':'子'};
-  // 역마살: 일지 기준
+  // 역마살
   const yeokMaMap = {'寅':'申','午':'申','戌':'申','巳':'亥','酉':'亥','丑':'亥','申':'寅','子':'寅','辰':'寅','亥':'巳','卯':'巳','未':'巳'};
-  // 화개살: 일지 기준
+  // 화개살
   const hwaGaeMap = {'寅':'戌','午':'戌','戌':'戌','巳':'丑','酉':'丑','丑':'丑','申':'辰','子':'辰','辰':'辰','亥':'未','卯':'未','未':'未'};
+  // 장성살
+  const jangSungMap = {'寅':'巳','午':'巳','戌':'巳','巳':'申','酉':'申','丑':'申','申':'亥','子':'亥','辰':'亥','亥':'寅','卯':'寅','未':'寅'};
+  // 겁살
+  const geobSalMap = {'寅':'亥','午':'亥','戌':'亥','巳':'寅','酉':'寅','丑':'寅','申':'巳','子':'巳','辰':'巳','亥':'申','卯':'申','未':'申'};
+  // 반안살
+  const banAnMap = {'寅':'辰','午':'辰','戌':'辰','巳':'未','酉':'未','丑':'未','申':'戌','子':'戌','辰':'戌','亥':'丑','卯':'丑','未':'丑'};
+  // 천을귀인 (일간 기준)
+  const chunEulMap = {'甲':['丑','未'],'乙':['子','申'],'丙':['亥','酉'],'丁':['亥','酉'],'戊':['丑','未'],'己':['子','申'],'庚':['丑','未'],'辛':['寅','午'],'壬':['卯','巳'],'癸':['卯','巳']};
+  // 문창귀인 (일간 기준)
+  const munChangMap = {'甲':'巳','乙':'午','丙':'申','丁':'酉','戊':'申','己':'酉','庚':'亥','辛':'子','壬':'寅','癸':'卯'};
+  // 원진살 (일지 기준)
+  const wonJinMap = {'子':'未','丑':'午','寅':'巳','卯':'辰','辰':'卯','巳':'寅','午':'丑','未':'子','申':'亥','酉':'戌','戌':'酉','亥':'申'};
+  // 귀문관살 (일지 기준)
+  const gwiMunMap = {'子':'卯','丑':'寅','寅':'丑','卯':'子','辰':'亥','巳':'戌','午':'酉','未':'申','申':'未','酉':'午','戌':'巳','亥':'辰'};
+
+  const ceTargets = chunEulMap[dayStem] || [];
+  const mcTarget = munChangMap[dayStem] || '';
+  const wjTarget = wonJinMap[dayBranch] || '';
+  const gmTarget = gwiMunMap[dayBranch] || '';
 
   labels.forEach((l, i) => {
     const sals = [];
-    if (branches[i] === doHwaMap[dayBranch]) sals.push('도화살');
-    if (branches[i] === yeokMaMap[dayBranch]) sals.push('역마살');
-    if (branches[i] === hwaGaeMap[dayBranch]) sals.push('화개살');
+    const b = branches[i];
+    if (b === doHwaMap[dayBranch]) sals.push('도화살');
+    if (b === yeokMaMap[dayBranch]) sals.push('역마살');
+    if (b === hwaGaeMap[dayBranch]) sals.push('화개살');
+    if (b === jangSungMap[dayBranch]) sals.push('장성살');
+    if (b === geobSalMap[dayBranch]) sals.push('겁살');
+    if (b === banAnMap[dayBranch]) sals.push('반안살');
+    if (ceTargets.includes(b)) sals.push('천을귀인');
+    if (b === mcTarget) sals.push('문창귀인');
+    if (b === wjTarget) sals.push('원진살');
+    if (b === gmTarget) sals.push('귀문관살');
+    // 월살 (월지 기준, 일지와 충)
+    const chungIdx = (BR_LIST.indexOf(b) + 6) % 12;
+    if (i !== 2 && BR_LIST[chungIdx] === dayBranch) sals.push('육충');
     result[l] = { twelveSal: '', specialSals: sals };
   });
 
   return result;
+}
+
+// ═══ 격국 판정 (자평진전 기반) ═══
+function calcGeukguk(dayStem, monthBranch, tenGods, stemArr, branchArr, dayStrength) {
+  const dayElem = STEM_ELEM[dayStem];
+  const monthTG = tenGods['month']?.branch || '';
+  const CY = {'목':'화','화':'토','토':'금','금':'수','수':'목'};
+
+  // 1. 월지 정기 십성 기반 정격
+  let gk = monthTG ? monthTG + '격' : '미정';
+
+  // 2. 건록격: 월지가 일간의 록(양간→양지, 음간→음지에서 비견)
+  const rokMap = {'甲':'寅','乙':'卯','丙':'巳','丁':'午','戊':'巳','己':'午','庚':'申','辛':'酉','壬':'亥','癸':'子'};
+  if (monthBranch === rokMap[dayStem]) gk = '건록격';
+
+  // 3. 양인격: 일간의 양인(제왕지의 앞)
+  const yangInMap = {'甲':'卯','丙':'午','戊':'午','庚':'酉','壬':'子'};
+  if (yangInMap[dayStem] && monthBranch === yangInMap[dayStem]) gk = '양인격';
+
+  // 4. 종격 판정 (비겁·인성 없고 일간 극약)
+  const allTG = [];
+  ['year','month','day','hour'].forEach(k => {
+    if (tenGods[k]?.stem && tenGods[k].stem !== '(일간)') allTG.push(tenGods[k].stem);
+    if (tenGods[k]?.branch) allTG.push(tenGods[k].branch);
+  });
+  const hasBigob = allTG.some(t => t === '비견' || t === '겁재');
+  const hasInsung = allTG.some(t => t === '편인' || t === '정인');
+  const hasSiksang = allTG.some(t => t === '식신' || t === '상관');
+  const hasJaesung = allTG.some(t => t === '편재' || t === '정재');
+  const hasGwansung = allTG.some(t => t === '편관' || t === '정관');
+
+  if (dayStrength.score < 25) {
+    if (!hasBigob && !hasInsung) {
+      if (hasJaesung && !hasGwansung) gk = '종재격';
+      else if (hasGwansung && !hasJaesung) gk = '종관격';
+      else if (hasSiksang) gk = '종아격';
+      else gk = '종격';
+    }
+  }
+  // 5. 종왕격/종강격 (비겁·인성만 있고 극강)
+  if (dayStrength.score > 85) {
+    if (!hasJaesung && !hasGwansung && !hasSiksang) {
+      gk = hasBigob && hasInsung ? '종강격' : '종왕격';
+    }
+  }
+
+  return gk;
+}
+
+// ═══ 용신 판정 (억부용신 기본) ═══
+function calcYongsin(dayStem, dayStrength, tenGods) {
+  const dayElem = STEM_ELEM[dayStem];
+  const CY = {'목':'화','화':'토','토':'금','금':'수','수':'목'};
+  const CT = {'목':'토','화':'금','토':'수','금':'목','수':'화'};
+  const revCY = {}; Object.keys(CY).forEach(k => revCY[CY[k]] = k);
+  const revCT = {}; Object.keys(CT).forEach(k => revCT[CT[k]] = k);
+
+  if (dayStrength.strength === 'strong') {
+    // 신강: 설기(식상) > 극(재성) > 억(관성) 순
+    return CY[dayElem] + '(식상 설기)';
+  } else {
+    // 신약: 생(인성) > 부(비겁) 순
+    return revCY[dayElem] + '(인성 생부)';
+  }
 }
 
 // ═══ 신강/신약 간이 판정 ═══
@@ -332,19 +441,23 @@ function calculateSajuLunar(params) {
   const branchRelations = calcBranchRelations(branchArr);
 
   // 대운
+  const dayStem = stemArr[2];
   const yun = bazi.getYun(genderCode);
   const daYunList = yun.getDaYun();
   const daeun = {
     startAge: yun.getStartYear ? yun.getStartYear() : (daYunList[1] ? daYunList[1].getStartAge() : 1),
     list: daYunList.map(d => {
       const gz = d.getGanZhi();
+      if (!gz) return null;
+      const dStem = gz[0]; // 대운 천간
+      const tg = calcTenGod(dayStem, dStem);
       return {
         startAge: d.getStartAge(),
         endAge: d.getEndAge(),
         ganzhi: gz,
-        stemTenGod: gz ? (TG_CN2KR[bazi.getMonthShiShenGan?.()] || '') : ''
+        stemTenGod: tg
       };
-    }).filter(d => d.ganzhi) // 첫 번째 빈 항목 제거
+    }).filter(d => d)
   };
 
   // 신살
@@ -353,11 +466,11 @@ function calculateSajuLunar(params) {
   // 강약
   const dayStrength = calcDayStrength(stemArr[2], stemArr, branchArr, bazi);
 
-  // 격국 (간이 판정: 월지 정기 십성 기준)
-  const monthMainTG = tenGods['month']?.branch || '';
-  let geukguk = monthMainTG + '격';
-  // 비겁격은 별도
-  if (monthMainTG === '비견' || monthMainTG === '겁재') geukguk = '건록격';
+  // 격국 (자평진전 기반)
+  const geukguk = calcGeukguk(stemArr[2], branchArr[1], tenGods, stemArr, branchArr, dayStrength);
+
+  // 용신 (억부용신)
+  const yongsin = calcYongsin(stemArr[2], dayStrength, tenGods);
 
   // 현재 나이
   const currentYear = new Date().getFullYear();
@@ -398,7 +511,7 @@ function calculateSajuLunar(params) {
     sals: salResult,
     advanced: {
       geukguk,
-      yongsin: '',
+      yongsin,
       dayStrength
     },
     currentAge,
