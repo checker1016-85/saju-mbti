@@ -250,51 +250,67 @@ function calcTwelveSal(dayStem, dayBranch, branches) {
   return result;
 }
 
-// ═══ 격국 판정 (자평진전 기반) ═══
+// ═══ 격국 판정 (자평진전 기반 + 전체 세력 고려) ═══
 function calcGeukguk(dayStem, monthBranch, tenGods, stemArr, branchArr, dayStrength) {
   const dayElem = STEM_ELEM[dayStem];
   const monthTG = tenGods['month']?.branch || '';
   const CY = {'목':'화','화':'토','토':'금','금':'수','수':'목'};
 
-  // 1. 월지 정기 십성 기반 정격
-  let gk = monthTG ? monthTG + '격' : '미정';
-
-  // 2. 건록격: 월지가 일간의 록(양간→양지, 음간→음지에서 비견)
-  const rokMap = {'甲':'寅','乙':'卯','丙':'巳','丁':'午','戊':'巳','己':'午','庚':'申','辛':'酉','壬':'亥','癸':'子'};
-  if (monthBranch === rokMap[dayStem]) gk = '건록격';
-
-  // 3. 양인격: 일간의 양인(제왕지의 앞)
-  const yangInMap = {'甲':'卯','丙':'午','戊':'午','庚':'酉','壬':'子'};
-  if (yangInMap[dayStem] && monthBranch === yangInMap[dayStem]) gk = '양인격';
-
-  // 4. 종격 판정 (비겁·인성 없고 일간 극약)
+  // 전체 십성 그룹별 카운트
   const allTG = [];
   ['year','month','day','hour'].forEach(k => {
     if (tenGods[k]?.stem && tenGods[k].stem !== '(일간)') allTG.push(tenGods[k].stem);
     if (tenGods[k]?.branch) allTG.push(tenGods[k].branch);
   });
-  const hasBigob = allTG.some(t => t === '비견' || t === '겁재');
-  const hasInsung = allTG.some(t => t === '편인' || t === '정인');
-  const hasSiksang = allTG.some(t => t === '식신' || t === '상관');
-  const hasJaesung = allTG.some(t => t === '편재' || t === '정재');
-  const hasGwansung = allTG.some(t => t === '편관' || t === '정관');
+  const grpCount = {비겁:0,식상:0,재성:0,관성:0,인성:0};
+  const grpMap = {'비견':'비겁','겁재':'비겁','식신':'식상','상관':'식상','편재':'재성','정재':'재성','편관':'관성','정관':'관성','편인':'인성','정인':'인성'};
+  allTG.forEach(t => { if(grpMap[t]) grpCount[grpMap[t]]++; });
 
-  if (dayStrength.score < 25) {
-    if (!hasBigob && !hasInsung) {
-      if (hasJaesung && !hasGwansung) gk = '종재격';
-      else if (hasGwansung && !hasJaesung) gk = '종관격';
-      else if (hasSiksang) gk = '종아격';
-      else gk = '종격';
-    }
+  // 1. 건록격/양인격 체크 (우선)
+  const rokMap = {'甲':'寅','乙':'卯','丙':'巳','丁':'午','戊':'巳','己':'午','庚':'申','辛':'酉','壬':'亥','癸':'子'};
+  if (monthBranch === rokMap[dayStem]) return '건록격';
+  const yangInMap = {'甲':'卯','丙':'午','戊':'午','庚':'酉','壬':'子'};
+  if (yangInMap[dayStem] && monthBranch === yangInMap[dayStem]) return '양인격';
+
+  // 2. 종격 판정
+  if (dayStrength.score < 25 && grpCount.비겁 === 0 && grpCount.인성 === 0) {
+    if (grpCount.재성 > grpCount.관성 && grpCount.재성 > grpCount.식상) return '종재격';
+    if (grpCount.관성 > grpCount.재성) return '종관격';
+    if (grpCount.식상 > grpCount.재성) return '종아격';
+    return '종격';
   }
-  // 5. 종왕격/종강격 (비겁·인성만 있고 극강)
-  if (dayStrength.score > 85) {
-    if (!hasJaesung && !hasGwansung && !hasSiksang) {
-      gk = hasBigob && hasInsung ? '종강격' : '종왕격';
-    }
+  if (dayStrength.score > 85 && grpCount.재성 === 0 && grpCount.관성 === 0 && grpCount.식상 === 0) {
+    return (grpCount.인성 > 0) ? '종강격' : '종왕격';
   }
 
-  return gk;
+  // 3. 정격: 전체에서 비겁 제외한 최다 그룹 기준
+  const candidates = [
+    {name:'식상',cnt:grpCount.식상},{name:'재성',cnt:grpCount.재성},
+    {name:'관성',cnt:grpCount.관성},{name:'인성',cnt:grpCount.인성}
+  ].sort((a,b) => b.cnt - a.cnt);
+
+  const dominant = candidates[0];
+  const monthGrp = grpMap[monthTG] || '';
+
+  // 월지 그룹과 전체 최다 그룹이 같으면 → 월지 기반 격
+  // 다르면 → 전체 최다가 월지보다 2개 이상 많으면 최다 기준, 아니면 월지 유지
+  let gkGroup = monthGrp;
+  if (dominant.cnt > 0 && dominant.name !== monthGrp) {
+    const monthGrpCnt = grpCount[monthGrp] || 0;
+    if (dominant.cnt >= monthGrpCnt + 2) gkGroup = dominant.name;
+  }
+  // 월지 기반도 전체 최다도 없으면 월지 정기 사용
+  if (!gkGroup && monthTG) gkGroup = grpMap[monthTG];
+
+  // 그룹 → 구체적 격명 (편/정 구분: 그룹 내 더 많은 것)
+  const gkDetail = {
+    식상: (allTG.filter(t=>t==='식신').length >= allTG.filter(t=>t==='상관').length) ? '식신격' : '상관격',
+    재성: (allTG.filter(t=>t==='편재').length >= allTG.filter(t=>t==='정재').length) ? '편재격' : '정재격',
+    관성: (allTG.filter(t=>t==='편관').length >= allTG.filter(t=>t==='정관').length) ? '편관격' : '정관격',
+    인성: (allTG.filter(t=>t==='편인').length >= allTG.filter(t=>t==='정인').length) ? '편인격' : '정인격',
+  };
+
+  return gkDetail[gkGroup] || (monthTG + '격') || '미정';
 }
 
 // ═══ 용신 판정 (억부용신 기본) ═══
@@ -444,16 +460,20 @@ function calculateSajuLunar(params) {
   const dayStem = stemArr[2];
   const yun = bazi.getYun(genderCode);
   const daYunList = yun.getDaYun();
+  const yunStartAge = yun.getStartYear ? yun.getStartYear() : 1;
+  // daYunList[0]은 未交运(교운 전), [1]~가 실제 대운
+  const actualDaYun = daYunList.filter(d => d.getGanZhi && d.getGanZhi());
   const daeun = {
-    startAge: yun.getStartYear ? yun.getStartYear() : (daYunList[1] ? daYunList[1].getStartAge() : 1),
-    list: daYunList.map(d => {
+    startAge: yunStartAge,
+    list: actualDaYun.map((d, i) => {
       const gz = d.getGanZhi();
       if (!gz) return null;
-      const dStem = gz[0]; // 대운 천간
+      const dStem = gz[0];
       const tg = calcTenGod(dayStem, dStem);
+      const start = yunStartAge + i * 10;
       return {
-        startAge: d.getStartAge(),
-        endAge: d.getEndAge(),
+        startAge: start,
+        endAge: start + 9,
         ganzhi: gz,
         stemTenGod: tg
       };

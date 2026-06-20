@@ -41,8 +41,19 @@ function calcAstro(year, month, day, hour, minute, lat, lng) {
     }
 
     if (needFix) {
-      // 수동 UTC 변환: 경도 기반 타임존 추정
-      const utcOffset = Math.round(lng / 15); // 한국 127°E → +8.5 → 9
+      // 수동 UTC 변환: 국가 기반 타임존 (경도 공식은 한국이 +8로 오계산됨)
+      const UTC_OFFSETS = {'대한민국':9,'일본':9,'중국':8,'대만':8,'홍콩':8,'싱가포르':8,
+        '태국':7,'베트남':7,'인도':5.5,'독일':1,'영국':0,'프랑스':1,
+        '미국':-5,'캐나다':-5,'호주':10,'뉴질랜드':12};
+      // 국가 정보가 없으면 경도 기반 추정 (한국 보정: 120~132°E는 +9)
+      let utcOffset;
+      try {
+        const country = document.getElementById('inCountry')?.value || '';
+        utcOffset = UTC_OFFSETS[country];
+      } catch(e) {}
+      if (utcOffset === undefined) {
+        utcOffset = (lng >= 120 && lng <= 135) ? 9 : Math.round(lng / 15);
+      }
       const utcDate = new Date(Date.UTC(year, month - 1, day, hour - utcOffset, minute));
       const uY = utcDate.getUTCFullYear(), uM = utcDate.getUTCMonth(), uD = utcDate.getUTCDate();
       const uH = utcDate.getUTCHours(), uMin = utcDate.getUTCMinutes();
