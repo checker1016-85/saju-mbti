@@ -11,6 +11,9 @@ window.saveProfile=function(){
   const nameEl=document.getElementById('inName');
   const name=(nameEl?.value||'').trim();
   if(!name){toast('⚠️ 이름을 입력해주세요.');nameEl?.focus();return;}
+  // readOnly 해제 (불러온 상태에서 저장 시)
+  if(nameEl){nameEl.readOnly=false;nameEl.style.background='var(--surface)';nameEl.style.color='';}
+  const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
   const p={
     name,
     year:document.getElementById('inYear').value,
@@ -97,7 +100,9 @@ window.loadProfile=function(idx){
   const nameEl=document.getElementById('loadedName');
   if(nameEl){nameEl.textContent='👤 '+p.name;nameEl.style.display='';}
   const inName=document.getElementById('inName');
-  if(inName)inName.value=p.name;
+  if(inName){inName.value=p.name;inName.readOnly=true;inName.style.background='var(--surface2)';inName.style.color='var(--gold-dim)';}
+  const badge=document.getElementById('loadedBadge');
+  if(badge)badge.style.display='';
   toast(`✅ "${p.name}" 불러옴`);
 };
 
@@ -105,6 +110,10 @@ window.editProfile=function(idx){
   const profiles=getProfiles();
   const p=profiles[idx];if(!p)return;
   loadProfile(idx);
+  // 수정모드: 이름 편집 가능하게
+  const inName=document.getElementById('inName');
+  if(inName){inName.readOnly=false;inName.style.background='var(--surface)';inName.style.color='';}
+  const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
   toast(`✏️ "${p.name}" 수정모드 — 수정 후 💾 저장하기를 눌러주세요`);
 };
 

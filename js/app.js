@@ -105,6 +105,10 @@ function loadDB(){fetch(GAS_URL+'?action=getDB').then(r=>r.json()).then(j=>{if(j
 // ═══ CALC ═══
 window.doCalc=function(){
   if(!window._lunarLib){toast('⏳ 라이브러리 로딩 중...');return;}
+  // 직업선택 초기화
+  S.job=null;S.jobName=null;S.jobCat=null;tempJob=null;tempJobCat=null;
+  const jBtn=document.getElementById('jobSelectBtn');
+  if(jBtn){jBtn.textContent='🏷️ 직업 선택';jBtn.classList.remove('selected');}
   const noTime=document.getElementById('chkNoTime').checked;
   let hour=12;
   if(!noTime){hour=timeMode==='ganji'?+document.getElementById('inGanji').value:+document.getElementById('inHour').value;}
