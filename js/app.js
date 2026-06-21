@@ -581,17 +581,19 @@ function renderRight(){
   // ② 8종 개인화 스탯 (2열, 통일 색상, 아이콘 없음)
   const personal8=calc8Stats(S.tg,S.mbti,S.ennea,S.saju);
   const gaugeColor='#476AC6';
-  h+='<div class="right-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px">';
+  h+='<div class="right-card"><div class="gauge-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px">';
   personal8.forEach((s,i)=>{
     const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
-    h+=`<div style="display:flex;align-items:center;gap:4px">
-      <span style="width:42px;font-size:11px;color:var(--text2);font-weight:700">${s.key}</span>
+    h+=`<div class="gauge-item" style="display:flex;align-items:center;gap:4px">
+      <div class="gauge-top">
+        <span style="width:42px;font-size:11px;color:var(--text2);font-weight:700">${s.key}</span>
+        <span style="font-size:11px;font-weight:800;color:${gaugeColor};min-width:22px;text-align:right">${s.score}</span>
+        ${pctLabel?`<span style="font-size:9px;padding:1px 4px;background:${gaugeColor}18;color:${gaugeColor};border-radius:6px;white-space:nowrap;font-weight:600;margin-left:2px">${pctLabel}</span>`:''}
+      </div>
       <div style="flex:1;height:10px;background:var(--surface3);border-radius:5px;overflow:hidden">
-        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:5px;position:relative;transition:width .6s ease">
+        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:5px;transition:width .6s ease">
         </div>
       </div>
-      <span style="font-size:11px;font-weight:800;color:${gaugeColor};min-width:22px;text-align:right">${s.score}</span>
-      ${pctLabel?`<span style="font-size:9px;padding:1px 4px;background:${gaugeColor}18;color:${gaugeColor};border-radius:6px;white-space:nowrap;font-weight:600">${pctLabel}</span>`:''}
     </div>`;
   });
   h+='</div>';
@@ -670,10 +672,11 @@ function setProfiles(arr){localStorage.setItem(PROFILE_KEY,JSON.stringify(arr));
 window.saveProfile=function(){
   const profiles=getProfiles();
   if(profiles.length>=20){toast('⚠️ 최대 20개까지 저장 가능합니다. 기존 항목을 삭제해주세요.');return;}
-  const name=prompt('프로필 이름을 입력하세요:','');
-  if(!name||!name.trim())return;
+  const nameEl=document.getElementById('inName');
+  const name=(nameEl?.value||'').trim();
+  if(!name){toast('⚠️ 이름을 입력해주세요.');nameEl?.focus();return;}
   const p={
-    name:name.trim(),
+    name,
     year:document.getElementById('inYear').value,
     month:document.getElementById('inMonth').value,
     day:document.getElementById('inDay').value,
@@ -702,18 +705,19 @@ window.saveProfile=function(){
 window.openLoadModal=function(){
   const profiles=getProfiles();
   const el=document.getElementById('profileList');
-  if(profiles.length===0){el.innerHTML='<div style="text-align:center;color:var(--text2);padding:30px">저장된 프로필이 없습니다.<br><br>💾 저장하기로 추가하세요.</div>';
+  if(profiles.length===0){el.innerHTML='<div style="text-align:center;color:var(--text2);padding:30px">저장된 프로필이 없습니다.<br><br>이름을 입력하고 💾 저장하기를 눌러주세요.</div>';
   }else{
     el.innerHTML=profiles.map((p,i)=>{
       const d=`${p.year}.${String(p.month).padStart(2,'0')}.${String(p.day).padStart(2,'0')}`;
       const g=p.gender==='남'?'♂':'♀';
-      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:var(--surface)">
+      return `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:var(--surface)">
         <div style="flex:1;min-width:0">
           <span style="font-weight:800;font-size:14px;color:var(--gold-dim)">${p.name}</span>
           <span style="font-size:11px;color:var(--text2);margin-left:6px">${g} ${d}</span>
         </div>
-        <button title="선택" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px" onclick="loadProfile(${i})">✅</button>
-        <button title="삭제" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px" onclick="deleteProfile(${i})">🗑️</button>
+        <button title="선택" style="background:none;border:none;cursor:pointer;font-size:16px;padding:4px" onclick="loadProfile(${i})">✅</button>
+        <button title="수정" style="background:none;border:none;cursor:pointer;font-size:16px;padding:4px" onclick="editProfile(${i})">✏️</button>
+        <button title="삭제" style="background:none;border:none;cursor:pointer;font-size:16px;padding:4px" onclick="deleteProfile(${i})">🗑️</button>
       </div>`;
     }).join('');
   }
@@ -758,7 +762,17 @@ window.loadProfile=function(idx){
   closeLoadModal();
   const nameEl=document.getElementById('loadedName');
   if(nameEl){nameEl.textContent='👤 '+p.name;nameEl.style.display='';}
+  const inName=document.getElementById('inName');
+  if(inName)inName.value=p.name;
   toast(`✅ "${p.name}" 불러옴`);
+};
+
+window.editProfile=function(idx){
+  const profiles=getProfiles();
+  const p=profiles[idx];if(!p)return;
+  // 불러오기 + 모달 닫기 → 사용자가 수정 후 다시 저장
+  loadProfile(idx);
+  toast(`✏️ "${p.name}" 수정모드 — 수정 후 💾 저장하기를 눌러주세요`);
 };
 
 window.deleteProfile=function(idx){
