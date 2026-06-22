@@ -494,26 +494,7 @@ function renderRight(){
   let h='';
   // ① 종합 프로필 (성향 프로필 최상단)
   h+=buildSummaryHTML();
-  // ② 8종 개인화 스탯 (2열, 통일 색상, 아이콘 없음)
-  const personal8=calc8Stats(S.tg,S.mbti,S.ennea,S.saju);
-  const gaugeColor='#476AC6';
-  h+='<div class="right-card"><div class="gauge-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px">';
-  personal8.forEach((s,i)=>{
-    const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
-    h+=`<div class="gauge-item" style="display:flex;align-items:center;gap:6px">
-      <span style="width:50px;flex-shrink:0;font-size:11px;color:var(--text2);font-weight:700;white-space:nowrap">${s.key}</span>
-      <span style="width:22px;flex-shrink:0;font-size:11px;font-weight:800;color:${gaugeColor};text-align:right">${s.score}</span>
-      <div style="flex:1;height:10px;background:var(--surface3);border-radius:5px;overflow:hidden;min-width:0">
-        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:5px;transition:width .6s ease"></div>
-      </div>
-      <span style="width:48px;flex-shrink:0;font-size:9px;font-weight:600;color:${gaugeColor};text-align:right;white-space:nowrap">${pctLabel}</span>
-    </div>`;
-  });
-  h+='</div>';
-  const avg8=Math.round(personal8.reduce((s,p)=>s+p.score,0)/8);
-  h+=`<div style="text-align:center;padding:6px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-top:6px"><span style="font-size:10px;color:var(--text2)">종합 전투력</span><br><span style="font-family:'Space Grotesk';font-size:24px;font-weight:700;color:var(--gold-dim)">${avg8}</span></div>`;
-  h+='</div>';
-  // ③ 레이더 6종
+  // ② 레이더 9종
   h+='<div class="radar-grid6">';
   for(const[title,data]of Object.entries(S.radar)){
     const avg=(data.axes.reduce((s,a)=>s+a.value,0)/data.axes.length).toFixed(1);

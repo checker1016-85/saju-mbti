@@ -339,6 +339,4 @@ input:focus,select:focus{border-color:var(--gold)}
   #myungriArea .uf-body-scroll{height:360px!important}
   /* 종합프로필 */
   .summary-phrase{font-size:15px!important}
-  /* 게이지 1열 */
-  .gauge-grid{grid-template-columns:1fr!important}
 }

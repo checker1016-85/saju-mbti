@@ -11,7 +11,7 @@ function radarSVG(axes, color, size = 200) {
   [25,50,75,100].forEach(lv=>{let pts='';for(let i=0;i<n;i++){const[x,y]=pt(i,lv);pts+=`${x},${y} `;}svg+=`<polygon points="${pts}" fill="none" stroke="#d4cfc4" stroke-width=".5"/>`;});
   for(let i=0;i<n;i++){const[x,y]=pt(i,100);svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d4cfc4" stroke-width=".5"/>`;}
   let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
-  svg+=`<polygon points="${dpts}" fill="${color}25" stroke="${color}" stroke-width="2"/>`;
+  svg+=`<polygon points="${dpts}" fill="${color}50" stroke="${color}" stroke-width="2.5"/>`;
   axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);svg+=`<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;});
   axes.forEach((a,i)=>{
     const aa=ang(i);
@@ -25,8 +25,8 @@ function radarSVG(axes, color, size = 200) {
     if(cos>0.25)anchor='start';else if(cos<-0.25)anchor='end';
     const name=a.label.replace('\n',' ');
     const pct=typeof a.value==='number'?a.value.toFixed(1):a.value;
-    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" fill="#5a5348" font-size="18" font-weight="700" font-family="Noto Sans KR">${name}</text>`;
-    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+15).toFixed(1)}" text-anchor="${anchor}" fill="${color}" font-size="17" font-weight="800" font-family="Space Grotesk">(${pct}%)</text>`;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" fill="#5a5348" font-size="20" font-weight="700" font-family="Noto Sans KR">${name}</text>`;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly+16).toFixed(1)}" text-anchor="${anchor}" fill="${color}" font-size="19" font-weight="800" font-family="Space Grotesk">(${pct}%)</text>`;
   });
   svg+='</svg>';return svg;
 }
