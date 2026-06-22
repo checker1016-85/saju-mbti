@@ -499,9 +499,12 @@ function renderRight(){
   h+='<div class="radar-grid6">';
   for(const[title,data]of Object.entries(S.radar)){
     const top=[...data.axes].sort((a,b)=>b.value-a.value)[0];
+    const isHigh=top.value>=80;
     const pct=top.value>=95?' (상위 1%)':top.value>=90?' (상위 3%)':top.value>=85?' (상위 8%)':top.value>=80?' (상위 15%)':'';
     const topName=top.label.replace('\n',' ');
-    h+=`<div class="radar-box"><div class="r-title">${title} : ${topName} ${top.value.toFixed(1)}%${pct}</div>${radarSVG(data.axes,data.color,320)}</div>`;
+    const chartColor=isHigh?'#B5403F':data.color;
+    const titleSub=isHigh?topName+' '+top.value.toFixed(1)+'%'+pct:topName+' '+top.value.toFixed(1)+'%';
+    h+=`<div class="radar-box"><div class="r-title"${isHigh?' style="color:#9A2E2D"':''}>${title} : ${titleSub}</div>${radarSVG(data.axes,chartColor,320)}</div>`;
   }
   h+='</div>';
   document.getElementById('rightResult').innerHTML=h;
