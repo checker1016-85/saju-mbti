@@ -340,9 +340,6 @@ input:focus,select:focus{border-color:var(--gold)}
   .radar-grid6{grid-template-columns:1fr!important}
   /* 종합프로필 */
   .summary-phrase{font-size:15px!important}
-  /* 게이지 1열 세로 */
+  /* 게이지 1열 */
   .gauge-grid{grid-template-columns:1fr!important}
-  .gauge-item{flex-direction:column!important;align-items:stretch!important;gap:2px!important}
-  .gauge-item .gauge-top{display:flex;justify-content:space-between;align-items:center}
-  .gauge-item>div:last-child{flex:none!important;width:100%;height:10px}
 }

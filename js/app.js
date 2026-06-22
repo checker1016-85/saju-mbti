@@ -500,16 +500,13 @@ function renderRight(){
   h+='<div class="right-card"><div class="gauge-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px">';
   personal8.forEach((s,i)=>{
     const pctLabel=s.score>=95?'상위 1%':s.score>=90?'상위 3%':s.score>=85?'상위 8%':s.score>=80?'상위 15%':'';
-    h+=`<div class="gauge-item" style="display:flex;align-items:center;gap:4px">
-      <div class="gauge-top">
-        <span style="width:42px;font-size:11px;color:var(--text2);font-weight:700">${s.key}</span>
-        <span style="font-size:11px;font-weight:800;color:${gaugeColor};min-width:22px;text-align:right">${s.score}</span>
-        ${pctLabel?`<span style="font-size:9px;padding:1px 4px;background:${gaugeColor}18;color:${gaugeColor};border-radius:6px;white-space:nowrap;font-weight:600;margin-left:2px">${pctLabel}</span>`:''}
+    h+=`<div class="gauge-item" style="display:flex;align-items:center;gap:6px">
+      <span style="width:50px;flex-shrink:0;font-size:11px;color:var(--text2);font-weight:700;white-space:nowrap">${s.key}</span>
+      <span style="width:22px;flex-shrink:0;font-size:11px;font-weight:800;color:${gaugeColor};text-align:right">${s.score}</span>
+      <div style="flex:1;height:10px;background:var(--surface3);border-radius:5px;overflow:hidden;min-width:0">
+        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:5px;transition:width .6s ease"></div>
       </div>
-      <div style="flex:1;height:10px;background:var(--surface3);border-radius:5px;overflow:hidden">
-        <div style="height:100%;width:${s.score}%;background:${gaugeColor};border-radius:5px;transition:width .6s ease">
-        </div>
-      </div>
+      <span style="width:48px;flex-shrink:0;font-size:9px;font-weight:600;color:${gaugeColor};text-align:right;white-space:nowrap">${pctLabel}</span>
     </div>`;
   });
   h+='</div>';
