@@ -7,9 +7,9 @@ function radarSVG(axes, color, size = 200) {
   const cx=size/2,cy=size/2,r=size/2-pad,n=axes.length;
   const ang=(i)=>-Math.PI/2-2*Math.PI*i/n;
   const pt=(i,v)=>[(cx+r*(v/100)*Math.cos(ang(i))).toFixed(1),(cy+r*(v/100)*Math.sin(ang(i))).toFixed(1)];
-  let svg=`<svg width="${size}" height="${size}" viewBox="-55 -50 ${size+110} ${size+100}" xmlns="http://www.w3.org/2000/svg">`;
-  [25,50,75,100].forEach(lv=>{let pts='';for(let i=0;i<n;i++){const[x,y]=pt(i,lv);pts+=`${x},${y} `;}svg+=`<polygon points="${pts}" fill="none" stroke="#d4cfc4" stroke-width=".5"/>`;});
-  for(let i=0;i<n;i++){const[x,y]=pt(i,100);svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d4cfc4" stroke-width=".5"/>`;}
+  let svg=`<svg width="${size}" height="${size}" viewBox="-50 -45 ${size+100} ${size+70}" xmlns="http://www.w3.org/2000/svg">`;
+  [25,50,75,100].forEach(lv=>{let pts='';for(let i=0;i<n;i++){const[x,y]=pt(i,lv);pts+=`${x},${y} `;}svg+=`<polygon points="${pts}" fill="none" stroke="#b5b0a6" stroke-width=".7"/>`;});
+  for(let i=0;i<n;i++){const[x,y]=pt(i,100);svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#b5b0a6" stroke-width=".7"/>`;}
   let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
   svg+=`<polygon points="${dpts}" fill="${color}50" stroke="${color}" stroke-width="2.5"/>`;
   axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);svg+=`<circle cx="${x}" cy="${y}" r="3" fill="${color}"/>`;});
