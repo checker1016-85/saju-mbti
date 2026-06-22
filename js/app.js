@@ -101,7 +101,38 @@ function updateAge(){const y=+document.getElementById('inYear').value;const isKr
 window.setTimeMode=function(mode,el){timeMode=mode;document.querySelectorAll('.time-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('timeGanji').style.display=mode==='ganji'?'':'none';document.getElementById('timeDirect').style.display=mode==='direct'?'':'none';};
 
 // ═══ DB LOAD ═══
-function loadDB(){console.log('🔄 DB 로드 시작...',GAS_URL);fetch(GAS_URL+'?action=getDB').then(r=>{console.log('📡 응답 상태:',r.status);return r.json();}).then(j=>{if(j.ok){S.db=j.data;const keys=Object.keys(S.db);console.log('✅ DB 로드 성공:',keys);keys.forEach(k=>{const tabs=Object.keys(S.db[k]||{});console.log('  📁',k,':',tabs.join(', '));});toast('✅ DB: '+keys.join(', '));}else{console.error('❌ DB 응답 오류:',j);toast('❌ DB 응답 오류');}}).catch(e=>console.error('❌ DB 로드 실패:',e));}
+function loadDB(){
+  console.log('🔄 DB 로드 시작...',GAS_URL);
+  fetch(GAS_URL+'?action=getDB',{redirect:'follow'})
+    .then(r=>{
+      console.log('📡 응답 상태:',r.status,r.type,r.url);
+      if(!r.ok && r.status!==0) throw new Error('HTTP '+r.status);
+      return r.text();
+    })
+    .then(txt=>{
+      console.log('📡 응답 길이:',txt.length,'앞100자:',txt.substring(0,100));
+      let j;
+      try{ j=JSON.parse(txt); }catch(e){
+        console.error('❌ JSON 파싱 실패, 응답:',txt.substring(0,300));
+        toast('❌ DB JSON 파싱 실패');
+        return;
+      }
+      if(j.ok){
+        S.db=j.data;
+        const keys=Object.keys(S.db);
+        console.log('✅ DB 로드 성공:',keys);
+        keys.forEach(k=>{const tabs=Object.keys(S.db[k]||{});console.log('  📁',k,':',tabs.join(', '));});
+        toast('✅ DB: '+keys.join(', '));
+      }else{
+        console.error('❌ DB 응답 오류:',j);
+        toast('❌ DB 응답 오류: '+(j.error||'unknown'));
+      }
+    })
+    .catch(e=>{
+      console.error('❌ DB 로드 실패:',e);
+      toast('❌ DB 로드 실패: '+e.message);
+    });
+}
 
 // ═══ CALC ═══
 window.doCalc=function(){
