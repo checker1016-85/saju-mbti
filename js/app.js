@@ -24,6 +24,7 @@ function renderEmptyFrames(){
   document.getElementById('astroArea').innerHTML=emptyFrame('점성',defaultAstroViz(),[['상승궁(ASC)','조회를 입력하세요'],['태양·달·MC','조회를 입력하세요']],'#5040a0');
   document.getElementById('enneaArea').innerHTML=emptyFrame('에니어그램',defaultEnneaViz(),[['메인 유형','조회를 입력하세요'],['날개','조회를 입력하세요']],'var(--stat-solo)');
   document.getElementById('mbtiArea').innerHTML=emptyFrame('MBTI',defaultMbtiViz(),[['유형','조회를 입력하세요'],['세부 A/T','조회를 입력하세요']],'var(--stat-lead)');
+  document.getElementById('rightResult').innerHTML='<div class="summary-phrase" style="text-align:center;color:var(--text3);padding:16px">조회를 입력하세요</div>'+defaultRadarGrid();
 }
 function emptyMyungriFrame(){
   const labels=['시주','일주','월주','년주'];
