@@ -1,6 +1,6 @@
 // ═══ STATE ═══
-const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null,mbti:null,ennea:null,selectedMBTI:null,selectedEnnea:null,astroAscSign:'',astroAscKey:''};
-let tempJob=null,tempJobCat=null,tempMBTI=null,tempEnnea=null,timeMode='ganji';
+const S={saju:null,tg:null,stats:null,job:null,jobCat:null,jobName:null,radar:null,db:null,mbti:null,ennea:null,selectedMBTI:null,selectedEnnea:null,selectedVariant:null,astroAscSign:'',astroAscKey:''};
+let tempJob=null,tempJobCat=null,tempMBTI=null,tempMBTIVariant=null,tempEnnea=null,timeMode='ganji';
 
 // ═══ INIT ═══
 document.addEventListener('DOMContentLoaded',()=>{
@@ -436,7 +436,7 @@ function renderMBTI(){
   // 50~100 → A 비율 0~100%로 환산
   const aPctAT=Math.round((avgConf-50)/50*100);
   const tPctAT=100-aPctAT;
-  const variant=aPctAT>=50?'A':'T';
+  const variant=S.selectedVariant||(aPctAT>=50?'A':'T');
   const dbM=getDBMbti(sel+'-'+variant)||getDBMbti(sel);
   let topAxis='',topVal=0,topLabel='';
   axList.forEach(([a,av,b,bv])=>{const on=sel.includes(a)?a:b,v=sel.includes(a)?av:bv;if(v>topVal){topVal=v;topAxis=on;topLabel=on;}});
@@ -551,13 +551,17 @@ window.openMBTIModal=function(){
   let grid='<div class="mbti-modal-grid">';
   MBTI_ALL.forEach(t=>{const isRec=m.recommended.includes(t);grid+=`<button class="mbti-modal-btn${S.selectedMBTI===t?' active':''}${isRec?' recommended':''}" data-t="${t}" onclick="pickMBTI('${t}')"><span class="mb-code">${t}</span><span class="mb-name">${(MBTI_DESC[t]||'').split('—')[0]}</span>${isRec?'<span class="en-badge">★</span>':''}</button>`;});
   grid+='</div>';
-  document.getElementById('mbtiModalBody').innerHTML=banner+grid;
+  const axL=[['E',m.axes.E,'I',m.axes.I],['S',m.axes.S,'N',m.axes.N],['T',m.axes.T,'F',m.axes.F],['J',m.axes.J,'P',m.axes.P]];const autoV=Math.round((axL.map(([a,av,b,bv])=>Math.max(av,bv)).reduce((s,v)=>s+v,0)/4-50)/50*100)>=50?'A':'T';const curV=S.selectedVariant||autoV;
+  const atHtml=`<div style="margin-top:12px;text-align:center"><span style="font-size:12px;font-weight:700;color:var(--text2);margin-right:8px">세부 유형:</span><button class="mbti-at-btn\${curV==='A'?' active':''}" data-v="A" onclick="pickMBTIVariant('A')" style="padding:6px 16px;border-radius:6px;border:1px solid var(--gold);background:\${curV==='A'?'var(--gold)':'var(--surface)'};color:\${curV==='A'?'#fff':'var(--gold-dim)'};font-weight:700;font-size:12px;cursor:pointer;margin-right:4px;font-family:inherit">A 확신형</button><button class="mbti-at-btn\${curV==='T'?' active':''}" data-v="T" onclick="pickMBTIVariant('T')" style="padding:6px 16px;border-radius:6px;border:1px solid var(--gold);background:\${curV==='T'?'var(--gold)':'var(--surface)'};color:\${curV==='T'?'#fff':'var(--gold-dim)'};font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">T 격동형</button></div>`;
+  document.getElementById('mbtiModalBody').innerHTML=banner+grid+atHtml;
   tempMBTI=S.selectedMBTI;
+  tempMBTIVariant=curV;
   document.getElementById('mbtiModal').classList.add('show');
 };
+window.pickMBTIVariant=function(v){tempMBTIVariant=v;document.querySelectorAll('.mbti-at-btn').forEach(b=>{b.classList.remove('active');b.style.background='var(--surface)';b.style.color='var(--gold-dim)';});const btn=document.querySelector(`.mbti-at-btn[data-v="${v}"]`);if(btn){btn.classList.add('active');btn.style.background='var(--gold)';btn.style.color='#fff';}};
 window.pickMBTI=function(t){document.querySelectorAll('.mbti-modal-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.mbti-modal-btn[data-t="${t}"]`).classList.add('active');tempMBTI=t;};
 window.closeMBTIModal=function(){document.getElementById('mbtiModal').classList.remove('show');};
-window.confirmMBTI=function(){S.selectedMBTI=tempMBTI;closeMBTIModal();renderMBTI();renderSummary();};
+window.confirmMBTI=function(){S.selectedMBTI=tempMBTI;S.selectedVariant=tempMBTIVariant;closeMBTIModal();renderMBTI();renderSummary();};
 
 
 // ═══ profile.js로 분리됨: toast, saveProfile, loadProfile, editProfile, deleteProfile ═══
