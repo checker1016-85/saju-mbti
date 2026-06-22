@@ -1,6 +1,6 @@
 // ═══ profile.js — 프로필 저장/불러오기 (localStorage, 최대 20개) ═══
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
-function profileToast(m){const el=document.getElementById('profileToast');if(!el)return;el.textContent=m;el.style.display='';el.style.opacity='1';setTimeout(()=>{el.style.opacity='0';setTimeout(()=>{el.style.display='none';},300);},2500);}
+function profileToast(m){const el=document.getElementById('profileToast');if(!el)return;el.textContent=m;el.style.display='';el.style.opacity='1';setTimeout(()=>{el.style.opacity='0';setTimeout(()=>{el.style.display='none';el.style.opacity='1';},300);},2500);}
 
 const PROFILE_KEY='saju_profiles';
 let _editMode=false;
@@ -12,7 +12,7 @@ function setEditMode(on,idx){
   _editMode=on;_editIdx=on?idx:-1;
   const btn=document.getElementById('btnSave');
   const grid=document.querySelector('.birth-grid');
-  if(btn)btn.innerHTML=on?'✏️ 수정완료':'💾 저장하기';
+  if(btn)btn.innerHTML=on?'✏️ 수정저장하기':'💾 저장하기';
   if(grid){if(on)grid.classList.add('edit-highlight');else grid.classList.remove('edit-highlight');}
 }
 
@@ -49,25 +49,22 @@ window.saveProfile=function(){
   const profiles=getProfiles();
 
   if(_editMode&&_editIdx>=0&&_editIdx<profiles.length){
-    // 수정모드 저장
     profiles[_editIdx]=collectProfile();
     setProfiles(profiles);
-    // 수정모드 해제 → 일반 저장모드로
-    if(nameEl){nameEl.readOnly=false;nameEl.style.background='var(--surface)';nameEl.style.color='';}
+    if(nameEl){nameEl.readOnly=false;nameEl.style.background='';nameEl.style.color='';}
     const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
     const ln=document.getElementById('loadedName');if(ln)ln.style.display='none';
     setEditMode(false,-1);
     profileToast('✅ 수정 저장되었습니다');
   }else{
-    // 새 저장
     if(profiles.length>=20){toast('⚠️ 최대 20개까지 저장 가능합니다.');return;}
-    if(nameEl){nameEl.readOnly=false;nameEl.style.background='var(--surface)';nameEl.style.color='';}
+    if(nameEl){nameEl.readOnly=false;nameEl.style.background='';nameEl.style.color='';}
     const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
     const ln=document.getElementById('loadedName');if(ln)ln.style.display='none';
     setEditMode(false,-1);
     profiles.unshift(collectProfile());
     setProfiles(profiles);
-    profileToast(`✅ "${name}" 저장되었습니다`);
+    profileToast('✅ 저장되었습니다');
   }
 };
 
@@ -136,7 +133,8 @@ window.loadProfile=function(idx){
   if(inName){inName.value=p.name;inName.readOnly=true;inName.style.background='var(--surface2)';inName.style.color='var(--gold-dim)';}
   const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='';
   const ln=document.getElementById('loadedName');if(ln){ln.textContent='👤 '+p.name;ln.style.display='';}
-  setEditMode(false,-1);
+  // 바로 수정저장 모드
+  setEditMode(true,idx);
   profileToast('✅ 불러왔습니다. 만세력을 조회하세요');
 };
 
@@ -145,13 +143,13 @@ window.editProfile=function(idx){
   const p=profiles[idx];if(!p)return;
   applyProfileFields(p);
   closeLoadModal();
-  // 이름 편집가능
+  // 이름 편집가능 + 수정모드
   const inName=document.getElementById('inName');
-  if(inName){inName.value=p.name;inName.readOnly=false;inName.style.background='var(--surface)';inName.style.color='';}
+  if(inName){inName.value=p.name;inName.readOnly=false;inName.style.background='';inName.style.color='';}
   const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
   const ln=document.getElementById('loadedName');if(ln){ln.textContent='✏️ '+p.name+' 수정중';ln.style.display='';}
   setEditMode(true,idx);
-  profileToast('✏️ 수정모드 — 수정 후 수정완료를 눌러주세요');
+  profileToast('✏️ 수정모드 — 수정 후 수정저장하기를 눌러주세요');
 };
 
 window.deleteProfile=function(idx){
