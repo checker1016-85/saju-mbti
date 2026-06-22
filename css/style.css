@@ -21,25 +21,25 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .input-col:first-child{padding-left:0}
 .input-col:last-child{padding-right:0;border-right:none}
 .input-col-inner{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;flex:1;min-height:280px}
-.sub-label{font-size:11px;font-weight:800;color:var(--gold-dim);margin-bottom:8px}
+.sub-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px}
 .section-title{font-size:11px;font-weight:800;color:var(--gold-dim);letter-spacing:1.5px;margin-bottom:var(--gap);padding-bottom:6px;border-bottom:1px solid var(--border)}
-label{display:block;font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:600}
-input,select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:13px;font-family:inherit;outline:none;transition:border .2s}
+label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:700}
+input,select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:inherit;outline:none;transition:border .2s}
 input:focus,select:focus{border-color:var(--gold)}
-.row{display:flex;gap:8px;margin-bottom:10px}.row>*{flex:1}.field{margin-bottom:10px}
+.row{display:flex;gap:8px;margin-bottom:12px}.row>*{flex:1}.row>.field{margin-bottom:0}.field{margin-bottom:12px}
 .divider{border:none;border-top:1px solid var(--border);margin:var(--gap) 0}
-.opt-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.opt-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .opt-row label{display:inline-flex;align-items:center;gap:4px;margin-bottom:0;cursor:pointer;white-space:nowrap}
 .opt-row input[type="radio"],.opt-row input[type="checkbox"]{width:auto;margin:0;accent-color:var(--gold)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;width:100%}
 .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#fff;box-shadow:0 2px 8px rgba(184,134,11,.2)}
 .btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px)}.btn-gold:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .btn-sub{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}.btn-sub:hover{border-color:var(--gold);color:var(--gold-dim)}
-.time-tabs{display:flex;gap:0;margin-bottom:6px}
-.time-tab{flex:1;padding:6px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--text3);border:1px solid var(--border);transition:all .15s}
+.time-tabs{display:flex;gap:0;margin-bottom:8px}
+.time-tab{flex:1;padding:7px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--text3);border:1px solid var(--border);transition:all .15s}
 .time-tab:first-child{border-radius:6px 0 0 6px}.time-tab:last-child{border-radius:0 6px 6px 0}
 .time-tab.active{background:var(--gold);color:#fff;border-color:var(--gold)}
-.time-box{height:42px;margin-top:10px;margin-bottom:6px}
+.time-box{margin-bottom:12px}
 /* ═══ 생년월일 2칼럼 (세로 구분선) ═══ */
 .birth-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:start}
 @media(max-width:680px){.birth-grid{grid-template-columns:1fr}.birth-col-left{border-right:none!important;border-bottom:1px solid var(--border);padding:0 0 16px!important;margin-bottom:16px}.birth-col-right{padding-left:0!important}}
@@ -48,7 +48,7 @@ input:focus,select:focus{border-color:var(--gold)}
 .birth-col-left{padding-right:18px;border-right:1px solid var(--border)}
 .birth-col-right{padding-left:18px}
 /* 출생지 입력 박스 높이 통일 */
-.geo-box{margin-bottom:6px}
+.geo-box{margin-bottom:12px}
 .geo-box>div{min-height:64px}
 .geo-3row{margin:0 0 4px!important;gap:6px!important}
 .geo-3row>*{flex:1;min-width:0}
