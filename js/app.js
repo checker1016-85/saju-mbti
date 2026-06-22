@@ -101,36 +101,40 @@ function updateAge(){const y=+document.getElementById('inYear').value;const isKr
 window.setTimeMode=function(mode,el){timeMode=mode;document.querySelectorAll('.time-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('timeGanji').style.display=mode==='ganji'?'':'none';document.getElementById('timeDirect').style.display=mode==='direct'?'':'none';};
 
 // ═══ DB LOAD ═══
-function loadDB(){
-  console.log('🔄 DB 로드 시작...',GAS_URL);
-  fetch(GAS_URL+'?action=getDB',{redirect:'follow'})
+function loadDB(attempt){
+  attempt=attempt||1;
+  console.log('🔄 DB 로드 시작 (시도'+attempt+'/3)...',GAS_URL);
+  const url=GAS_URL+'?action=getDB&t='+Date.now();
+  fetch(url)
     .then(r=>{
-      console.log('📡 응답 상태:',r.status,r.type,r.url);
+      console.log('📡 응답:',r.status,r.type);
       if(!r.ok && r.status!==0) throw new Error('HTTP '+r.status);
       return r.text();
     })
     .then(txt=>{
-      console.log('📡 응답 길이:',txt.length,'앞100자:',txt.substring(0,100));
+      if(!txt||txt.length<10) throw new Error('빈 응답('+txt.length+'자)');
+      console.log('📡 응답 길이:',txt.length);
+      if(txt.trimStart().startsWith('<')) throw new Error('HTML 응답(로그인필요?)');
       let j;
-      try{ j=JSON.parse(txt); }catch(e){
-        console.error('❌ JSON 파싱 실패, 응답:',txt.substring(0,300));
-        toast('❌ DB JSON 파싱 실패');
-        return;
-      }
-      if(j.ok){
-        S.db=j.data;
-        const keys=Object.keys(S.db);
-        console.log('✅ DB 로드 성공:',keys);
-        keys.forEach(k=>{const tabs=Object.keys(S.db[k]||{});console.log('  📁',k,':',tabs.join(', '));});
-        toast('✅ DB: '+keys.join(', '));
-      }else{
-        console.error('❌ DB 응답 오류:',j);
-        toast('❌ DB 응답 오류: '+(j.error||'unknown'));
-      }
+      try{ j=JSON.parse(txt); }catch(e){ throw new Error('JSON파싱실패'); }
+      if(!j.ok) throw new Error('서버오류:'+(j.error||''));
+      S.db=j.data;
+      const keys=Object.keys(S.db);
+      console.log('✅ DB 로드 성공:',keys);
+      toast('✅ DB 로드 완료');
+      // DB 로드 후 이미 렌더된 화면이 있으면 재렌더
+      if(S.mbti) renderMBTI();
+      if(S.ennea) renderEnnea();
+      if(S.mbti||S.ennea) renderSummary();
     })
     .catch(e=>{
-      console.error('❌ DB 로드 실패:',e);
-      toast('❌ DB 로드 실패: '+e.message);
+      console.error('❌ DB 실패(시도'+attempt+'):',e.message);
+      if(attempt<3){
+        console.log('🔄 '+(attempt*2)+'초 후 재시도...');
+        setTimeout(()=>loadDB(attempt+1), attempt*2000);
+      }else{
+        toast('⚠️ DB 로드 실패 (폴백 사용)');
+      }
     });
 }
 
