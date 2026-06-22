@@ -53,14 +53,12 @@ window.saveProfile=function(){
     setProfiles(profiles);
     if(nameEl){nameEl.readOnly=false;nameEl.style.background='';nameEl.style.color='';}
     const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
-    const ln=document.getElementById('loadedName');if(ln)ln.style.display='none';
     setEditMode(false,-1);
     profileToast('✅ 수정 저장되었습니다');
   }else{
     if(profiles.length>=20){toast('⚠️ 최대 20개까지 저장 가능합니다.');return;}
     if(nameEl){nameEl.readOnly=false;nameEl.style.background='';nameEl.style.color='';}
     const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
-    const ln=document.getElementById('loadedName');if(ln)ln.style.display='none';
     setEditMode(false,-1);
     profiles.unshift(collectProfile());
     setProfiles(profiles);
@@ -132,7 +130,6 @@ window.loadProfile=function(idx){
   const inName=document.getElementById('inName');
   if(inName){inName.value=p.name;inName.readOnly=true;inName.style.background='var(--surface2)';inName.style.color='var(--gold-dim)';}
   const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='';
-  const ln=document.getElementById('loadedName');if(ln){ln.textContent='👤 '+p.name;ln.style.display='';}
   // 바로 수정저장 모드
   setEditMode(true,idx);
   profileToast('✅ 불러왔습니다. 만세력을 조회하세요');
@@ -147,7 +144,6 @@ window.editProfile=function(idx){
   const inName=document.getElementById('inName');
   if(inName){inName.value=p.name;inName.readOnly=false;inName.style.background='';inName.style.color='';}
   const badge=document.getElementById('loadedBadge');if(badge)badge.style.display='none';
-  const ln=document.getElementById('loadedName');if(ln){ln.textContent='✏️ '+p.name+' 수정중';ln.style.display='';}
   setEditMode(true,idx);
   profileToast('✏️ 수정모드 — 수정 후 수정저장하기를 눌러주세요');
 };
