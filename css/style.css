@@ -91,7 +91,7 @@ input:focus,select:focus{border-color:var(--gold)}
 @media(max-width:480px){.radar-grid6{grid-template-columns:1fr}}
 .radar-box{background:var(--surface2);border-radius:var(--radius);padding:8px;border:1px solid var(--border);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1}
 .radar-box svg{width:100%;height:auto}
-.radar-box .r-title{font-size:13px;font-weight:800;margin-bottom:4px}
+.radar-box .r-title{font-size:16px;font-weight:800;margin-bottom:4px;color:#2A4D7A}
 .radar-box .r-title b{font-family:'Space Grotesk'}
 .job-select-btn{width:100%;padding:10px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s;margin-bottom:8px}
 .job-select-btn:hover{border-color:var(--gold);color:var(--text)}.job-select-btn.selected{border-style:solid;border-color:var(--gold);color:var(--gold-dim)}

@@ -498,7 +498,7 @@ function renderRight(){
   h+='<div class="radar-grid6">';
   for(const[title,data]of Object.entries(S.radar)){
     const avg=(data.axes.reduce((s,a)=>s+a.value,0)/data.axes.length).toFixed(1);
-    h+=`<div class="radar-box"><div class="r-title" style="color:${data.color}">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,320)}</div>`;
+    h+=`<div class="radar-box"><div class="r-title">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,320)}</div>`;
   }
   h+='</div>';
   document.getElementById('rightResult').innerHTML=h;
