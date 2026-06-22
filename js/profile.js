@@ -12,18 +12,22 @@ function setState(s,idx){
   _state=s;_editIdx=(s==='default')?-1:idx;
   const bl=document.getElementById('btnLoad');
   const bs=document.getElementById('btnSave');
+  const bc=document.getElementById('btnCalc');
   const n=document.getElementById('inName');
   if(s==='loaded'){
     if(bl)bl.innerHTML='📂 불러오기';
     if(bs){bs.innerHTML='🔄 새로 입력하기';bs.disabled=false;bs.style.opacity='';}
+    if(bc){bc.disabled=false;bc.style.opacity='';}
     if(n){n.readOnly=true;n.style.background='var(--surface2)';n.style.color='var(--gold-dim)';}
   }else if(s==='editing'){
     if(bl)bl.innerHTML='❌ 취소하기';
     if(bs){bs.innerHTML='✏️ 수정저장하기';bs.disabled=false;bs.style.opacity='';}
+    if(bc){bc.disabled=true;bc.style.opacity='.35';}
     if(n){n.readOnly=false;n.style.background='';n.style.color='';}
   }else{
     if(bl)bl.innerHTML='📂 불러오기';
     if(bs){bs.innerHTML='💾 저장하기';bs.disabled=false;bs.style.opacity='';}
+    if(bc){bc.disabled=false;bc.style.opacity='';}
     if(n){n.readOnly=false;n.style.background='';n.style.color='';}
   }
 }
