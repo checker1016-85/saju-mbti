@@ -86,10 +86,10 @@ input:focus,select:focus{border-color:var(--gold)}
 .mbti-code{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--stat-lead)}
 .mbti-desc{font-size:11px;color:var(--text2);text-align:left;max-width:180px}
 .radar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:var(--gap)}
-.radar-grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
-@media(max-width:760px){.radar-grid6{grid-template-columns:1fr 1fr}}
-.radar-box{background:var(--surface2);border-radius:var(--radius);padding:12px;border:1px solid var(--border);text-align:center;display:flex;flex-direction:column;align-items:center}
-.radar-box svg{width:100%;height:auto;max-width:320px}
+.radar-grid6{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:18px}
+@media(max-width:580px){.radar-grid6{grid-template-columns:1fr}}
+.radar-box{background:var(--surface2);border-radius:var(--radius);padding:10px;border:1px solid var(--border);text-align:center;display:flex;flex-direction:column;align-items:center}
+.radar-box svg{width:100%;height:auto;max-width:360px}
 .radar-box .r-title{font-size:13px;font-weight:800;margin-bottom:6px}
 .radar-box .r-title b{font-family:'Space Grotesk'}
 .job-select-btn{width:100%;padding:10px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s;margin-bottom:8px}
@@ -336,8 +336,6 @@ input:focus,select:focus{border-color:var(--gold)}
   /* 본문 스크롤 영역 축소 */
   .uf-body-scroll{max-height:360px!important}
   #myungriArea .uf-body-scroll{height:360px!important}
-  /* 레이더 1열 */
-  .radar-grid6{grid-template-columns:1fr!important}
   /* 종합프로필 */
   .summary-phrase{font-size:15px!important}
   /* 게이지 1열 */

@@ -3,12 +3,11 @@ const VIZ_SIZE=200;
 
 // 방사형 (성향 프로필용) — 반시계 방향, 라벨에 퍼센트 포함
 function radarSVG(axes, color, size = 200) {
-  const pad=25;
+  const pad=10;
   const cx=size/2,cy=size/2,r=size/2-pad,n=axes.length;
   const ang=(i)=>-Math.PI/2-2*Math.PI*i/n;
   const pt=(i,v)=>[(cx+r*(v/100)*Math.cos(ang(i))).toFixed(1),(cy+r*(v/100)*Math.sin(ang(i))).toFixed(1)];
-  const ex=44;
-  let svg=`<svg width="${size}" height="${size}" viewBox="${-ex} ${-ex} ${size+ex*2} ${size+ex*2}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg=`<svg width="${size}" height="${size}" viewBox="-40 -40 ${size+80} ${size+80}" xmlns="http://www.w3.org/2000/svg">`;
   [25,50,75,100].forEach(lv=>{let pts='';for(let i=0;i<n;i++){const[x,y]=pt(i,lv);pts+=`${x},${y} `;}svg+=`<polygon points="${pts}" fill="none" stroke="#d4cfc4" stroke-width=".5"/>`;});
   for(let i=0;i<n;i++){const[x,y]=pt(i,100);svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d4cfc4" stroke-width=".5"/>`;}
   let dpts='';axes.forEach((a,i)=>{const[x,y]=pt(i,a.value);dpts+=`${x},${y} `;});
@@ -17,7 +16,7 @@ function radarSVG(axes, color, size = 200) {
   axes.forEach((a,i)=>{
     const aa=ang(i);
     const cos=Math.cos(aa), sin=Math.sin(aa);
-    const lx=cx+(r+20)*cos, ly=cy+(r+20)*sin;
+    const lx=cx+(r+24)*cos, ly=cy+(r+24)*sin;
     let anchor='middle';
     if(cos>0.25)anchor='start';else if(cos<-0.25)anchor='end';
     const name=a.label.replace('\n',' ');
