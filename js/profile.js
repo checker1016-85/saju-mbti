@@ -15,7 +15,7 @@ function setState(s,idx){
   const n=document.getElementById('inName');
   if(s==='loaded'){
     if(bl)bl.innerHTML='📂 불러오기';
-    if(bs){bs.innerHTML='💾 저장하기';bs.disabled=true;bs.style.opacity='.35';}
+    if(bs){bs.innerHTML='🔄 새로 입력하기';bs.disabled=false;bs.style.opacity='';}
     if(n){n.readOnly=true;n.style.background='var(--surface2)';n.style.color='var(--gold-dim)';}
   }else if(s==='editing'){
     if(bl)bl.innerHTML='❌ 취소하기';
@@ -63,7 +63,41 @@ window.onLoadBtn=function(){
   }
 };
 
+function resetFields(){
+  document.getElementById('inName').value='';
+  document.getElementById('inYear').value='2000';
+  document.getElementById('inMonth').value='1';
+  buildDayOpts();
+  document.getElementById('inDay').value='1';
+  document.querySelector('input[name="cal"][value="solar"]').checked=true;
+  setTimeMode('ganji',document.querySelectorAll('.time-tab')[0]);
+  document.getElementById('inGanji').value='0';
+  document.getElementById('inHour').value='12';
+  document.getElementById('inMin').value='0';
+  document.getElementById('chkNoTime').checked=false;
+  document.getElementById('chkYaja').checked=false;
+  document.getElementById('inGender').value='여';
+  document.getElementById('inAgeType').value='kr';
+  updateAge();
+  setGeoMode('city',document.querySelectorAll('.time-tab')[2]||document.querySelectorAll('.time-tab')[0]);
+  const cs=document.getElementById('inCountry');
+  cs.value='대한민국';cs.dispatchEvent(new Event('change'));
+  setTimeout(()=>{
+    const rs=document.getElementById('inRegion');
+    rs.value='서울특별시';rs.dispatchEvent(new Event('change'));
+    setTimeout(()=>{document.getElementById('inCity').value='종로구';},100);
+  },100);
+}
+
 window.saveProfile=function(){
+  // 불러오기 상태 → 새로 입력하기
+  if(_state==='loaded'){
+    resetFields();
+    setState('default',-1);
+    profileToast('새로 입력해 주세요');
+    return;
+  }
+
   const nameEl=document.getElementById('inName');
   const name=(nameEl?.value||'').trim();
   if(!name){toast('⚠️ 이름을 입력해주세요.');nameEl?.focus();return;}
