@@ -89,8 +89,8 @@ input:focus,select:focus{border-color:var(--gold)}
 .radar-grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
 @media(max-width:760px){.radar-grid6{grid-template-columns:1fr 1fr}}
 .radar-box{background:var(--surface2);border-radius:var(--radius);padding:12px;border:1px solid var(--border);text-align:center;display:flex;flex-direction:column;align-items:center}
-.radar-box svg{width:100%;height:auto;max-width:200px}
-.radar-box .r-title{font-size:12px;font-weight:800;margin-bottom:6px}
+.radar-box svg{width:100%;height:auto;max-width:320px}
+.radar-box .r-title{font-size:13px;font-weight:800;margin-bottom:6px}
 .radar-box .r-title b{font-family:'Space Grotesk'}
 .job-select-btn{width:100%;padding:10px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s;margin-bottom:8px}
 .job-select-btn:hover{border-color:var(--gold);color:var(--text)}.job-select-btn.selected{border-style:solid;border-color:var(--gold);color:var(--gold-dim)}
