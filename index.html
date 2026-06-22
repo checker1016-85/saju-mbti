@@ -17,10 +17,7 @@
     <div id="profileToast" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(42,37,32,.85);color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;z-index:10;white-space:nowrap;pointer-events:none;transition:opacity .3s"></div>
     <div class="birth-col birth-col-left">
       <div style="margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-          <label style="margin:0">이름</label>
-          <span id="loadedBadge" style="display:none;font-size:10px;padding:2px 8px;background:#529E89;color:#fff;border-radius:6px;white-space:nowrap;font-weight:700">✓ 불러옴</span>
-        </div>
+        <label>이름</label>
         <input type="text" id="inName" placeholder="이름 입력 (저장 시 사용)">
       </div>
       <div class="row">
@@ -77,7 +74,7 @@
       </div>
       <button class="btn btn-gold" onclick="doCalc()">만세력·점성차트 조회</button>
       <div style="display:flex;gap:6px;margin-top:8px">
-        <button class="btn btn-sub" onclick="openLoadModal()" style="flex:1;font-size:12px;padding:6px 0;white-space:nowrap">📂 불러오기</button>
+        <button class="btn btn-sub" id="btnLoad" onclick="onLoadBtn()" style="flex:1;font-size:12px;padding:6px 0;white-space:nowrap">📂 불러오기</button>
         <button class="btn btn-sub" id="btnSave" onclick="saveProfile()" style="flex:1;font-size:12px;padding:6px 0;white-space:nowrap">💾 저장하기</button>
       </div>
     </div>
