@@ -16,7 +16,11 @@ function radarSVG(axes, color, size = 200) {
   axes.forEach((a,i)=>{
     const aa=ang(i);
     const cos=Math.cos(aa), sin=Math.sin(aa);
-    const lx=cx+(r+24)*cos, ly=cy+(r+24)*sin;
+    // 좌우 라벨은 안쪽+위로 당김 (잘림 방지)
+    const absCos=Math.abs(cos);
+    const lblR=absCos>0.7?r+14:absCos>0.4?r+18:r+24;
+    const yOff=absCos>0.7?-10:absCos>0.4?-4:0;
+    const lx=cx+lblR*cos, ly=cy+lblR*sin+yOff;
     let anchor='middle';
     if(cos>0.25)anchor='start';else if(cos<-0.25)anchor='end';
     const name=a.label.replace('\n',' ');
