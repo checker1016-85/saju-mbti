@@ -3,28 +3,29 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function profileToast(m){const el=document.getElementById('profileToast');if(!el)return;el.textContent=m;el.style.display='';el.style.opacity='1';setTimeout(()=>{el.style.opacity='0';setTimeout(()=>{el.style.display='none';el.style.opacity='1';},300);},2500);}
 
 const PROFILE_KEY='saju_profiles';
-let _editMode=false, _editIdx=-1;
+// state: 'default' | 'loaded' | 'editing'
+let _state='default', _editIdx=-1;
 function getProfiles(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||'[]');}catch(e){return [];}}
 function setProfiles(arr){localStorage.setItem(PROFILE_KEY,JSON.stringify(arr));}
 
-function setBtnState(mode){
-  // mode: 'default' | 'loaded'
+function setState(s,idx){
+  _state=s;_editIdx=(s==='default')?-1:idx;
   const bl=document.getElementById('btnLoad');
   const bs=document.getElementById('btnSave');
-  if(mode==='loaded'){
+  const n=document.getElementById('inName');
+  if(s==='loaded'){
+    if(bl)bl.innerHTML='📂 불러오기';
+    if(bs){bs.innerHTML='💾 저장하기';bs.disabled=true;bs.style.opacity='.35';}
+    if(n){n.readOnly=true;n.style.background='var(--surface2)';n.style.color='var(--gold-dim)';}
+  }else if(s==='editing'){
     if(bl)bl.innerHTML='❌ 취소하기';
-    if(bs)bs.innerHTML='✏️ 수정저장하기';
+    if(bs){bs.innerHTML='✏️ 수정저장하기';bs.disabled=false;bs.style.opacity='';}
+    if(n){n.readOnly=false;n.style.background='';n.style.color='';}
   }else{
     if(bl)bl.innerHTML='📂 불러오기';
-    if(bs)bs.innerHTML='💾 저장하기';
+    if(bs){bs.innerHTML='💾 저장하기';bs.disabled=false;bs.style.opacity='';}
+    if(n){n.readOnly=false;n.style.background='';n.style.color='';}
   }
-}
-
-function resetToDefault(){
-  _editMode=false;_editIdx=-1;
-  setBtnState('default');
-  const n=document.getElementById('inName');
-  if(n){n.readOnly=false;n.style.background='';n.style.color='';}
 }
 
 function collectProfile(){
@@ -52,11 +53,9 @@ function collectProfile(){
   };
 }
 
-// 불러오기/취소하기 버튼 핸들러
 window.onLoadBtn=function(){
-  if(_editMode){
-    // 취소 → 기본 상태 복귀
-    resetToDefault();
+  if(_state==='editing'){
+    setState('default',-1);
     document.getElementById('inName').value='';
     profileToast('취소되었습니다');
   }else{
@@ -70,16 +69,15 @@ window.saveProfile=function(){
   if(!name){toast('⚠️ 이름을 입력해주세요.');nameEl?.focus();return;}
   const profiles=getProfiles();
 
-  if(_editMode&&_editIdx>=0&&_editIdx<profiles.length){
+  if(_state==='editing'&&_editIdx>=0&&_editIdx<profiles.length){
     profiles[_editIdx]=collectProfile();
     setProfiles(profiles);
-    resetToDefault();
+    setState('default',-1);
     profileToast('✅ 수정 저장되었습니다');
-  }else{
+  }else if(_state==='default'){
     if(profiles.length>=20){toast('⚠️ 최대 20개까지 저장 가능합니다.');return;}
     profiles.unshift(collectProfile());
     setProfiles(profiles);
-    resetToDefault();
     profileToast('✅ 저장되었습니다');
   }
 };
@@ -139,28 +137,26 @@ function applyProfileFields(p){
   }
 }
 
+// ✅ 불러오기 — 조회 전용, 저장 비활성
 window.loadProfile=function(idx){
   const profiles=getProfiles();
   const p=profiles[idx];if(!p)return;
   applyProfileFields(p);
   closeLoadModal();
-  const n=document.getElementById('inName');
-  if(n){n.value=p.name;n.readOnly=true;n.style.background='var(--surface2)';n.style.color='var(--gold-dim)';}
-  _editMode=true;_editIdx=idx;
-  setBtnState('loaded');
+  document.getElementById('inName').value=p.name;
+  setState('loaded',idx);
   profileToast('✅ 불러왔습니다. 만세력을 조회하세요');
 };
 
+// ✏️ 수정하기 — 이름 포함 전체 편집 가능
 window.editProfile=function(idx){
   const profiles=getProfiles();
   const p=profiles[idx];if(!p)return;
   applyProfileFields(p);
   closeLoadModal();
-  const n=document.getElementById('inName');
-  if(n){n.value=p.name;n.readOnly=false;n.style.background='';n.style.color='';}
-  _editMode=true;_editIdx=idx;
-  setBtnState('loaded');
-  profileToast('✏️ 수정모드 — 수정 후 수정저장하기를 눌러주세요');
+  document.getElementById('inName').value=p.name;
+  setState('editing',idx);
+  profileToast('✏️ 수정 후 수정저장하기를 눌러주세요');
 };
 
 window.deleteProfile=function(idx){
