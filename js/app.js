@@ -497,8 +497,16 @@ function renderRight(){
   // ② 레이더 9종
   h+='<div class="radar-grid6">';
   for(const[title,data]of Object.entries(S.radar)){
-    const avg=(data.axes.reduce((s,a)=>s+a.value,0)/data.axes.length).toFixed(1);
-    h+=`<div class="radar-box"><div class="r-title">${title} <b>${avg}%</b></div>${radarSVG(data.axes,data.color,320)}</div>`;
+    const sorted=[...data.axes].sort((a,b)=>b.value-a.value);
+    const top=sorted[0];
+    const pct=top.value>=95?'상위 1%':top.value>=90?'상위 3%':top.value>=85?'상위 8%':top.value>=80?'상위 15%':'';
+    const low=sorted[sorted.length-1];
+    const lowPct=low.value<=8?'하위 5%':low.value<=12?'하위 10%':'';
+    let sub='';
+    if(pct)sub=top.label.replace('\n',' ')+' '+top.value.toFixed(1)+'% <span style="font-size:11px;opacity:.7">('+pct+')</span>';
+    else if(lowPct)sub=low.label.replace('\n',' ')+' '+low.value.toFixed(1)+'% <span style="font-size:11px;opacity:.7">('+lowPct+')</span>';
+    else sub=top.label.replace('\n',' ')+' '+top.value.toFixed(1)+'%';
+    h+=`<div class="radar-box"><div class="r-title">${title} : ${sub}</div>${radarSVG(data.axes,data.color,320)}</div>`;
   }
   h+='</div>';
   document.getElementById('rightResult').innerHTML=h;
