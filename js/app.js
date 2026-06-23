@@ -25,6 +25,7 @@ function renderEmptyFrames(){
   document.getElementById('enneaArea').innerHTML=emptyFrame('에니어그램',defaultEnneaViz(),[['메인 유형','조회를 입력하세요'],['날개','조회를 입력하세요']],'var(--stat-solo)');
   document.getElementById('mbtiArea').innerHTML=emptyFrame('MBTI',defaultMbtiViz(),[['유형','조회를 입력하세요'],['세부 A/T','조회를 입력하세요']],'var(--stat-lead)');
   document.getElementById('rightResult').innerHTML='<div class="summary-phrase" style="text-align:center;color:var(--text3);padding:16px">조회를 입력하세요</div>'+defaultRadarGrid();
+  document.getElementById('appearanceArea').innerHTML='<div class="unified-frame" style="border-color:#8B6914"><div class="uf-header" style="background:#8B6914">🪞 외형·페르소나</div><div class="uf-body-scroll"><div style="text-align:center;color:var(--text3);padding:20px">조회를 입력하세요</div></div></div>';
 }
 function emptyMyungriFrame(){
   const labels=['시주','일주','월주','년주'];

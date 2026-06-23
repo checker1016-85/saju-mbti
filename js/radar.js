@@ -297,23 +297,32 @@ function defaultMbtiViz(){
 }
 
 function defaultRadarGrid(){
-  const cats=[
-    {t:'체력·멘탈',a:['체력','멘탈력','회복력','인내력','스트레스\n내성']},
-    {t:'의지·결단',a:['결단력','독립심','인내심','책임감','의지력']},
-    {t:'통찰·집중',a:['직관력','통찰력','집중력','판단력','관찰력']},
-    {t:'사회성',a:['리더십','소통력','협업력','매력','공감력']},
-    {t:'감성·관계',a:['관계운','배려심','감수성','표현력','포용력']},
-    {t:'재능·두뇌',a:['창의력','분석력','실행력','전략력','직관력']},
-    {t:'재물·야망',a:['수익감각','투자감각','야망','안정추구','모험도']},
-    {t:'관계·연애',a:['애정표현','헌신도','매력','안정성','자유추구']},
-    {t:'직업·사회',a:['조직력','전문성','추진력','창업기질','협상력']}
+  const groups=[
+    {name:'🟢 내면·기질',color:'#2E8B57',cats:[
+      {t:'체력·멘탈',a:['체력','멘탈력','회복력','인내력','스트레스\n내성']},
+      {t:'의지·결단',a:['결단력','독립심','인내심','책임감','의지력']},
+      {t:'통찰·집중',a:['직관력','통찰력','집중력','판단력','관찰력']}
+    ]},
+    {name:'🔵 능력·사회',color:'#3D6BA3',cats:[
+      {t:'사회성',a:['리더십','소통력','협업력','매력','공감력']},
+      {t:'재능·두뇌',a:['창의력','분석력','실행력','전략력','직관력']},
+      {t:'직업·사회',a:['조직력','전문성','추진력','창업기질','협상력']}
+    ]},
+    {name:'🟣 감성·재물',color:'#7B4EA3',cats:[
+      {t:'감성·관계',a:['관계운','배려심','감수성','표현력','포용력']},
+      {t:'관계·연애',a:['애정표현','헌신도','매력','안정성','자유추구']},
+      {t:'재물·야망',a:['수익감각','투자감각','야망','안정추구','모험도']}
+    ]}
   ];
-  const C='#3D6BA3';
-  let h='<div class="radar-grid6">';
-  cats.forEach(c=>{
-    const axes=c.a.map(l=>({label:l,value:5}));
-    h+=`<div class="radar-box"><div class="r-title">${c.t}</div>${radarSVG(axes,C,320)}</div>`;
-  });
-  h+='</div>';
+  let h='';
+  for(const g of groups){
+    h+=`<div class="radar-group-title" style="color:${g.color};border-left:4px solid ${g.color};padding:4px 10px;margin:14px 0 6px;font-weight:800;font-size:13px">${g.name}</div>`;
+    h+='<div class="radar-grid6">';
+    g.cats.forEach(c=>{
+      const axes=c.a.map(l=>({label:l,value:5}));
+      h+=`<div class="radar-box"><div class="r-title">${c.t}</div>${radarSVG(axes,g.color,320)}</div>`;
+    });
+    h+='</div>';
+  }
   return h;
 }
