@@ -1,1 +1,10 @@
-{ "buildCommand": "", "outputDirectory": "." }
+{ 
+  "buildCommand": "", 
+  "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/api/gas",
+      "destination": "https://script.google.com/macros/s/AKfycbyoLNtcnJXFEGZKI5YPhu2s1-Dv9vz6hMc2byOo2bsyIgnsvMgI_Jd9v-dQN0gf8wfBdg/exec"
+    }
+  ]
+}

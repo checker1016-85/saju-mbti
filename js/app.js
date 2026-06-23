@@ -103,8 +103,10 @@ window.setTimeMode=function(mode,el){timeMode=mode;document.querySelectorAll('.t
 // ═══ DB LOAD ═══
 function loadDB(attempt){
   attempt=attempt||1;
-  console.log('🔄 DB 로드 시작 (시도'+attempt+'/3)...',GAS_URL);
-  const url=GAS_URL+'?action=getDB&t='+Date.now();
+  // 1차: Vercel 프록시(same-origin, CORS 무관), 2~3차: 직접 GAS URL
+  const base=attempt===1?'/api/gas':GAS_URL;
+  const url=base+'?action=getDB&t='+Date.now();
+  console.log('🔄 DB 로드 (시도'+attempt+'/3):',url.substring(0,60));
   fetch(url)
     .then(r=>{
       console.log('📡 응답:',r.status,r.type);
@@ -113,16 +115,13 @@ function loadDB(attempt){
     })
     .then(txt=>{
       if(!txt||txt.length<10) throw new Error('빈 응답('+txt.length+'자)');
-      console.log('📡 응답 길이:',txt.length);
-      if(txt.trimStart().startsWith('<')) throw new Error('HTML 응답(로그인필요?)');
+      if(txt.trimStart().startsWith('<')) throw new Error('HTML 응답(로그인?)');
       let j;
       try{ j=JSON.parse(txt); }catch(e){ throw new Error('JSON파싱실패'); }
       if(!j.ok) throw new Error('서버오류:'+(j.error||''));
       S.db=j.data;
-      const keys=Object.keys(S.db);
-      console.log('✅ DB 로드 성공:',keys);
+      console.log('✅ DB 로드 성공:',Object.keys(S.db));
       toast('✅ DB 로드 완료');
-      // DB 로드 후 이미 렌더된 화면이 있으면 재렌더
       if(S.mbti) renderMBTI();
       if(S.ennea) renderEnnea();
       if(S.mbti||S.ennea) renderSummary();
@@ -130,7 +129,6 @@ function loadDB(attempt){
     .catch(e=>{
       console.error('❌ DB 실패(시도'+attempt+'):',e.message);
       if(attempt<3){
-        console.log('🔄 '+(attempt*2)+'초 후 재시도...');
         setTimeout(()=>loadDB(attempt+1), attempt*2000);
       }else{
         toast('⚠️ DB 로드 실패 (폴백 사용)');
@@ -139,7 +137,7 @@ function loadDB(attempt){
 }
 
 // ═══ CALC ═══
-window.doCalc=function(){
+window.doCalc=async function(){
   if(!window._lunarLib){toast('⏳ 라이브러리 로딩 중...');return;}
   // 직업선택 초기화
   S.job=null;S.jobName=null;S.jobCat=null;tempJob=null;tempJobCat=null;
@@ -172,6 +170,7 @@ window.doCalc=function(){
   S.mbti=calcMBTIFull(S.tg);S.selectedMBTI=S.mbti.primary;
   S.ennea=calcEnneagram(S.tg);S.selectedEnnea=S.ennea.primary;
   // 점성 계산 먼저 (종합 프로필에 상승궁 칩 포함되도록)
+  if(typeof loadAstroLib==='function') await loadAstroLib();
   if(typeof calcAstro==='function'&&typeof COUNTRIES!=='undefined'){
     const geo=getGeo();
     const aHour=noTime?12:hour, aMin=noTime?0:minute;
