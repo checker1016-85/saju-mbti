@@ -36,7 +36,7 @@ function sajuVizSVG(oh, centerTop, centerBot, size=VIZ_SIZE){
   const ELEM_C={목:'#2e8b40',화:'#c83030',토:'#d4a82a',금:'#707088',수:'#3060a0'};
   const total=Object.values(oh).reduce((a,b)=>a+b,0)||1;
   const cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
-  let ang=-Math.PI/2,svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  let ang=-Math.PI/2,svg=`<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   for(const[e,c]of Object.entries(oh)){
     if(c<=0)continue;
     const a2=ang+2*Math.PI*c/total;
@@ -67,7 +67,7 @@ function astroChartSVG(h, size=VIZ_SIZE){
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
   const cx=size/2,cy=size/2,rOut=size/2-18,rIn=size/2-42;
   let ang=-Math.PI/2;
-  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg=`<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   // 별자리 → 슬라이스 인덱스 매핑 (그리는 순서대로)
   const signIdx={};signs.forEach((s,i)=>signIdx[s]=i);
   signs.forEach((s)=>{
@@ -129,7 +129,7 @@ function enneaStarSVG(main, w1, w2, size=VIZ_SIZE){
   const pos={};
   // 9번이 맨 위 (12시 방향), 시계 방향 1→2→…→8
   for(let i=1;i<=9;i++){const a=-Math.PI/2+2*Math.PI*((i%9)/9);pos[i]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
-  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg=`<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   // 센터 호 (외곽 3등분)
   const arcR=size/2-16;
   const arcs=[
@@ -191,7 +191,7 @@ function mbtiBigSVG(axes, selected, at, size=VIZ_SIZE){
   // 박스 영역: 위 4축, 아래 A/T 분리
   const boxX=2,boxW=size-4,boxY=4,boxH=152;       // 4축 박스
   const rowH=(boxH-16)/4, topPad=boxY+8;
-  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg=`<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   // ── 둥근 사각형 박스 (옅은 선) ──
   svg+=`<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="12" fill="#fff" fill-opacity="0.2" stroke="#d4cfc4" stroke-width="1"/>`;
   pairs.forEach(([a,b,aKr,bKr],i)=>{
@@ -245,7 +245,7 @@ function defaultAstroViz(){
   const ELEM_SC={aries:'#c83030',leo:'#c83030',sagittarius:'#c83030',taurus:'#d4a82a',virgo:'#d4a82a',capricorn:'#d4a82a',gemini:'#40c0a0',libra:'#40c0a0',aquarius:'#40c0a0',cancer:'#3060a0',scorpio:'#3060a0',pisces:'#3060a0'};
   const size=VIZ_SIZE,cx=size/2,cy=size/2,rOut=size/2-10,rIn=size/2-38;
   let ang=-Math.PI/2;
-  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg=`<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   signs.forEach((s)=>{
     const a2=ang+2*Math.PI/12;
     const x1=cx+rOut*Math.cos(ang),y1=cy+rOut*Math.sin(ang);
@@ -269,7 +269,7 @@ function defaultEnneaViz(){
   const CENTER_C={'본능':'#c04010','가슴':'#10806a','사고':'#4838a0'};
   const CENTER={8:'본능',9:'본능',1:'본능',2:'가슴',3:'가슴',4:'가슴',5:'사고',6:'사고',7:'사고'};
   const pos={};for(let i=1;i<=9;i++){const a=-Math.PI/2+2*Math.PI*((i%9)/9);pos[i]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
-  let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg=`<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
   const arcR=size/2-16;
   [{from:8,to:1,c:'#c04010'},{from:2,to:4,c:'#10806a'},{from:5,to:7,c:'#4838a0'}].forEach(arc=>{
     const a1=-Math.PI/2+2*Math.PI*((arc.from-0.5)%9/9),a2=-Math.PI/2+2*Math.PI*((arc.to+0.5)%9/9);
