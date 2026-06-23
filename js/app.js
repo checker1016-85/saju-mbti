@@ -124,6 +124,7 @@ function loadDB(attempt){
       toast('✅ DB 로드 완료');
       if(S.mbti) renderMBTI();
       if(S.ennea) renderEnnea();
+      if(S.astroData&&typeof renderAstro==='function') renderAstro(S.astroData);
       if(S.mbti||S.ennea) renderSummary();
     })
     .catch(e=>{
@@ -175,7 +176,7 @@ window.doCalc=async function(){
     const geo=getGeo();
     const aHour=noTime?12:hour, aMin=noTime?0:minute;
     const ah=calcAstro(+document.getElementById('inYear').value,+document.getElementById('inMonth').value,+document.getElementById('inDay').value,aHour,aMin,geo.lat,geo.lng);
-    if(ah&&ah.Ascendant){S.astroAscKey=ah.Ascendant.Sign.key;S.astroAscSign=(typeof SIGN_KR!=='undefined'?SIGN_KR[ah.Ascendant.Sign.key]||'':'').replace('자리','');}
+    if(ah&&ah.Ascendant){S.astroAscKey=ah.Ascendant.Sign.key;S.astroAscSign=(typeof SIGN_KR!=='undefined'?SIGN_KR[ah.Ascendant.Sign.key]||'':'').replace('자리','');S.astroData=ah;}
     renderAstro(ah);
   }
   renderSajuCard();renderSajuMeta();renderMyungri();renderEnnea();renderMBTI();renderSummary();renderRight();updateJobRec();
@@ -427,6 +428,12 @@ function getDBWing(code){
   const rows=dbTab('에니어그램','날개');if(!rows)return null;
   const m=rows.find(r=>(r['날개']||'')===code);if(!m)return null;
   return {명칭:m['명칭']||'',설명:m['설명']||'',키워드:m['특징 키워드']||''};
+}
+function getDBAstro(signKr){
+  const rows=dbTab('점성','별자리');if(!rows)return null;
+  const m=rows.find(r=>(r['별자리']||'')===signKr);
+  if(!m)return null;
+  return {키워드:m['키워드']||'',성향:m['핵심 성향']||'',강점:m['강점']||'',약점:m['약점']||'',연애:m['관계/연애']||'',직업:m['직업 적성']||'',사주:m['사주 연계']||''};
 }
 
 // ═══ CENTER ② 에니어그램 ═══

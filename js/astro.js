@@ -111,10 +111,26 @@ function renderAstro(h) {
   html += '</div></div>';
   html += `</div><div class="uf-head-viz">${astroChartSVG(h)}</div></div>`;
   html += '<div class="uf-body-scroll">';
-  html += `<div class="uf-sec"><div class="uf-label">${SIGN_EMOJI[ascKey]} 상승궁 (ASC) — ${SIGN_KR[ascKey]} ${ascDeg}</div><div class="uf-body">${ASC_DESC[ascKey] || ''}</div></div>`;
-  html += `<div class="uf-sec"><div class="uf-label">☉ 태양 — ${SIGN_KR[sunKey]}</div><div class="uf-body"><b>메인 기질:</b> ${(typeof SUN_DESC!=='undefined'&&SUN_DESC[sunKey])||SIGN_DESC[sunKey]||''}</div></div>`;
-  html += `<div class="uf-sec"><div class="uf-label">☽ 달 — ${SIGN_KR[moonKey]}</div><div class="uf-body"><b>서브 기질:</b> ${(typeof MOON_DESC!=='undefined'&&MOON_DESC[moonKey])||SIGN_DESC[moonKey]||''}</div></div>`;
-  if (mcKey) html += `<div class="uf-sec"><div class="uf-label">⬆️ MC 천정 — ${SIGN_KR[mcKey]}</div><div class="uf-body"><b>사회적 페르소나:</b> ${(typeof MC_DESC!=='undefined'&&MC_DESC[mcKey])||SIGN_DESC[mcKey]||''}</div></div>`;
+  // ASC 상승궁
+  const dbAsc=typeof getDBAstro==='function'?getDBAstro(SIGN_KR[ascKey]):null;
+  html += `<div class="uf-sec"><div class="uf-label">${SIGN_EMOJI[ascKey]} 상승궁 (ASC) — ${SIGN_KR[ascKey]} ${ascDeg}</div><div class="uf-body">${dbAsc?dbAsc.성향:ASC_DESC[ascKey]||''}</div></div>`;
+  if(dbAsc){
+    if(dbAsc.강점) html+=`<div class="uf-sec"><div class="uf-label">👍 강점</div><div class="uf-body">${dbAsc.강점}</div></div>`;
+    if(dbAsc.약점) html+=`<div class="uf-sec"><div class="uf-label">⚠️ 약점</div><div class="uf-body">${dbAsc.약점}</div></div>`;
+    if(dbAsc.연애) html+=`<div class="uf-sec"><div class="uf-label">💕 관계/연애</div><div class="uf-body">${dbAsc.연애}</div></div>`;
+    if(dbAsc.사주) html+=`<div class="uf-sec"><div class="uf-label">🔮 사주 연계</div><div class="uf-body">${dbAsc.사주}</div></div>`;
+  }
+  // 태양
+  const dbSun=typeof getDBAstro==='function'?getDBAstro(SIGN_KR[sunKey]):null;
+  html += `<div class="uf-sec"><div class="uf-label">☉ 태양 — ${SIGN_KR[sunKey]}</div><div class="uf-body"><b>메인 기질:</b> ${dbSun?dbSun.성향:(typeof SUN_DESC!=='undefined'&&SUN_DESC[sunKey])||SIGN_DESC[sunKey]||''}</div></div>`;
+  // 달
+  const dbMoon=typeof getDBAstro==='function'?getDBAstro(SIGN_KR[moonKey]):null;
+  html += `<div class="uf-sec"><div class="uf-label">☽ 달 — ${SIGN_KR[moonKey]}</div><div class="uf-body"><b>서브 기질:</b> ${dbMoon?dbMoon.성향:(typeof MOON_DESC!=='undefined'&&MOON_DESC[moonKey])||SIGN_DESC[moonKey]||''}</div></div>`;
+  // MC
+  if (mcKey) {
+    const dbMc=typeof getDBAstro==='function'?getDBAstro(SIGN_KR[mcKey]):null;
+    html += `<div class="uf-sec"><div class="uf-label">⬆️ MC 천정 — ${SIGN_KR[mcKey]}</div><div class="uf-body"><b>사회적 페르소나:</b> ${dbMc?dbMc.성향:(typeof MC_DESC!=='undefined'&&MC_DESC[mcKey])||SIGN_DESC[mcKey]||''}</div></div>`;
+  }
   html += '</div></div>';
   if(el) el.innerHTML = html;
 }
