@@ -28,7 +28,7 @@ input,select{width:100%;background:var(--surface);border:1px solid var(--border)
 input[type="checkbox"],input[type="radio"]{height:auto;width:auto}
 input:focus,select:focus{border-color:var(--gold)}
 .row{display:flex;gap:8px;margin-bottom:12px}.row>*{flex:1}.row>.field{margin-bottom:0}.field{margin-bottom:12px}
-.divider{border:none;border-top:1px solid var(--border);margin:0}
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 .opt-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .opt-row label{display:inline-flex;align-items:center;gap:4px;margin-bottom:0;cursor:pointer;white-space:nowrap}
 .opt-row input[type="radio"],.opt-row input[type="checkbox"]{width:auto;margin:0;accent-color:var(--gold)}
