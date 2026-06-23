@@ -551,7 +551,7 @@ function renderRight(){
       const isHigh=top.value>=80;
       const pct=top.value>=95?' (상위 1%)':top.value>=90?' (상위 3%)':top.value>=85?' (상위 8%)':top.value>=80?' (상위 15%)':'';
       const topName=top.label.replace('\n',' ');
-      const chartColor=isHigh?'#B5403F':data.color;
+      const chartColor=data.color;
       const titleSub=isHigh?topName+' '+top.value.toFixed(1)+'%'+pct:topName+' '+top.value.toFixed(1)+'%';
       h+=`<div class="radar-box"><div class="r-title"${isHigh?' style="color:#9A2E2D"':''}>${title} : ${titleSub}</div>${radarSVG(data.axes,chartColor,320)}</div>`;
     }
