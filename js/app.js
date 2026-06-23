@@ -536,18 +536,27 @@ function renderRight(){
   let h='';
   // ① 종합 프로필 (성향 프로필 최상단)
   h+=buildSummaryHTML();
-  // ② 레이더 9종
-  h+='<div class="radar-grid6">';
-  for(const[title,data]of Object.entries(S.radar)){
-    const top=[...data.axes].sort((a,b)=>b.value-a.value)[0];
-    const isHigh=top.value>=80;
-    const pct=top.value>=95?' (상위 1%)':top.value>=90?' (상위 3%)':top.value>=85?' (상위 8%)':top.value>=80?' (상위 15%)':'';
-    const topName=top.label.replace('\n',' ');
-    const chartColor=isHigh?'#B5403F':data.color;
-    const titleSub=isHigh?topName+' '+top.value.toFixed(1)+'%'+pct:topName+' '+top.value.toFixed(1)+'%';
-    h+=`<div class="radar-box"><div class="r-title"${isHigh?' style="color:#9A2E2D"':''}>${title} : ${titleSub}</div>${radarSVG(data.axes,chartColor,320)}</div>`;
+  // ② 레이더 9종 — 3그룹
+  const groups=[
+    {name:'🟢 내면·기질',color:'#2E8B57',key:'내면·기질'},
+    {name:'🔵 능력·사회',color:'#3D6BA3',key:'능력·사회'},
+    {name:'🟣 감성·재물',color:'#7B4EA3',key:'감성·재물'}
+  ];
+  for(const g of groups){
+    h+=`<div class="radar-group-title" style="color:${g.color};border-left:4px solid ${g.color};padding:4px 10px;margin:14px 0 6px;font-weight:800;font-size:13px">${g.name}</div>`;
+    h+='<div class="radar-grid6">';
+    for(const[title,data]of Object.entries(S.radar)){
+      if(data.group!==g.key)continue;
+      const top=[...data.axes].sort((a,b)=>b.value-a.value)[0];
+      const isHigh=top.value>=80;
+      const pct=top.value>=95?' (상위 1%)':top.value>=90?' (상위 3%)':top.value>=85?' (상위 8%)':top.value>=80?' (상위 15%)':'';
+      const topName=top.label.replace('\n',' ');
+      const chartColor=isHigh?'#B5403F':data.color;
+      const titleSub=isHigh?topName+' '+top.value.toFixed(1)+'%'+pct:topName+' '+top.value.toFixed(1)+'%';
+      h+=`<div class="radar-box"><div class="r-title"${isHigh?' style="color:#9A2E2D"':''}>${title} : ${titleSub}</div>${radarSVG(data.axes,chartColor,320)}</div>`;
+    }
+    h+='</div>';
   }
-  h+='</div>';
   document.getElementById('rightResult').innerHTML=h;
 }
 
