@@ -565,72 +565,57 @@ function renderRight(){
 function renderAppearance(){
   const area=document.getElementById('appearanceArea');
   if(!area)return;
-  if(!S.saju){return;}
-  const dayP=S.saju.pillarDetails?.day, monP=S.saju.pillarDetails?.month;
-  if(!dayP)return;
+  if(!S.saju||!S.tg)return;
   const ilju=S.saju.pillars?.day||'';
   const wolju=S.saju.pillars?.month||'';
-  const stemKr=dayP.stem, branchKr=dayP.branch;
 
-  // ① 20_일주론에서 서술형 설명 가져오기
-  let narrative='';
+  // ① DB에 페르소나 서술이 있으면 우선 사용
+  let narrative='', dbTags=[];
   if(S.db&&S.db['20_일주론']){
     const db20=S.db['20_일주론'];
-    // 탭 이름 자동탐색 (첫번째 탭 사용)
-    const tabNames=Object.keys(db20);
-    for(const tn of tabNames){
+    for(const tn of Object.keys(db20)){
       const rows=db20[tn];if(!Array.isArray(rows))continue;
-      const row=rows.find(r=>{
-        const id=String(r['일주']||r['ID']||r['일주간지']||'');
-        return id===ilju||id.includes(ilju);
-      });
+      const row=rows.find(r=>{const id=String(r['일주']||r['ID']||'');return id===ilju||id.includes(ilju);});
       if(row){
-        // 설명/페르소나/외형 등 서술형 필드 우선
-        const narFields=['페르소나','외형설명','설명','외형·기질','성격','종합','특징'];
-        for(const f of narFields){ if(row[f]){narrative=row[f];break;} }
-        // 없으면 주요 필드 조합
-        if(!narrative){
-          const parts=[];
-          const tryFields=['고유분위기','체형','인상','외형','성격','기질','재물','건강'];
-          tryFields.forEach(f=>{if(row[f])parts.push(row[f]);});
-          if(parts.length)narrative=parts.join(' ');
-        }
+        const narFields=['페르소나','외형설명','설명','외형·기질','종합'];
+        for(const f of narFields){if(row[f]){narrative=row[f];break;}}
         break;
       }
     }
   }
-  if(!narrative) narrative=`${ilju}일주(${wolju}월)의 외형·페르소나 정보를 불러오는 중입니다. DB에 해당 일주 데이터가 필요합니다.`;
 
-  // ② 31_외형유형에서 태그 키워드 수집
-  let tags=[];
+  // ② DB에 없으면 템플릿 엔진으로 실시간 생성
+  const persona=buildPersona(S.saju,S.tg);
+  if(!narrative) narrative=persona.text;
+  const tags=persona.tags;
+
+  // ③ 31_외형유형 태그 추가
   if(S.db&&S.db['31_외형유형']){
-    const db31=S.db['31_외형유형'];
-    const stemMap=db31['천간외형매핑'], branchMap=db31['지지외형매핑'];
-    if(stemMap&&branchMap){
-      const stemRow=stemMap.find(r=>(r['천간']||'').includes(stemKr));
-      const branchRow=branchMap.find(r=>(r['지지']||'').includes(branchKr));
-      const cats=[
-        {key:'체형',tab:'AA_체형'},{key:'얼굴형',tab:'AB_얼굴형'},
-        {key:'눈매',tab:'AE_눈매'},{key:'피부톤',tab:'AF_피부톤'},
-        {key:'분위기',tab:'AG_분위기'},{key:'의상재질',tab:'AH_의상재질'}
-      ];
-      cats.forEach(cat=>{
-        const col=cat.key+'(1~3순위)';
-        const raw=stemRow?.[col]||branchRow?.[col]||'';
-        const tab=db31[cat.tab];if(!tab)return;
-        String(raw).split('·').slice(0,2).forEach(s=>{
-          const m=s.match(/^([A-Z]{2}\d{2})\((\d+)%\)$/);
-          if(m){const row=tab.find(r=>(r['ID']||'')===m[1]);if(row&&row['키워드'])tags.push(row['키워드']);}
+    const db31=S.db['31_외형유형'],dp=S.saju.pillarDetails?.day;
+    if(dp){
+      const stemMap=db31['천간외형매핑'],branchMap=db31['지지외형매핑'];
+      if(stemMap&&branchMap){
+        const sRow=stemMap.find(r=>(r['천간']||'').includes(dp.stem));
+        const bRow=branchMap.find(r=>(r['지지']||'').includes(dp.branch));
+        ['체형','얼굴형','눈매','분위기'].forEach(cat=>{
+          const col=cat+'(1~3순위)';
+          const raw=sRow?.[col]||bRow?.[col]||'';
+          const tab=db31[cat.replace('체형','AA_체형').replace('얼굴형','AB_얼굴형').replace('눈매','AE_눈매').replace('분위기','AG_분위기')];
+          if(!tab)return;
+          String(raw).split('·').slice(0,1).forEach(s=>{
+            const m=s.match(/^([A-Z]{2}\d{2})\((\d+)%\)$/);
+            if(m){const row=tab.find(r=>(r['ID']||'')===m[1]);if(row?.['키워드']&&!tags.includes(row['키워드']))tags.push(row['키워드']);}
+          });
         });
-      });
+      }
     }
   }
 
-  // ③ 렌더링: 서술 문장 + 태그
+  // ④ 렌더링
   let h=`<div class="unified-frame" style="border-color:#8B6914">`;
   h+=`<div class="uf-header" style="background:#8B6914">🪞 외형·페르소나 <small>(${ilju} 일주 · ${wolju}월)</small></div>`;
   h+=`<div class="uf-body-scroll">`;
-  h+=`<div class="uf-sec"><div class="uf-body" style="line-height:1.75;font-size:13.5px">${narrative}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-body" style="line-height:1.8;font-size:13.5px">${narrative}</div></div>`;
   if(tags.length){
     h+=`<div class="uf-sec" style="padding-top:6px"><div class="chip-wrap">`;
     tags.forEach(t=>h+=`<span class="chip hl">${t}</span>`);
