@@ -565,57 +565,76 @@ function renderRight(){
 function renderAppearance(){
   const area=document.getElementById('appearanceArea');
   if(!area)return;
-  if(!S.db||!S.db['31_외형유형']||!S.saju){area.innerHTML='';return;}
-  const db31=S.db['31_외형유형'];
-  const stemMap=db31['천간외형매핑'], branchMap=db31['지지외형매핑'];
-  if(!stemMap||!branchMap){area.innerHTML='';return;}
-  // 일간/일지 추출
-  const dayP=S.saju.pillarDetails?.day;
+  if(!S.saju){return;}
+  const dayP=S.saju.pillarDetails?.day, monP=S.saju.pillarDetails?.month;
   if(!dayP)return;
+  const ilju=S.saju.pillars?.day||'';
+  const wolju=S.saju.pillars?.month||'';
   const stemKr=dayP.stem, branchKr=dayP.branch;
-  // 매핑 찾기
-  const stemRow=stemMap.find(r=>(r['천간']||'').includes(stemKr));
-  const branchRow=branchMap.find(r=>(r['지지']||'').includes(branchKr));
-  if(!stemRow&&!branchRow)return;
-  // 카테고리 목록
-  const cats=[
-    {key:'체형',tab:'AA_체형',icon:'🧍'},
-    {key:'얼굴형',tab:'AB_얼굴형',icon:'😊'},
-    {key:'헤어길이',tab:'AC_헤어길이',icon:'💇'},
-    {key:'헤어볼륨',tab:'AD_헤어볼륨',icon:'🌀'},
-    {key:'눈매',tab:'AE_눈매',icon:'👁️'},
-    {key:'피부톤',tab:'AF_피부톤',icon:'✨'},
-    {key:'분위기',tab:'AG_분위기',icon:'🌟'},
-    {key:'의상재질',tab:'AH_의상재질',icon:'👗'}
-  ];
-  // 코드→설명 룩업
-  function resolve(codeStr,tabName){
-    if(!codeStr)return[];
-    const tab=db31[tabName];if(!tab)return[];
-    const items=String(codeStr).split('·');
-    return items.map(s=>{
-      const m=s.match(/^([A-Z]{2}\d{2})\((\d+)%\)$/);
-      if(!m)return null;
-      const row=tab.find(r=>(r['ID']||'')===m[1]);
-      return row?{id:m[1],pct:+m[2],kw:row['키워드']||'',desc:row['설명']||''}:null;
-    }).filter(Boolean);
+
+  // ① 20_일주론에서 서술형 설명 가져오기
+  let narrative='';
+  if(S.db&&S.db['20_일주론']){
+    const db20=S.db['20_일주론'];
+    // 탭 이름 자동탐색 (첫번째 탭 사용)
+    const tabNames=Object.keys(db20);
+    for(const tn of tabNames){
+      const rows=db20[tn];if(!Array.isArray(rows))continue;
+      const row=rows.find(r=>{
+        const id=String(r['일주']||r['ID']||r['일주간지']||'');
+        return id===ilju||id.includes(ilju);
+      });
+      if(row){
+        // 설명/페르소나/외형 등 서술형 필드 우선
+        const narFields=['페르소나','외형설명','설명','외형·기질','성격','종합','특징'];
+        for(const f of narFields){ if(row[f]){narrative=row[f];break;} }
+        // 없으면 주요 필드 조합
+        if(!narrative){
+          const parts=[];
+          const tryFields=['고유분위기','체형','인상','외형','성격','기질','재물','건강'];
+          tryFields.forEach(f=>{if(row[f])parts.push(row[f]);});
+          if(parts.length)narrative=parts.join(' ');
+        }
+        break;
+      }
+    }
   }
-  // 천간(일간) + 지지(일지) 결합하여 카테고리별 top 표시
+  if(!narrative) narrative=`${ilju}일주(${wolju}월)의 외형·페르소나 정보를 불러오는 중입니다. DB에 해당 일주 데이터가 필요합니다.`;
+
+  // ② 31_외형유형에서 태그 키워드 수집
+  let tags=[];
+  if(S.db&&S.db['31_외형유형']){
+    const db31=S.db['31_외형유형'];
+    const stemMap=db31['천간외형매핑'], branchMap=db31['지지외형매핑'];
+    if(stemMap&&branchMap){
+      const stemRow=stemMap.find(r=>(r['천간']||'').includes(stemKr));
+      const branchRow=branchMap.find(r=>(r['지지']||'').includes(branchKr));
+      const cats=[
+        {key:'체형',tab:'AA_체형'},{key:'얼굴형',tab:'AB_얼굴형'},
+        {key:'눈매',tab:'AE_눈매'},{key:'피부톤',tab:'AF_피부톤'},
+        {key:'분위기',tab:'AG_분위기'},{key:'의상재질',tab:'AH_의상재질'}
+      ];
+      cats.forEach(cat=>{
+        const col=cat.key+'(1~3순위)';
+        const raw=stemRow?.[col]||branchRow?.[col]||'';
+        const tab=db31[cat.tab];if(!tab)return;
+        String(raw).split('·').slice(0,2).forEach(s=>{
+          const m=s.match(/^([A-Z]{2}\d{2})\((\d+)%\)$/);
+          if(m){const row=tab.find(r=>(r['ID']||'')===m[1]);if(row&&row['키워드'])tags.push(row['키워드']);}
+        });
+      });
+    }
+  }
+
+  // ③ 렌더링: 서술 문장 + 태그
   let h=`<div class="unified-frame" style="border-color:#8B6914">`;
-  h+=`<div class="uf-header" style="background:#8B6914">🪞 외형·페르소나 <small>(일주 ${S.saju.pillars?.day||''})</small></div>`;
+  h+=`<div class="uf-header" style="background:#8B6914">🪞 외형·페르소나 <small>(${ilju} 일주 · ${wolju}월)</small></div>`;
   h+=`<div class="uf-body-scroll">`;
-  for(const cat of cats){
-    const colName=cat.key+'(1~3순위)';
-    const stemItems=resolve(stemRow?.[colName],cat.tab);
-    const branchItems=resolve(branchRow?.[colName],cat.tab);
-    // 천간 1순위 + 지지 1순위 조합
-    const top=stemItems[0]||branchItems[0];
-    const sub=stemItems[1]||branchItems[0];
-    if(!top)continue;
-    let desc=`<b>${top.kw}</b> (${top.pct}%)`;
-    if(top.desc)desc+=` — ${top.desc}`;
-    if(sub&&sub.id!==top.id)desc+=` / <b>${sub.kw}</b> (${sub.pct}%)`;
-    h+=`<div class="uf-sec"><div class="uf-label">${cat.icon} ${cat.key}</div><div class="uf-body">${desc}</div></div>`;
+  h+=`<div class="uf-sec"><div class="uf-body" style="line-height:1.75;font-size:13.5px">${narrative}</div></div>`;
+  if(tags.length){
+    h+=`<div class="uf-sec" style="padding-top:6px"><div class="chip-wrap">`;
+    tags.forEach(t=>h+=`<span class="chip hl">${t}</span>`);
+    h+=`</div></div>`;
   }
   h+=`</div></div>`;
   area.innerHTML=h;
