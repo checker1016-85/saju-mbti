@@ -142,31 +142,95 @@ function buildPersona(saju,tg){
     '극받음':'일지가 일간을 극하여 내면에 긴장감이 있고, 스스로를 채찍질하는 성향이 있다. 역경에서 더 강해지는 타입이다.',
     '비화':'일간과 일지가 같은 기운이라 자기 색깔이 확실하고 일관성이 있으나, 한쪽으로 치우칠 수 있다.'};
 
-  // ④ 합충형 해석
+  // ═══ 합충 우선순위 엔진 ═══
+  // 규칙: ①인접(월일·일시) > 원격(년일·년시)  ②삼합/방합 > 육합  ③합해충(合解沖): 같은 글자에 합+충 동시 → 인접합이면 충 약화  ④형은 독립 작용
   function parseRelations(br){
     const descs=[];
     if(!br)return descs;
+    // 인접 여부 판별: 년0 월1 일2 시3
+    const posMap={'년':0,'월':1,'일':2,'시':3};
+    function isAdjacent(k){const ps=k.split('').filter(c=>posMap[c]!==undefined).map(c=>posMap[c]);return ps.length===2&&Math.abs(ps[0]-ps[1])===1;}
+    // 합에 참여하는 위치 글자 수집
+    const hapPositions=new Set();
+    ['육합','삼합','방합','반합'].forEach(type=>{
+      if(br[type]) Object.keys(br[type]).forEach(k=>k.split('').forEach(c=>{if(posMap[c]!==undefined)hapPositions.add(c);}));
+    });
+
+    // ── 삼합/방합 (최우선) ──
+    if(br['삼합']){
+      Object.values(br['삼합']).forEach(v=>{
+        descs.push(`원국에 ${v}이 성립하여 해당 오행의 에너지가 압도적으로 강하다. 삼합은 사주에서 가장 강력한 합으로, 인생의 방향성을 크게 좌우한다.`);
+      });
+    }
+    if(br['방합']){
+      Object.values(br['방합']).forEach(v=>{
+        descs.push(`원국에 ${v}이 형성되어 계절의 기운이 한 방향으로 집중된다. 해당 오행의 성향이 성격 전반에 깊이 배어있다.`);
+      });
+    }
+
+    // ── 육합 (인접 우선) ──
+    if(br['육합']){
+      const keys=Object.keys(br['육합']);
+      // 인접합 먼저
+      const adjacent=keys.filter(isAdjacent).sort();
+      const remote=keys.filter(k=>!isAdjacent(k));
+      adjacent.forEach(k=>{
+        const v=br['육합'][k];
+        if(k==='월일'||k==='일월') descs.push(`월지와 일지가 ${v}으로 나의 내면과 사회적 환경이 자연스럽게 조화된다. 직장·사회에서 본래 모습대로 살기 수월하며, 대인관계가 원만하다.`);
+        else if(k==='일시'||k==='시일') descs.push(`일지와 시지가 ${v}으로 말년이 안정적이며, 나의 행동과 결과가 잘 맞물린다. 자녀와의 유대가 깊고 노후가 편안한 구조이다.`);
+        else if(k==='년월'||k==='월년') descs.push(`년지와 월지가 ${v}으로 가문의 기운과 사회 환경이 조화롭다. 부모·조상의 덕이 있는 편이다.`);
+      });
+      remote.forEach(k=>{
+        descs.push(`${k.split('').join('지와 ')}지가 합이나 떨어져 있어 직접적 체감은 약하지만, 은근한 조화의 힘이 작용한다.`);
+      });
+    }
+
+    // ── 충 (합해충 체크 후 처리) ──
     if(br['충']){
       const keys=Object.keys(br['충']);
       keys.forEach(k=>{
-        if(k.includes('일')&&k.includes('월')) descs.push('일지와 월지가 충(沖)으로 내면의 자아와 사회적 역할 사이에 긴장이 있다. 겉과 속이 다르다는 평을 듣기도 하지만, 이 갈등이 오히려 성장의 원동력이 된다.');
-        else if(k.includes('일')&&k.includes('시')) descs.push('일지와 시지가 충으로 말년에 변화가 크거나, 자녀와의 관계에서 갈등과 성장이 교차한다.');
-        else if(k.includes('일')&&k.includes('년')) descs.push('일지와 년지가 충으로 가문·뿌리와의 갈등이 있을 수 있으나, 독립적으로 자수성가하는 힘이 된다.');
+        const v=br['충'][k];
+        // 합해충 체크: 충에 관련된 위치가 이미 인접합에 참여하면 → 충이 약화
+        const positions=k.split('').filter(c=>posMap[c]!==undefined);
+        const resolvedByHap=positions.some(p=>hapPositions.has(p))&&br['육합'];
+        const adj=isAdjacent(k);
+
+        if(resolvedByHap&&adj){
+          // 합과 충이 동시 → 합이 충을 약화시킴
+          descs.push(`${k.split('').join('지와 ')}지에 ${v}이 있으나, 합(合)의 힘이 충돌을 완화시킨다. 갈등은 있지만 극단으로 치닫지 않고 조율이 가능한 구조이다.`);
+        } else if(adj){
+          // 인접충 (강한 체감)
+          if(k.includes('일')&&k.includes('월')) descs.push(`일지와 월지가 ${v}으로 내면의 자아와 사회적 역할 사이에 강한 긴장이 있다. 겉과 속이 다르다는 평을 듣기 쉽지만, 이 에너지를 잘 활용하면 두 가지 얼굴을 가진 다재다능한 사람이 된다.`);
+          else if(k.includes('일')&&k.includes('시')) descs.push(`일지와 시지가 ${v}으로 행동과 결과 사이에 변동이 크다. 말년에 큰 전환점이 올 수 있으며, 변화 속에서 새로운 길을 찾는 힘이 있다.`);
+          else if(k.includes('년')&&k.includes('월')) descs.push(`년지와 월지가 ${v}으로 성장 환경에서의 변화·갈등이 초년 성격 형성에 영향을 미쳤다.`);
+        } else {
+          // 원격충 (약한 체감)
+          if(k.includes('일')&&k.includes('년')) descs.push(`일지와 년지가 원거리 ${v}으로 직접적 체감은 크지 않으나, 뿌리(가문)와 다른 길을 걷는 독립적 성향이 있다.`);
+          else if(k.includes('년')&&k.includes('시')) descs.push(`년지와 시지가 ${v}으로 시작과 끝이 크게 달라지는 인생 구조이다.`);
+          else descs.push(`${k.split('').join('지와 ')}지가 ${v}이나 떨어져 있어 은근한 긴장으로 작용한다.`);
+        }
       });
     }
-    if(br['육합']){
-      const keys=Object.keys(br['육합']);
-      keys.forEach(k=>{
-        if(k.includes('일')&&k.includes('월')) descs.push('일지와 월지가 합(合)으로 내면과 사회적 모습이 조화롭다. 직장 생활이나 사회적 관계에서 안정감을 준다.');
-        else if(k.includes('일')&&k.includes('시')) descs.push('일지와 시지가 합으로 말년이 안정적이며, 자녀와의 유대가 깊다.');
-      });
-    }
-    if(br['삼합']||br['방합']){
-      const elem=br['삼합']?Object.values(br['삼합'])[0]:Object.values(br['방합'])[0];
-      descs.push(`원국에 ${elem||'삼합/방합'}이 형성되어 한 방향으로 집중되는 강한 에너지가 있다. 해당 오행의 특성이 인생 전반에 크게 작용한다.`);
-    }
+
+    // ── 형 (합/충과 독립 작용) ──
     if(br['형']){
-      descs.push('원국에 형(刑)이 있어 내면에 갈등과 자기 성찰이 깊다. 시련을 통해 단련되는 운명이며, 법률·의료·수사 등 날카로운 판단이 필요한 분야에서 빛을 발한다.');
+      Object.entries(br['형']).forEach(([k,v])=>{
+        if(v.includes('寅')&&v.includes('巳')||v.includes('巳')&&v.includes('申')||v.includes('寅')&&v.includes('申'))
+          descs.push(`${v}: 무례지형(無禮之刑)으로 내면에 강한 추진력과 충돌이 공존한다. 행동이 앞서는 편이며, 이 에너지를 법률·수사·의료·군사 분야에서 발휘하면 탁월하다.`);
+        else if(v.includes('丑')&&v.includes('戌')||v.includes('戌')&&v.includes('未')||v.includes('丑')&&v.includes('未'))
+          descs.push(`${v}: 지세지형(恃勢之刑)으로 권력이나 세력에 대한 집착과 갈등이 있다. 자기 영역을 지키려는 힘이 강하며, 조직 내 정치에 능할 수 있다.`);
+        else if(v.includes('子')&&v.includes('卯'))
+          descs.push(`${v}: 무은지형(無恩之刑)으로 은혜를 베풀어도 되돌아오지 않는 경험이 있다. 그러나 이 시련이 독립심과 자기 신뢰를 키우는 계기가 된다.`);
+        else if(v.includes('자형'))
+          descs.push(`${v}: 같은 기운끼리 부딪히는 자형(自刑)으로 스스로를 괴롭히는 성향이 있다. 자기 성찰이 깊은 만큼 내면의 평화를 찾는 수양이 필요하다.`);
+      });
+    }
+
+    // 반합
+    if(br['반합']){
+      Object.values(br['반합']).forEach(v=>{
+        descs.push(`${v}의 기운이 부분적으로 형성되어, 완전하지는 않지만 해당 오행의 영향이 은근히 작용한다.`);
+      });
     }
     return descs;
   }
